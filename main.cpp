@@ -88,7 +88,7 @@ int main() {
     sf::Text gameover;
     gameover.setFont(hackNerdFont);
     gameover.setString("GAME OVER");
-    gameover.setCharacterSize(50);
+    gameover.setCharacterSize(55);
     gameover.setFillColor(sf::Color::White);
     sf::FloatRect textBounds = gameover.getLocalBounds();
     float textX = (window_X - textBounds.width) / 2;
