@@ -12,24 +12,11 @@ int main() {
             (int) window_X, (int) window_Y), "Simple Game"
             );
 
-    // Player
-    bool playerAlive = true;
-    float playerRadius = 40;
-    sf::CircleShape player(playerRadius);
-    player.setFillColor(sf::Color::Yellow);
-    float playerDiameter = player.getRadius() * 2;
-    float playerMax_X = window_X - playerDiameter;
-    float playerMax_Y = window_Y - playerDiameter;
-    float playerSpeed_X = 0.1f;
-    float playerSpeed_Y = 0.1f;
-    int lives = 7;
-
     // Heart Texture
     sf::Texture heartTexture;
     if (!heartTexture.loadFromFile("../icon/heart.png")) {
         return 1;
     }
-
 
     // Heart Icon
     sf::Sprite heartSprite;
@@ -37,23 +24,48 @@ int main() {
     heartSprite.setScale(sf::Vector2f(0.3f, 0.3f));
     heartSprite.setPosition((window_X / 2) - 50, 10);
 
+    // Player Texture
+    sf::Texture playerTexture;
+    if (!playerTexture.loadFromFile("../icon/player.png")) {
+        return 1;
+    }
+
+    // Player
+    bool playerAlive = true;
+    float playerInitial_X = 0;
+    float playerInitial_Y = 0;
+    float playerScale_X = 0.3f;
+    float playerScale_Y = 0.3f;
+    sf::Sprite player;
+    player.setTexture(playerTexture);
+    player.setScale(playerScale_X, playerScale_Y);
+    player.setPosition(playerInitial_X, playerInitial_Y);
+    float playerWidth = player.getLocalBounds().width * playerScale_X;
+    float playerMax_X = window_X - playerWidth;
+    float playerMax_Y = window_Y - playerWidth;
+    float playerSpeed_X = 0.1f;
+    float playerSpeed_Y = 0.1f;
+    int lives = 7;
+
     // Enemy Texture
     sf::Texture enemyTexture;
     if (!enemyTexture.loadFromFile("../icon/enemy.png")) {
         return 1;
     }
     // Enemy
-    float enemyScale_X = 0.4f;
-    float enemyScale_Y = 0.4f;
+    float enemyScale_X = 0.3f;
+    float enemyScale_Y = 0.3f;
     float random_X_speed = 0.0f;
     float random_Y_speed = 0.0f;
     sf::Sprite enemy;
     enemy.setTexture(enemyTexture);
     enemy.setScale(sf::Vector2f(enemyScale_X, enemyScale_Y));
-    enemy.setPosition(window_X - enemyScale_X, window_Y - enemyScale_Y);
+    float enemyWidth = enemy.getLocalBounds().width * enemyScale_X;
+    float enemyHeight = enemy.getLocalBounds().height * enemyScale_Y;
+    float enemyInitial_X = window_X - enemyWidth * 1.5f;
+    float enemyInitial_Y = window_Y - enemyHeight * 1.5f;
+    enemy.setPosition(enemyInitial_X, enemyInitial_Y);
     std::uniform_real_distribution<float> enemySpeedRange(-0.5f, 0.5f);
-    float enemyWidth = enemy.getLocalBounds().width * 0.8f;
-    float enemyHeight = enemy.getLocalBounds().height * 0.8f;
 
     // Font
     sf::Font hackNerdFont;
@@ -62,15 +74,15 @@ int main() {
         return 1;
     }
 
-
     // Lives Text
     std::string livesToString = std::to_string(lives);
     sf::Text livesText;
+    float fontSize = 30;
     livesText.setFont(hackNerdFont);
     livesText.setString(livesToString);
-    livesText.setCharacterSize(30);
+    livesText.setCharacterSize((int) fontSize);
     livesText.setFillColor(sf::Color::White);
-    livesText.setPosition(heartSprite.getPosition().x + livesText.getCharacterSize() * 2, heartSprite.getPosition().y);
+    livesText.setPosition(heartSprite.getPosition().x + fontSize * 2, heartSprite.getPosition().y);
 
     // Game Over Text
     sf::Text gameover;
@@ -109,7 +121,16 @@ int main() {
     sf::Sound shrinkRaySound;
     shrinkRaySound.setBuffer(soundBufferShrink);
 
-    shrinkRaySound.play();
+    // Soundtrack
+    sf::Music soundtrack;
+
+    if (!soundtrack.openFromFile("../sounds/soundtrack.ogg")) {
+        return 1;
+    }
+
+    soundtrack.play();
+    soundtrack.setLoop(true);
+    bool isKey_M_released = true;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -122,6 +143,19 @@ int main() {
             }
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            if (isKey_M_released) {
+                if (soundtrack.getVolume() == 100) {
+                    soundtrack.setVolume(0);
+                } else {
+                    soundtrack.setVolume(100);
+                }
+                isKey_M_released = false;
+            }
+        } else {
+            isKey_M_released = true;
+        }
+
         elapsedTime += clock.restart().asSeconds();
         if (elapsedTime >= generationInterval) {
             random_X_speed = enemySpeedRange(gen);
@@ -129,29 +163,29 @@ int main() {
             elapsedTime = 0.0f;
         }
 
-        float playerBound_RIGHT = player.getPosition().x + player.getRadius();
-        float playerBound_LEFT = player.getPosition().x - player.getRadius();
-        float playerBound_DOWN = player.getPosition().y + player.getRadius();
-        float playerBound_UP = player.getPosition().y - player.getRadius();
+        float playerBound_RIGHT = player.getPosition().x;
+        float playerBound_LEFT = player.getPosition().x;
+        float playerBound_DOWN = player.getPosition().y;
+        float playerBound_UP = player.getPosition().y;
 
-        float enemyBound_LEFT = enemy.getPosition().x - enemyScale_X;
+        float enemyBound_LEFT = enemy.getPosition().x;
         float enemyBound_RIGHT = enemy.getPosition().x;
-        float enemyBound_UP = enemy.getPosition().y - enemyScale_Y;
+        float enemyBound_UP = enemy.getPosition().y;
         float enemyBound_DOWN = enemy.getPosition().y;
 
         // Handle keyboard input
         if (playerAlive) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                player.move(-playerSpeed_X, 0.0f);
+                player.move(-playerSpeed_X, 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                player.move(playerSpeed_X, 0.0f);
+                player.move(playerSpeed_X, 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                player.move(0.0f, -playerSpeed_Y);
+                player.move(0, -playerSpeed_Y);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                player.move(0.0f, playerSpeed_Y);
+                player.move(0, playerSpeed_Y);
             }
 
             enemy.move(random_X_speed / 5, random_Y_speed / 5);
@@ -186,12 +220,12 @@ int main() {
         }
 
         // Collision player -> enemy
-        if (playerBound_RIGHT > enemyBound_LEFT && playerBound_LEFT < enemyBound_RIGHT &&
-            playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN)
+        if (playerBound_RIGHT > enemyBound_LEFT && playerBound_LEFT < enemyBound_RIGHT + enemyWidth / 2 &&
+            playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN + enemyHeight / 2)
         {
             popSound.play();
-            player.setPosition(0, 0);
-            enemy.setPosition(window_X - enemyScale_X, window_Y - enemyScale_Y);
+            player.setPosition(playerInitial_X, playerInitial_Y);
+            enemy.setPosition(enemyInitial_X, enemyInitial_Y);
             lives -= 1;
             livesToString = std::to_string(lives);
             livesText.setString(livesToString);
