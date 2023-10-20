@@ -50,10 +50,11 @@ int main() {
     player.setScale(playerScale_X, playerScale_Y);
     player.setPosition(playerInitial_X, playerInitial_Y);
     float playerWidth = player.getLocalBounds().width * playerScale_X;
+    float playerHeight = player.getLocalBounds().height * playerScale_Y;
     float playerMax_X = window_X - playerWidth;
-    float playerMax_Y = window_Y - playerWidth;
-    float playerSpeed_X = 0.1f;
-    float playerSpeed_Y = 0.1f;
+    float playerMax_Y = window_Y - playerHeight;
+    float playerSpeed_X = 0.12f;
+    float playerSpeed_Y = 0.12f;
     int lives = 7;
 
     // Enemy Texture
@@ -71,6 +72,8 @@ int main() {
     enemy.setScale(sf::Vector2f(enemyScale_X, enemyScale_Y));
     float enemyWidth = enemy.getLocalBounds().width * enemyScale_X;
     float enemyHeight = enemy.getLocalBounds().height * enemyScale_Y;
+    float enemyMax_X = window_X - enemyWidth;
+    float enemyMax_Y = window_Y - enemyHeight;
     float enemyInitial_X = window_X - enemyWidth * 1.5f;
     float enemyInitial_Y = window_Y - enemyHeight * 1.5f;
     enemy.setPosition(enemyInitial_X, enemyInitial_Y);
@@ -139,6 +142,7 @@ int main() {
 
     soundtrack.play();
     soundtrack.setLoop(true);
+
     bool isKey_M_released = true;
 
     while (window.isOpen()) {
@@ -172,10 +176,10 @@ int main() {
             elapsedTime = 0.0f;
         }
 
-        float playerBound_RIGHT = player.getPosition().x;
-        float playerBound_LEFT = player.getPosition().x;
-        float playerBound_DOWN = player.getPosition().y;
-        float playerBound_UP = player.getPosition().y;
+        float playerBound_RIGHT = player.getPosition().x + playerWidth;
+        float playerBound_LEFT = player.getPosition().x - playerWidth;
+        float playerBound_DOWN = player.getPosition().y + playerHeight;
+        float playerBound_UP = player.getPosition().y - playerHeight;
 
         float enemyBound_LEFT = enemy.getPosition().x;
         float enemyBound_RIGHT = enemy.getPosition().x;
@@ -215,22 +219,22 @@ int main() {
         }
 
         // Enemy border limits
-        if (enemyBound_RIGHT > window_X - enemyWidth) {
-            enemy.setPosition(window_X - enemyWidth, enemy.getPosition().y);
+        if (enemy.getPosition().x > enemyMax_X) {
+            enemy.setPosition(enemyMax_X, enemy.getPosition().y);
         }
-        if (enemyBound_LEFT < 0) {
+        if (enemy.getPosition().x < 0) {
             enemy.setPosition(0, enemy.getPosition().y);
         }
-        if (enemyBound_UP < 0) {
+        if (enemy.getPosition().y < 0) {
             enemy.setPosition(enemy.getPosition().x, 0);
         }
-        if (enemyBound_DOWN > window_Y - enemyHeight) {
-            enemy.setPosition(enemy.getPosition().x, window_Y - enemyHeight);
+        if (enemy.getPosition().y > enemyMax_Y) {
+            enemy.setPosition(enemy.getPosition().x, enemyMax_Y);
         }
 
         // Collision player -> enemy
-        if (playerBound_RIGHT > enemyBound_LEFT && playerBound_LEFT < enemyBound_RIGHT + enemyWidth / 2 &&
-            playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN + enemyHeight / 2)
+        if (playerBound_RIGHT > enemyBound_LEFT && playerBound_LEFT < enemyBound_RIGHT &&
+            playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN)
         {
             popSound.play();
             player.setPosition(playerInitial_X, playerInitial_Y);
