@@ -5,7 +5,10 @@ set(CMAKE_CXX_STANDARD 23)
 
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 
-add_executable(simplegame main.cpp)
+add_executable(simplegame main.cpp
+        Player.cpp
+        Player.h
+)
 
 target_link_libraries(simplegame sfml-graphics)
 target_link_libraries(simplegame sfml-audio)

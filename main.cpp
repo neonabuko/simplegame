@@ -2,7 +2,6 @@
 #include <SFML/Audio.hpp>
 #include <random>
 #include <iostream>
-#include <filesystem>
 
 int main() {
     float window_X = 1100;
@@ -14,12 +13,15 @@ int main() {
             );
 
     // Player
+    bool playerAlive = true;
     float playerRadius = 40;
     sf::CircleShape player(playerRadius);
     player.setFillColor(sf::Color::Yellow);
+
     float playerDiameter = player.getRadius() * 2;
     float playerMax_X = (float) window_X - playerDiameter;
     float playerMax_Y = (float) window_Y - playerDiameter;
+    int lives = 1;
 
     // Enemy
     float enemySize_X = 50;
@@ -28,6 +30,34 @@ int main() {
     enemy.setFillColor(sf::Color::Red);
     enemy.setPosition((float) window_X - 200, (float) window_Y - 200);
     std::uniform_real_distribution<float> enemyDistribution(-0.5f, 0.5f);
+
+    // Font
+    sf::Font hackNerdFont;
+    if (!hackNerdFont.loadFromFile("../font/HackNerdFont-Regular.ttf")) {
+        std::cout << "HackNerdFont-Regular.ttf not found " << std::endl;
+        return 1;
+    }
+
+    // Heart Texture
+    sf::Texture heartTexture;
+    if (!heartTexture.loadFromFile("../icon/heart.png")) {
+        return 1;
+    }
+
+    // Heart Icon
+    sf::Sprite heartSprite;
+    heartSprite.setTexture(heartTexture);
+    heartSprite.setScale(sf::Vector2f(0.3f, 0.3f));
+    heartSprite.setPosition((window_X / 2) - 50, 10);
+
+    // Text
+    std::string livesToString = std::to_string(lives);
+    sf::Text livesText;
+    livesText.setFont(hackNerdFont);
+    livesText.setString(livesToString);
+    livesText.setCharacterSize(30);
+    livesText.setFillColor(sf::Color::White);
+    livesText.setPosition(heartSprite.getPosition().x + livesText.getCharacterSize() * 2, heartSprite.getPosition().y);
 
     // Random Number Generator
     std::random_device randomDevice;
@@ -41,21 +71,21 @@ int main() {
     float random_X = 0.0f;
     float random_Y = 0.0f;
 
-    // Sounds
+    // Pop sound
     sf::SoundBuffer soundBufferPop;
     if (!soundBufferPop.loadFromFile("../sounds/pop.ogg")) {
         std::cout << "pop.ogg not found " << std::endl;
         return 1;
     }
+    sf::Sound popSound;
+    popSound.setBuffer(soundBufferPop);
+
+    // Shrink Ray sound
     sf::SoundBuffer soundBufferShrink;
     if (!soundBufferShrink.loadFromFile("../sounds/shrink_ray.ogg")) {
         std::cout << "shrink_ray.ogg not found " << std::endl;
         return 1;
     }
-
-    sf::Sound popSound;
-    popSound.setBuffer(soundBufferPop);
-
     sf::Sound shrinkRaySound;
     shrinkRaySound.setBuffer(soundBufferShrink);
 
@@ -72,18 +102,31 @@ int main() {
             }
         }
 
+        float playerBound_RIGHT = player.getPosition().x + player.getRadius();
+        float playerBound_LEFT = player.getPosition().x - player.getRadius();
+        float playerBound_DOWN = player.getPosition().y + player.getRadius();
+        float playerBound_UP = player.getPosition().y - player.getRadius();
+
+        float enemyBound_LEFT = enemy.getPosition().x - enemySize_X;
+        float enemyBound_RIGHT = enemy.getPosition().x;
+        float enemyBound_UP = enemy.getPosition().y - enemySize_Y;
+        float enemyBound_DOWN = enemy.getPosition().y;
+
         // Handle keyboard input
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            player.move(-0.07f, 0.0f); // Move left
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            player.move(0.07f, 0.0f); // Move right
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            player.move(0.0f, -0.07f); // Move up
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            player.move(0.0f, 0.07f); // Move down
+
+        if (playerAlive) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+                player.move(-0.07f, 0.0f); // Move left
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                player.move(0.07f, 0.0f); // Move right
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+                player.move(0.0f, -0.07f); // Move up
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+                player.move(0.0f, 0.07f); // Move down
+            }
         }
 
         // Border limits
@@ -100,20 +143,10 @@ int main() {
             player.setPosition(player.getPosition().x, 0);
         }
 
-        float playerBound_RIGHT = player.getPosition().x + player.getRadius();
-        float playerBound_LEFT = player.getPosition().x - player.getRadius();
-        float playerBound_DOWN = player.getPosition().y + player.getRadius();
-        float playerBound_UP = player.getPosition().y - player.getRadius();
-
-        float enemyBound_LEFT = enemy.getPosition().x - enemySize_X;
-        float enemyBound_RIGHT = enemy.getPosition().x;
-        float enemyBound_UP = enemy.getPosition().y - enemySize_Y;
-        float enemyBound_DOWN = enemy.getPosition().y;
-
         elapsedTime += clock.restart().asSeconds();
         if (elapsedTime >= generationInterval) {
-            random_X = enemyDistribution(gen) / 5;
-            random_Y = enemyDistribution(gen) / 5;
+            random_X = enemyDistribution(gen);
+            random_Y = enemyDistribution(gen);
             elapsedTime = 0.0f;
         }
 
@@ -137,14 +170,23 @@ int main() {
         {
             popSound.play();
             player.setPosition(0, 0);
-            enemy.setPosition((float) window_X - 200, (float) window_Y - 200);
+            enemy.setPosition(window_X - enemySize_X, window_Y - enemySize_Y);
+            lives -= 1;
+            livesToString = std::to_string(lives);
+            livesText.setString(livesToString);
+            if (lives == 0) {
+                playerAlive = false;
+            }
         }
 
         window.clear();
         window.draw(player);
         window.draw(enemy);
+        window.draw(livesText);
+        window.draw(heartSprite);
         window.display();
     }
+
     popSound.stop();
     shrinkRaySound.stop();
     return 0;
