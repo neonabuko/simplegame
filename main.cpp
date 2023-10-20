@@ -1,36 +1,65 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <random>
+#include <iostream>
+#include <filesystem>
 
 int main() {
     float window_X = 1100;
     float window_Y = 800;
+
+    // Window
     sf::RenderWindow window(sf::VideoMode(
             (int) window_X, (int) window_Y), "Simple Game"
             );
 
-    sf::CircleShape player(40);
+    // Player
+    float playerRadius = 40;
+    sf::CircleShape player(playerRadius);
     player.setFillColor(sf::Color::Yellow);
-
     float playerDiameter = player.getRadius() * 2;
     float playerMax_X = (float) window_X - playerDiameter;
     float playerMax_Y = (float) window_Y - playerDiameter;
 
+    // Enemy
     float enemySize_X = 50;
     float enemySize_Y = 50;
-
     sf::RectangleShape enemy(sf::Vector2f(enemySize_X, enemySize_Y));
     enemy.setFillColor(sf::Color::Red);
     enemy.setPosition((float) window_X - 200, (float) window_Y - 200);
-
-    sf::Clock clock;
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_real_distribution<float> enemyDistribution(-0.5f, 0.5f);
+
+    // Random Number Generator
+    std::random_device randomDevice;
+    std::mt19937 gen(randomDevice());
+
+    // Time
+    sf::Clock clock;
     std::uniform_real_distribution<float> timeDistribution(0.0f, 1.5f);
     float generationInterval = timeDistribution(gen);
     float elapsedTime = 0.0f;
     float random_X = 0.0f;
     float random_Y = 0.0f;
+
+    // Sounds
+    sf::SoundBuffer soundBufferPop;
+    if (!soundBufferPop.loadFromFile("../sounds/pop.ogg")) {
+        std::cout << "pop.ogg not found " << std::endl;
+        return 1;
+    }
+    sf::SoundBuffer soundBufferShrink;
+    if (!soundBufferShrink.loadFromFile("../sounds/shrink_ray.ogg")) {
+        std::cout << "shrink_ray.ogg not found " << std::endl;
+        return 1;
+    }
+
+    sf::Sound popSound;
+    popSound.setBuffer(soundBufferPop);
+
+    sf::Sound shrinkRaySound;
+    shrinkRaySound.setBuffer(soundBufferShrink);
+
+    shrinkRaySound.play();
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -106,6 +135,7 @@ int main() {
         if (playerBound_RIGHT > enemyBound_LEFT && playerBound_LEFT < enemyBound_RIGHT &&
             playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN)
         {
+            popSound.play();
             player.setPosition(0, 0);
             enemy.setPosition((float) window_X - 200, (float) window_Y - 200);
         }
@@ -115,6 +145,7 @@ int main() {
         window.draw(enemy);
         window.display();
     }
-
+    popSound.stop();
+    shrinkRaySound.stop();
     return 0;
 }
