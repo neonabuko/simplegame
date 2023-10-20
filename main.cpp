@@ -107,7 +107,7 @@ int main() {
 
     // pop sound
     sf::SoundBuffer soundBufferPop;
-    if (!soundBufferPop.loadFromFile("../sounds/pop.ogg")) {
+    if (!soundBufferPop.loadFromFile("../sound/pop.ogg")) {
         return 1;
     }
     sf::Sound popSound;
@@ -115,7 +115,7 @@ int main() {
 
     // shrink_ray sound
     sf::SoundBuffer soundBufferShrink;
-    if (!soundBufferShrink.loadFromFile("../sounds/shrink_ray.ogg")) {
+    if (!soundBufferShrink.loadFromFile("../sound/shrink_ray.ogg")) {
         return 1;
     }
     sf::Sound shrinkRaySound;
@@ -124,7 +124,7 @@ int main() {
     // Soundtrack
     sf::Music soundtrack;
 
-    if (!soundtrack.openFromFile("../sounds/soundtrack.ogg")) {
+    if (!soundtrack.openFromFile("../sound/soundtrack.ogg")) {
         return 1;
     }
 
