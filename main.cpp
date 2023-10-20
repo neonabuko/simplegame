@@ -12,6 +12,15 @@ int main() {
             (int) window_X, (int) window_Y), "Simple Game"
             );
 
+    // Window Background
+    sf::RectangleShape windowBackground;
+    windowBackground.setSize(sf::Vector2f(window_X, window_Y));
+    sf::Color blackDimmed;
+    blackDimmed.r = 30;
+    blackDimmed.g = 30;
+    blackDimmed.b = 30;
+    windowBackground.setFillColor(blackDimmed);
+
     // Heart Texture
     sf::Texture heartTexture;
     if (!heartTexture.loadFromFile("../icon/heart.png")) {
@@ -236,6 +245,7 @@ int main() {
         }
 
         window.clear();
+        window.draw(windowBackground);
         window.draw(player);
         window.draw(enemy);
         window.draw(livesText);
