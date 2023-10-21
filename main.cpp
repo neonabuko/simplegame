@@ -2,104 +2,55 @@
 #include <SFML/Audio.hpp>
 #include <random>
 #include <iostream>
-#include "entity/Player.h"
+#include "entity/Entity.h"
 
 int main() {
     float window_X = 1600;
     float window_Y = 900;
-
-    // Window
-    sf::RenderWindow window(sf::VideoMode(
-            (int) window_X, (int) window_Y), "Simple Game"
+    float windowRatio = window_X / window_Y;
+    sf::RenderWindow window(
+            sf::VideoMode((int) window_X, (int) window_Y),
+            "Simple Game"
             );
 
-    // Background
+    // Textures
     sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("../icon/background.jpg")) {
-        return 1;
-    }
-    sf::Sprite background;
-    background.setTexture(backgroundTexture);
-
-    // Solid Background
-    sf::RectangleShape backgroundSolid;
-    sf::Color backgroundSolidColor;
-    backgroundSolidColor.r = 40;
-    backgroundSolidColor.g = 40;
-    backgroundSolidColor.b = 40;
-    backgroundSolid.setFillColor(backgroundSolidColor);
-    backgroundSolid.setSize(sf::Vector2f(window_X, window_Y));
-
-    // Heart
+    if (!backgroundTexture.loadFromFile("../icon/background.jpg")) return 1;
     sf::Texture heartTexture;
-    if (!heartTexture.loadFromFile("../icon/heart.png")) {
-        return 1;
-    }
-    sf::Sprite heartSprite;
-    heartSprite.setTexture(heartTexture);
+    if (!heartTexture.loadFromFile("../icon/heart.png")) return 1;
+    sf::Texture playerTexture;
+    if (!playerTexture.loadFromFile("../icon/player.png")) return 1;
+    sf::Texture enemyTexture;
+    if (!enemyTexture.loadFromFile("../icon/enemy.png")) return 1;
+
+    sf::Sprite background(backgroundTexture);
+
+    sf::RectangleShape backgroundSolid(sf::Vector2f(window_X, window_Y));
+    sf::Color backgroundSolidColor(40, 40, 40);
+    backgroundSolid.setFillColor(backgroundSolidColor);
+
+    sf::Sprite heartSprite(heartTexture);
     heartSprite.setScale(sf::Vector2f(0.3f, 0.3f));
     heartSprite.setPosition((window_X / 2) - 50, 10);
 
-    // Player
-    sf::Texture playerTexture;
-    if (!playerTexture.loadFromFile("../icon/player.png")) {
-        return 1;
-    }
-    Player player (playerTexture,
-                   (window_X / window_Y) / 4,
-                   0,
-                   5);
-    player.setSpeed(window_X / window_Y / 9);
-    float playerSpeed_X = player.getSpeed();
-    float playerSpeed_Y = player.getSpeed();
-    float playerWidth = player.getLocalBounds().width * player.getScale().x;
-    float playerHeight = player.getLocalBounds().height * player.getScale().y;
-    float playerMax_X = window_X - playerWidth;
-    float playerMax_Y = window_Y - playerHeight;
-    int lives = player.getLives();
+    Entity player(playerTexture,(windowRatio / 4),0,5,(windowRatio / 9));
+    float playerMax_X = window_X - player.getWidth();
+    float playerMax_Y = window_Y - player.getHeight();
 
-    // Enemy
-    sf::Texture enemyTexture;
-    if (!enemyTexture.loadFromFile("../icon/enemy.png")) {
-        return 1;
-    }
-    float enemyScale_X = (window_X / window_Y) / 4;
-    float enemyScale_Y = (window_X / window_Y) / 4;
-    float random_X_speed = 0.0f;
-    float random_Y_speed = 0.0f;
-    sf::Sprite enemy;
-    enemy.setTexture(enemyTexture);
-    enemy.setScale(sf::Vector2f(enemyScale_X, enemyScale_Y));
-    float enemyWidth = enemy.getLocalBounds().width * enemyScale_X;
-    float enemyHeight = enemy.getLocalBounds().height * enemyScale_Y;
-    float enemyMax_X = window_X - enemyWidth;
-    float enemyMax_Y = window_Y - enemyHeight;
-    float enemyInitial_X = window_X - enemyWidth * 1.5f;
-    float enemyInitial_Y = window_Y - enemyHeight * 1.5f;
-    enemy.setPosition(enemyInitial_X, enemyInitial_Y);
+    Entity enemy(enemyTexture, (windowRatio / 4), window_Y, 0, 0);
+    float enemyMax_X = window_X - enemy.getWidth();
+    float enemyMax_Y = window_Y - enemy.getHeight();
     std::uniform_real_distribution<float> enemySpeedRange(-0.5f, 0.5f);
 
-    // Font
     sf::Font hackNerdFont;
-    if (!hackNerdFont.loadFromFile("../font/HackNerdFont-Regular.ttf")) {
-        return 1;
-    }
+    if (!hackNerdFont.loadFromFile("../font/HackNerdFont-Regular.ttf")) return 1;
 
-    // Lives Text
-    std::string livesToString = std::to_string(lives);
-    sf::Text livesText;
-    float fontSize = 30;
-    livesText.setFont(hackNerdFont);
-    livesText.setString(livesToString);
-    livesText.setCharacterSize((int) fontSize);
+    std::string livesToString = std::to_string(player.getLives());
+    sf::Text livesText(livesToString, hackNerdFont, 30);
     livesText.setFillColor(sf::Color::White);
-    livesText.setPosition(heartSprite.getPosition().x + fontSize * 2, heartSprite.getPosition().y);
+    livesText.setPosition(heartSprite.getPosition().x + (float) livesText.getCharacterSize() * 2, heartSprite.getPosition().y);
 
-    // Game Over Text
-    sf::Text gameover;
-    gameover.setFont(hackNerdFont);
-    gameover.setString("GAME OVER");
-    gameover.setCharacterSize(55);
+    sf::Text gameover("GAME OVER", hackNerdFont, 55);
     gameover.setFillColor(sf::Color::White);
     sf::FloatRect textBounds = gameover.getLocalBounds();
     float textX = (window_X - textBounds.width) / 2;
@@ -110,34 +61,20 @@ int main() {
     std::random_device randomDevice;
     std::mt19937 gen(randomDevice());
 
-    // Time
     sf::Clock clock;
     std::uniform_real_distribution<float> timeIntervalRange(0.5f, 1.5f);
     float generationInterval = timeIntervalRange(gen);
     float elapsedTime = 0.0f;
 
-    // pop sound
     sf::SoundBuffer soundBufferPop;
-    if (!soundBufferPop.loadFromFile("../sound/pop.ogg")) {
-        return 1;
-    }
-    sf::Sound popSound;
-    popSound.setBuffer(soundBufferPop);
-
-    // shrink_ray sound
+    if (!soundBufferPop.loadFromFile("../sound/pop.ogg")) return 1;
     sf::SoundBuffer soundBufferShrink;
-    if (!soundBufferShrink.loadFromFile("../sound/shrink_ray.ogg")) {
-        return 1;
-    }
-    sf::Sound shrinkRaySound;
-    shrinkRaySound.setBuffer(soundBufferShrink);
-
-    // Soundtrack
+    if (!soundBufferShrink.loadFromFile("../sound/shrink_ray.ogg")) return 1;
     sf::Music soundtrack;
+    if (!soundtrack.openFromFile("../sound/soundtrack.ogg")) return 1;
 
-    if (!soundtrack.openFromFile("../sound/soundtrack.ogg")) {
-        return 1;
-    }
+    sf::Sound popSound(soundBufferPop);
+    sf::Sound shrinkRaySound(soundBufferShrink);
 
     soundtrack.setVolume(70);
     soundtrack.play();
@@ -170,17 +107,18 @@ int main() {
         }
 
         elapsedTime += clock.restart().asSeconds();
+        float random_X_speed;
+        float random_Y_speed;
         if (elapsedTime >= generationInterval) {
             random_X_speed = enemySpeedRange(gen);
             random_Y_speed = enemySpeedRange(gen);
             elapsedTime = 0.0f;
         }
 
-        player.setSpeed((float) window.getSize().x / window_Y / 9);
-        float playerBound_RIGHT = player.getPosition().x + playerWidth;
-        float playerBound_LEFT = player.getPosition().x - playerWidth;
-        float playerBound_DOWN = player.getPosition().y + playerHeight;
-        float playerBound_UP = player.getPosition().y - playerHeight;
+        float playerBound_RIGHT = player.getPosition().x + player.getWidth();
+        float playerBound_LEFT = player.getPosition().x - player.getWidth();
+        float playerBound_DOWN = player.getPosition().y + player.getHeight();
+        float playerBound_UP = player.getPosition().y - player.getHeight();
 
         float enemyBound_LEFT = enemy.getPosition().x;
         float enemyBound_RIGHT = enemy.getPosition().x;
@@ -190,22 +128,22 @@ int main() {
         // Handle keyboard input
         if (player.isAlive()) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                player.move(-playerSpeed_X, 0);
+                player.move(-player.getSpeed(), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                player.move(playerSpeed_X, 0);
+                player.move(player.getSpeed(), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                player.move(0, -playerSpeed_Y);
+                player.move(0, -player.getSpeed());
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                player.move(0, playerSpeed_Y);
+                player.move(0, player.getSpeed());
             }
 
             enemy.move(random_X_speed / 5, random_Y_speed / 5);
         }
 
-        // Player border limits
+        // Entity border limits
         if (player.getPosition().x > playerMax_X) {
             player.setPosition(playerMax_X, player.getPosition().y);
         }
@@ -233,17 +171,16 @@ int main() {
             enemy.setPosition(enemy.getPosition().x, enemyMax_Y);
         }
 
-        // Collision player -> enemy
+        // Collision player <-> enemy
         if (playerBound_RIGHT > enemyBound_LEFT && playerBound_LEFT < enemyBound_RIGHT &&
             playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN)
         {
             popSound.play();
             player.setPosition(player.getInitialPosition(), player.getInitialPosition());
-            enemy.setPosition(enemyInitial_X, enemyInitial_Y);
+            enemy.setPosition(enemy.getInitialPosition(), enemy.getInitialPosition());
+
             player.setLives(-1);
-            lives = player.getLives();
-            livesToString = std::to_string(lives);
-            livesText.setString(livesToString);
+            livesText.setString(std::to_string(player.getLives()));
         }
 
         window.clear();
