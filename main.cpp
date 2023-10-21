@@ -2,9 +2,10 @@
 #include <SFML/Audio.hpp>
 #include <random>
 #include <iostream>
+#include "entity/Player.h"
 
 int main() {
-    float window_X = 1400;
+    float window_X = 1600;
     float window_Y = 900;
 
     // Window
@@ -12,59 +13,58 @@ int main() {
             (int) window_X, (int) window_Y), "Simple Game"
             );
 
-    // Window Background
-    sf::RectangleShape windowBackground;
-    windowBackground.setSize(sf::Vector2f(window_X, window_Y));
-    sf::Color blackDimmed;
-    blackDimmed.r = 30;
-    blackDimmed.g = 30;
-    blackDimmed.b = 30;
-    windowBackground.setFillColor(blackDimmed);
+    // Background
+    sf::Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("../icon/background.jpg")) {
+        return 1;
+    }
+    sf::Sprite background;
+    background.setTexture(backgroundTexture);
 
-    // Heart Texture
+    // Solid Background
+    sf::RectangleShape backgroundSolid;
+    sf::Color backgroundSolidColor;
+    backgroundSolidColor.r = 40;
+    backgroundSolidColor.g = 40;
+    backgroundSolidColor.b = 40;
+    backgroundSolid.setFillColor(backgroundSolidColor);
+    backgroundSolid.setSize(sf::Vector2f(window_X, window_Y));
+
+    // Heart
     sf::Texture heartTexture;
     if (!heartTexture.loadFromFile("../icon/heart.png")) {
         return 1;
     }
-
-    // Heart Icon
     sf::Sprite heartSprite;
     heartSprite.setTexture(heartTexture);
     heartSprite.setScale(sf::Vector2f(0.3f, 0.3f));
     heartSprite.setPosition((window_X / 2) - 50, 10);
 
-    // Player Texture
+    // Player
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile("../icon/player.png")) {
         return 1;
     }
-
-    // Player
-    bool playerAlive = true;
-    float playerInitial_X = 0;
-    float playerInitial_Y = 0;
-    float playerScale_X = 0.3f;
-    float playerScale_Y = 0.3f;
-    sf::Sprite player;
-    player.setTexture(playerTexture);
-    player.setScale(playerScale_X, playerScale_Y);
-    player.setPosition(playerInitial_X, playerInitial_Y);
-    float playerWidth = player.getLocalBounds().width * playerScale_X;
-    float playerHeight = player.getLocalBounds().height * playerScale_Y;
+    Player player (playerTexture,
+                   (window_X / window_Y) / 4,
+                   0,
+                   5);
+    player.setSpeed(window_X / window_Y / 9);
+    float playerSpeed_X = player.getSpeed();
+    float playerSpeed_Y = player.getSpeed();
+    float playerWidth = player.getLocalBounds().width * player.getScale().x;
+    float playerHeight = player.getLocalBounds().height * player.getScale().y;
     float playerMax_X = window_X - playerWidth;
     float playerMax_Y = window_Y - playerHeight;
-    float playerSpeed_X = 0.12f;
-    float playerSpeed_Y = 0.12f;
-    int lives = 7;
+    int lives = player.getLives();
 
-    // Enemy Texture
+    // Enemy
     sf::Texture enemyTexture;
     if (!enemyTexture.loadFromFile("../icon/enemy.png")) {
         return 1;
     }
-    // Enemy
-    float enemyScale_X = 0.3f;
-    float enemyScale_Y = 0.3f;
+    float enemyScale_X = (window_X / window_Y) / 4;
+    float enemyScale_Y = (window_X / window_Y) / 4;
     float random_X_speed = 0.0f;
     float random_Y_speed = 0.0f;
     sf::Sprite enemy;
@@ -82,7 +82,6 @@ int main() {
     // Font
     sf::Font hackNerdFont;
     if (!hackNerdFont.loadFromFile("../font/HackNerdFont-Regular.ttf")) {
-        std::cout << "HackNerdFont-Regular.ttf not found " << std::endl;
         return 1;
     }
 
@@ -140,6 +139,7 @@ int main() {
         return 1;
     }
 
+    soundtrack.setVolume(70);
     soundtrack.play();
     soundtrack.setLoop(true);
 
@@ -158,10 +158,10 @@ int main() {
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             if (isKey_M_released) {
-                if (soundtrack.getVolume() == 100) {
+                if (soundtrack.getVolume() == 70) {
                     soundtrack.setVolume(0);
                 } else {
-                    soundtrack.setVolume(100);
+                    soundtrack.setVolume(70);
                 }
                 isKey_M_released = false;
             }
@@ -176,6 +176,7 @@ int main() {
             elapsedTime = 0.0f;
         }
 
+        player.setSpeed((float) window.getSize().x / window_Y / 9);
         float playerBound_RIGHT = player.getPosition().x + playerWidth;
         float playerBound_LEFT = player.getPosition().x - playerWidth;
         float playerBound_DOWN = player.getPosition().y + playerHeight;
@@ -187,7 +188,7 @@ int main() {
         float enemyBound_DOWN = enemy.getPosition().y;
 
         // Handle keyboard input
-        if (playerAlive) {
+        if (player.isAlive()) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
                 player.move(-playerSpeed_X, 0);
             }
@@ -237,26 +238,27 @@ int main() {
             playerBound_DOWN > enemyBound_UP && playerBound_UP < enemyBound_DOWN)
         {
             popSound.play();
-            player.setPosition(playerInitial_X, playerInitial_Y);
+            player.setPosition(player.getInitialPosition(), player.getInitialPosition());
             enemy.setPosition(enemyInitial_X, enemyInitial_Y);
-            lives -= 1;
+            player.setLives(-1);
+            lives = player.getLives();
             livesToString = std::to_string(lives);
             livesText.setString(livesToString);
-
-            if (lives == 0) {
-                playerAlive = false;
-            }
         }
 
         window.clear();
-        window.draw(windowBackground);
+//        window.draw(background);
+        window.draw(backgroundSolid);
         window.draw(player);
         window.draw(enemy);
         window.draw(livesText);
         window.draw(heartSprite);
-        if (!playerAlive) {
+        window.draw(player);
+
+        if (!player.isAlive()) {
             window.draw(gameover);
         }
+
         window.display();
     }
 
