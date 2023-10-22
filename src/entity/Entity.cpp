@@ -1,18 +1,20 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include "Entity.h"
+#include "../../include/Entity.h"
 
 Entity::Entity(const sf::Texture& texture,
                float scale,
-               float initialPosition,
+               float initial_X,
+               float initial_Y,
                int lives,
                float speed) {
     Entity::Sprite::setTexture(texture);
     Entity::Sprite::setScale(scale, scale);
-    Entity::Sprite::setPosition(initialPosition, initialPosition);
+    Entity::Sprite::setPosition(initial_X, initial_Y);
     this->lives = lives;
     this->speed = speed;
-    this->initialPosition = initialPosition;
+    this->initial_X = initial_X;
+    this->initial_Y = initial_Y;
 }
 
 int Entity::getLives() const {
@@ -27,8 +29,12 @@ bool Entity::isAlive() const {
     return lives > 0;
 }
 
-float Entity::getInitialPosition() const {
-    return initialPosition;
+float Entity::getInitial_X() const {
+    return initial_X;
+}
+
+float Entity::getInitial_Y() const {
+    return initial_Y;
 }
 
 void Entity::setLives(int lives) {
