@@ -7,7 +7,8 @@
 class Entity : public sf::Sprite {
 private:
     int lives;
-    float speed{};
+    float speed_X{};
+    float speed_Y{};
     float acceleration{};
     float initial_X{};
     float initial_Y{};
@@ -18,10 +19,13 @@ public:
            float initial_X,
            float initial_Y,
            int lives,
-           float speed,
+           float speed_X,
+           float speed_Y,
            float acceleration);
 
-    float getSpeed() const;
+    float getSpeed_X() const;
+
+    float getSpeed_Y() const;
 
     bool isAlive() const;
 
@@ -35,7 +39,11 @@ public:
 
     void setLives(int lives);
 
-    void setSpeed(float speed);
+    void setSpeed_X(float speed_X);
+
+    void setSpeed_Y(float speed_Y);
+
+    void setAcceleration(float acceleration);
 
     float getWidth();
 

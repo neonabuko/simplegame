@@ -26,10 +26,6 @@ int main() {
     if (!playerReverseTexture.loadFromFile(iconPath + "player_reverse.png")) return 1;
     sf::Texture enemyTexture;
     if (!enemyTexture.loadFromFile(iconPath + "enemy.png")) return 1;
-    sf::Texture enemyShadowTexture;
-    if (!enemyShadowTexture.loadFromFile(iconPath + "enemy_shadow.png")) return 1;
-    sf::Texture enemyShadowReverseTexture;
-    if (!enemyShadowReverseTexture.loadFromFile(iconPath + "enemy_shadow_reverse.png")) return 1;
     sf::Texture enemyReverseTexture;
     if (!enemyReverseTexture.loadFromFile(iconPath + "enemy_reverse.png")) return 1;
     sf::Texture laserTexture;
@@ -66,49 +62,43 @@ int main() {
     soundtrack.play();
     soundtrack.setLoop(true);
 
-    sf::RectangleShape backgroundSolid(sf::Vector2f(window_X, window_Y));
-    backgroundSolid.setFillColor(sf::Color(40, 40, 40));
-
     sf::Sprite background(backgroundTexture);
+    background.setScale(window_X / 1920, window_Y / 1080);
 
     sf::Sprite heart(heartTexture);
     heart.setScale(windowRatio / 6, windowRatio / 6);
-    heart.setPosition((window_X / 3), windowRatio * 8);
+    heart.setPosition((window_X / 4), window_Y / 800);
 
-    Entity player(playerTexture, (windowRatio / 5), 0, 0, 5, (windowRatio / 6), 0.0005);
+    float playerSpeed_X = (window_X / (4800));
+    float playerSpeed_Y = (window_Y / (1800));
+    float playerAcceleration = (window_Y / 1850000);
+    Entity player(playerTexture, (windowRatio / 5), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
 
-    Entity enemy(enemyTexture, (windowRatio / 5), 0, 0, 0, 0, 0.001);
+    Entity enemy(enemyTexture, (windowRatio / 5), 0, 0, 0, 0, (windowRatio / 6), 0.001);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
-    sf::Sprite enemyShadow(enemyShadowTexture);
-    enemyShadow.setScale(enemy.getScale());
 
-    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1, 0);
+    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1, (windowRatio / 6), 0);
     
     std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
 
     sf::Font hackNerdFont;
     if (!hackNerdFont.loadFromFile(fontPath + "HackNerdFont-Regular.ttf")) return 1;
 
-    sf::Text scoreText("SCORE", hackNerdFont, 30);
-    scoreText.setFillColor(sf::Color::White);
-    float score_X = window_X / 1.8;
-    float score_Y = windowRatio * 8;
-    scoreText.setPosition(score_X, score_Y);
-
     int points = 0;
     std::string pointsToString = std::to_string(points);
-    sf::Text pointsText(pointsToString, hackNerdFont, 30);
-    float points_X = scoreText.getPosition().x + scoreText.getLocalBounds().width + 40;
-    float points_Y = scoreText.getPosition().y;
+    sf::Text pointsText("SCORE " + pointsToString, hackNerdFont, 30);
+    float points_X = window_X / 2.2;
+    float points_Y = window_Y / 800;
+    pointsText.setFillColor(sf::Color::White);
     pointsText.setPosition(points_X, points_Y);
     
     std::string livesToString = std::to_string(player.getLives());
     sf::Text lives(livesToString, hackNerdFont, 30);
     lives.setFillColor(sf::Color::White);
-    float lives_X = heart.getPosition().x + heart.getGlobalBounds().width + 40;
+    float lives_X = heart.getPosition().x + heart.getGlobalBounds().width + 20;
     float lives_Y = heart.getPosition().y;
     lives.setPosition(lives_X, lives_Y);
 
@@ -119,12 +109,17 @@ int main() {
     float gameover_Y = (window_Y - gameoverBounds.height) / 2;
     gameover.setPosition(gameover_X, gameover_Y);
 
+    int FPS_count = 0;
+    std::string FPS_toString = std::to_string(FPS_count);
+    sf::Text FPS_Text("FPS " + FPS_toString ,hackNerdFont, 25);
+    FPS_Text.setPosition(window_X / 1.4, window_Y / 800);
+
     // Random Number Generator
     std::random_device randomDevice;
     std::mt19937 gen(randomDevice());
 
     sf::Clock clock;
-    std::uniform_real_distribution<float> timeIntervalRange(0.5, 1.5);
+    std::uniform_real_distribution<float> timeIntervalRange(1, 1);
     float generationInterval = timeIntervalRange(gen);
     float elapsedTime;
 
@@ -162,24 +157,27 @@ int main() {
         elapsedTime += clock.restart().asSeconds();
         float random_X_speed;
         float random_Y_speed;
+        FPS_count++;
         if (elapsedTime >= generationInterval) {
             random_X_speed = enemySpeedRange(gen);
             random_Y_speed = enemySpeedRange(gen);
             elapsedTime = 0;
+            FPS_Text.setString("FPS " + std::to_string(FPS_count));
+            FPS_count = 0;
         }
 
         // Handle keyboard input
         if (player.isAlive()) {
             
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 player.setTexture(playerReverseTexture);
                 isPlayerReverse = true;
-                player.move(-player.getSpeed(), 0);
+                player.move(-player.getSpeed_X(), 0);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
                 player.setTexture(playerTexture);
                 isPlayerReverse = false;
-                player.move(player.getSpeed(), 0);
+                player.move(player.getSpeed_X(), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
                 if (isKey_SPACE_released) {
@@ -194,16 +192,13 @@ int main() {
             }
             
             if (isPlayerJumping) {
-                if (player.getSpeed() > 0) {
+                if (player.getSpeed_Y() > 0) {
                     player.accelerate(0, -1, -1);
                 } else {
                     isPlayerJumping = false;
                 }
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                player.move(0, player.getSpeed());
-            }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isLaserShot) {
                 if (isPlayerReverse) {
                     laser.setTexture(laserReverseTexture);
@@ -221,11 +216,11 @@ int main() {
                 isLaserShot = true;
             }
 
-            if (isLaserShot && laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds()) && isLaserReverse) {
+            if (isLaserShot && laser.getGlobalBounds().intersects(background.getGlobalBounds()) && isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
                     laser.move(-windowRatio / 2, 0);
                 }
-            } else if (isLaserShot && laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds()) && !isLaserReverse) {
+            } else if (isLaserShot && laser.getGlobalBounds().intersects(background.getGlobalBounds()) && !isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
                     laser.move(windowRatio / 2, 0);
                 }
@@ -233,10 +228,8 @@ int main() {
 
             if (random_X_speed < 0) {
                 enemy.setTexture(enemyTexture);
-                enemyShadow.setTexture(enemyShadowTexture);
             } else {
                 enemy.setTexture(enemyReverseTexture);
-                enemyShadow.setTexture(enemyShadowReverseTexture);
             }
             // enemy.move(random_X_speed, random_Y_speed);
         }
@@ -276,7 +269,7 @@ int main() {
         }
 
         // Laser border limits
-        if (!laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds())) {
+        if (!laser.getGlobalBounds().intersects(background.getGlobalBounds())) {
             laser.setPosition(window_X, laser.getPosition().y);
             isLaserShot = false;
         }
@@ -308,29 +301,22 @@ int main() {
             laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
             points++;
-            pointsText.setString(std::to_string(points));
+            pointsText.setString("SCORE " + std::to_string(points));
         }
-
-        enemyShadow.setPosition(enemy.getPosition().x + 5, enemy.getPosition().y + 5);
 
         if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
             player.accelerate(0, 1, 1);
-        } else if (!isPlayerJumping && player.getPosition().y == playerMax_Y){
-            player.setSpeed(0.4);
         }
-        
 
         window.clear();
-        // window.draw(background);
-        window.draw(backgroundSolid);
+        window.draw(background);
         window.draw(player);        
         window.draw(laser);
-        window.draw(enemyShadow);
         window.draw(enemy);
         window.draw(heart);
         window.draw(lives);
-        window.draw(scoreText);
         window.draw(pointsText);
+        window.draw(FPS_Text);
 
         if (!player.isAlive()) {
             window.draw(gameover);
