@@ -12,7 +12,7 @@ git clone https://github.com/neonabuko/simplegame
 
 cd simplegame
 
-cmake --build /home/neo/Projects/Cpp/simplegame/build --config Debug --target all -j 14
+cmake --build build/ --config Debug --target all -j 14
 ```
 
 <h2>Running</h2>
