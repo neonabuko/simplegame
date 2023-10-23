@@ -19,6 +19,7 @@ cmake --build /home/neo/Projects/Cpp/simplegame/build --config Debug --target al
 
 ```shell
 cd simplegame/build/
+
 ./simplegame
 ```
 
