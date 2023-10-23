@@ -12,7 +12,7 @@ git clone https://github.com/neonabuko/simplegame
 
 cd simplegame
 
-mkdir build
+mkdir build && cd build
 
 cmake ..
 
