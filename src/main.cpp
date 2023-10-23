@@ -3,6 +3,7 @@
 #include <random>
 #include <iostream>
 #include "../src/include/Entity.h"
+#include "../src/include/Assets.h"
 
 int main() {
     float window_X = 1600;
@@ -10,53 +11,20 @@ int main() {
     float windowRatio = window_X / window_Y;
     sf::RenderWindow window(sf::VideoMode((int) window_X, (int) window_Y), "Simple Game");
 
-    // Paths
-    std::string iconPath = "../src/assets/icon/";
-    std::string soundPath = "../src/assets/sound/";
-    std::string fontPath = "../src/assets/font/";
-
-    // Textures
-    sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile(iconPath + "background.jpg")) return 1;
-    sf::Texture heartTexture;
-    if (!heartTexture.loadFromFile(iconPath + "heart.png")) return 1;
-    sf::Texture playerTexture;
-    if (!playerTexture.loadFromFile(iconPath + "player.png")) return 1;
-    sf::Texture playerReverseTexture;
-    if (!playerReverseTexture.loadFromFile(iconPath + "player_reverse.png")) return 1;
-    sf::Texture enemyTexture;
-    if (!enemyTexture.loadFromFile(iconPath + "enemy.png")) return 1;
-    sf::Texture enemyReverseTexture;
-    if (!enemyReverseTexture.loadFromFile(iconPath + "enemy_reverse.png")) return 1;
-    sf::Texture laserTexture;
-    if (!laserTexture.loadFromFile(iconPath + "laser.png")) return 1;
-    sf::Texture laserReverseTexture;
-    if (!laserReverseTexture.loadFromFile(iconPath + "laser_reverse.png")) return 1;
-
-    // Sound Buffers
-    sf::SoundBuffer pop_buffer;
-    if (!pop_buffer.loadFromFile(soundPath + "hurt.ogg")) return 1;
-    sf::SoundBuffer shrink_ray_buffer;
-    if (!shrink_ray_buffer.loadFromFile(soundPath + "shrink_ray.ogg")) return 1;
-    sf::SoundBuffer laser_shoot_buffer;
-    if (!laser_shoot_buffer.loadFromFile(soundPath + "laserShoot.ogg")) return 1;
-    sf::SoundBuffer explosion_buffer;
-    if (!explosion_buffer.loadFromFile(soundPath + "explosion.ogg")) return 1;
-    sf::SoundBuffer gameover_buffer;
-    if (!gameover_buffer.loadFromFile(soundPath + "gameover.ogg")) return 1;
-    sf::SoundBuffer jumpBuffer;
-    if (!jumpBuffer.loadFromFile(soundPath + "jump.ogg")) return 1;
+    Assets::loadTextures();
+    Assets::loadSounds();
+    Assets::loadFonts();
 
     // Sounds
-    sf::Sound pop(pop_buffer);
-    sf::Sound shrinkRay(shrink_ray_buffer);
-    sf::Sound laserShoot(laser_shoot_buffer);
-    sf::Sound explosion(explosion_buffer);
-    sf::Sound gameoverSound(gameover_buffer);
-    sf::Sound jumpSound(jumpBuffer);
+    sf::Sound pop(Assets::Sounds::pop);
+    sf::Sound shrinkRay(Assets::Sounds::shrink_ray);
+    sf::Sound laserShoot(Assets::Sounds::laserShoot);
+    sf::Sound explosion(Assets::Sounds::explosion);
+    sf::Sound gameoverSound(Assets::Sounds::gameover);
+    sf::Sound jumpSound(Assets::Sounds::jump);
 
     sf::Music soundtrack;
-    if (!soundtrack.openFromFile(soundPath + "soundtrack.ogg")) return 1;
+    soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
 
     soundtrack.setVolume(30);
     soundtrack.play();
@@ -64,30 +32,29 @@ int main() {
 
     sf::RectangleShape windowBox(sf::Vector2f(window_X, window_Y));
 
-    sf::Sprite background(backgroundTexture);
+    sf::Sprite background(Assets::Textures::background);
     background.setScale(window_X / (1920 / 4), window_Y / 1080);
 
-    sf::Sprite heart(heartTexture);
+    sf::Sprite heart(Assets::Textures::heart);
     heart.setScale(windowRatio / 6, windowRatio / 6);
     heart.setPosition((window_X / 4), window_Y / 800);
 
     float playerSpeed_X = (window_X / (4800));
     float playerSpeed_Y = (window_Y / (1800));
     float playerAcceleration = (window_Y / 1850000);
-    Entity player(playerTexture, (windowRatio / 5), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
+    Entity player(Assets::Textures::player, (windowRatio / 5), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
 
-    Entity enemy(enemyTexture, (windowRatio / 5), 0, 0, 0, 0, (windowRatio / 6), 0.001);
+    Entity enemy(Assets::Textures::enemy, (windowRatio / 5), 0, 0, 0, 0, (windowRatio / 6), 0.001);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
 
-    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1, (windowRatio / 6), 0);
+    Entity laser(Assets::Textures::laser, (windowRatio / 20), -window_X, 0, 0, 1, (windowRatio / 6), 0);
     
     std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
 
-    sf::Font hackNerdFont;
-    if (!hackNerdFont.loadFromFile(fontPath + "HackNerdFont-Regular.ttf")) return 1;
+    sf::Font hackNerdFont(Assets::Fonts::hackNerd);
 
     int points = 0;
     std::string pointsToString = std::to_string(points);
@@ -176,12 +143,12 @@ int main() {
         if (player.isAlive()) {
             
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-                player.setTexture(playerReverseTexture);
+                player.setTexture(Assets::Textures::player_reverse);
                 isPlayerReverse = true;
                 player.move(-player.getSpeed_X(), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-                player.setTexture(playerTexture);
+                player.setTexture(Assets::Textures::player);
                 isPlayerReverse = false;
                 player.move(player.getSpeed_X(), 0);
             }
@@ -214,11 +181,11 @@ int main() {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isLaserShot) {
                 if (isPlayerReverse) {
-                    laser.setTexture(laserReverseTexture);
+                    laser.setTexture(Assets::Textures::laser_reverse);
                     laser.setPosition(player.getPosition().x - player.getWidth() / 3, player.getPosition().y + player.getHeight() / 1.7);
                     isLaserReverse = true;
                 } else {
-                    laser.setTexture(laserTexture);
+                    laser.setTexture(Assets::Textures::laser);
                     laser.setPosition(player.getPosition().x + player.getWidth() / 1.5, player.getPosition().y + player.getHeight() / 1.7);
                     isLaserReverse = false;
                 }
@@ -240,9 +207,9 @@ int main() {
             }
 
             if (random_X_speed < 0) {
-                enemy.setTexture(enemyTexture);
+                enemy.setTexture(Assets::Textures::enemy);
             } else {
-                enemy.setTexture(enemyReverseTexture);
+                enemy.setTexture(Assets::Textures::enemy_reverse);
             }
             // enemy.move(random_X_speed, random_Y_speed);
         }
