@@ -62,6 +62,8 @@ int main() {
     soundtrack.play();
     soundtrack.setLoop(true);
 
+    sf::RectangleShape windowBox(sf::Vector2f(window_X, window_Y));
+
     sf::Sprite background(backgroundTexture);
     background.setScale(window_X / (1920 / 4), window_Y / 1080);
 
@@ -163,7 +165,7 @@ int main() {
             random_X_speed = enemySpeedRange(gen);
             random_Y_speed = enemySpeedRange(gen);
             elapsedTime = 0;
-            FPS_Text.setString("FPS " + std::to_string(FPS_count));
+            FPS_Text.setString("FPS " + std::to_string(laser.getPosition().x));
             FPS_count = 0;
         }
 
@@ -206,6 +208,10 @@ int main() {
                 }
             }
 
+            if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
+                player.accelerate(0, 1, 1);
+            }
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isLaserShot) {
                 if (isPlayerReverse) {
                     laser.setTexture(laserReverseTexture);
@@ -223,13 +229,13 @@ int main() {
                 isLaserShot = true;
             }
 
-            if (isLaserShot && laser.getGlobalBounds().intersects(background.getGlobalBounds()) && isLaserReverse) {
+            if (isLaserShot && isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
-                    laser.move(-windowRatio / 2, 0);
+                    laser.move(-window_X / 1300, 0);
                 }
-            } else if (isLaserShot && laser.getGlobalBounds().intersects(background.getGlobalBounds()) && !isLaserReverse) {
+            } else if (isLaserShot && !isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
-                    laser.move(windowRatio / 2, 0);
+                    laser.move(window_X / 1300, 0);
                 }
             }
 
@@ -273,7 +279,7 @@ int main() {
         }
 
         // Laser border limits
-        if (!laser.getGlobalBounds().intersects(background.getGlobalBounds())) {
+        if (!laser.getGlobalBounds().intersects(windowBox.getGlobalBounds())) {
             laser.setPosition(window_X, laser.getPosition().y);
             isLaserShot = false;
         }
@@ -297,17 +303,6 @@ int main() {
         //     }
         // }
 
-        // Background movement
-        if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
-            background.getPosition().x + background.getGlobalBounds().width > window_X) {
-            background.move(-0.1, 0);
-        }
-
-        if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
-            background.getPosition().x < 0) {
-            background.move(0.1, 0);
-        }
-
         // Collision laser -> enemy
         if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
             if (explosion.getStatus() != sf::Sound::Playing) {
@@ -319,8 +314,15 @@ int main() {
             pointsText.setString("SCORE " + std::to_string(points));
         }
 
-        if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
-            player.accelerate(0, 1, 1);
+        // Background movement
+        if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
+            background.getPosition().x + background.getGlobalBounds().width > window_X) {
+            background.move(-0.1, 0);
+        }
+
+        if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
+            background.getPosition().x < 0) {
+            background.move(0.1, 0);
         }
 
         window.clear();
