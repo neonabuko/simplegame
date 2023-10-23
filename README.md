@@ -18,7 +18,9 @@ cmake --build cmake-build-debug --target simplegame -j 10
 <h2>Running</h2>
 
 ```shell
-cd cmake-build-debug && ./simplegame
+cd simplegame
+cmake --build /home/neo/Projects/Cpp/simplegame/build --config Debug --target all -j 14
+cd build && ./simplegame
 ```
 
 </div>
