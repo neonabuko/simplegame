@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/home/neo/Projects/Cpp/simplegame/build",
+  "command": "/usr/bin/g++    -g -g -std=gnu++23 -o CMakeFiles/simplegame.dir/src/main.cpp.o -c /home/neo/Projects/Cpp/simplegame/src/main.cpp",
+  "file": "/home/neo/Projects/Cpp/simplegame/src/main.cpp",
+  "output": "CMakeFiles/simplegame.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/neo/Projects/Cpp/simplegame/build",
+  "command": "/usr/bin/g++    -g -g -std=gnu++23 -o CMakeFiles/simplegame.dir/src/entity/Entity.cpp.o -c /home/neo/Projects/Cpp/simplegame/src/entity/Entity.cpp",
+  "file": "/home/neo/Projects/Cpp/simplegame/src/entity/Entity.cpp",
+  "output": "CMakeFiles/simplegame.dir/src/entity/Entity.cpp.o"
+}
+]

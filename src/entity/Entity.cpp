@@ -1,6 +1,6 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include "../../include/Entity.h"
+#include "../include/Entity.h"
 
 Entity::Entity(const sf::Texture& texture,
                float scale,

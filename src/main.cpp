@@ -2,7 +2,7 @@
 #include <SFML/Audio.hpp>
 #include <random>
 #include <iostream>
-#include "../include/Entity.h"
+#include "../src/include/Entity.h"
 
 int main() {
     float window_X = 1600;
@@ -11,9 +11,9 @@ int main() {
     sf::RenderWindow window(sf::VideoMode((int) window_X, (int) window_Y), "Simple Game");
 
     // Paths
-    std::string iconPath = "../assets/icon/";
-    std::string soundPath = "../assets/sound/";
-    std::string fontPath = "../assets/font/";
+    std::string iconPath = "../src/assets/icon/";
+    std::string soundPath = "../src/assets/sound/";
+    std::string fontPath = "../src/assets/font/";
 
     // Textures
     sf::Texture backgroundTexture;
