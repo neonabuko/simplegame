@@ -22,10 +22,6 @@ int main() {
     if (!heartTexture.loadFromFile(iconPath + "heart.png")) return 1;
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile(iconPath + "player.png")) return 1;
-    sf::Texture playerShadowTexture;
-    if (!playerShadowTexture.loadFromFile(iconPath + "player_shadow.png")) return 1;
-    sf::Texture playerShadowTextureReverse;
-    if (!playerShadowTextureReverse.loadFromFile(iconPath + "player_shadow_reverse.png")) return 1;
     sf::Texture playerReverseTexture;
     if (!playerReverseTexture.loadFromFile(iconPath + "player_reverse.png")) return 1;
     sf::Texture enemyTexture;
@@ -52,6 +48,8 @@ int main() {
     if (!explosion_buffer.loadFromFile(soundPath + "explosion.ogg")) return 1;
     sf::SoundBuffer gameover_buffer;
     if (!gameover_buffer.loadFromFile(soundPath + "gameover.ogg")) return 1;
+    sf::SoundBuffer jumpBuffer;
+    if (!jumpBuffer.loadFromFile(soundPath + "jump.ogg")) return 1;
 
     // Sounds
     sf::Sound pop(pop_buffer);
@@ -59,6 +57,7 @@ int main() {
     sf::Sound laserShoot(laser_shoot_buffer);
     sf::Sound explosion(explosion_buffer);
     sf::Sound gameoverSound(gameover_buffer);
+    sf::Sound jumpSound(jumpBuffer);
 
     sf::Music soundtrack;
     if (!soundtrack.openFromFile(soundPath + "soundtrack.ogg")) return 1;
@@ -76,19 +75,17 @@ int main() {
     heart.setScale(windowRatio / 6, windowRatio / 6);
     heart.setPosition((window_X / 3), windowRatio * 8);
 
-    Entity player(playerTexture, (windowRatio / 5), 0, 0, 5, (windowRatio / 6));
+    Entity player(playerTexture, (windowRatio / 5), 0, 0, 5, (windowRatio / 6), 0.0005);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
-    sf::Sprite playerShadow(playerShadowTexture);
-    playerShadow.setScale(player.getScale());
 
-    Entity enemy(enemyTexture, (windowRatio / 5), 0, 0, 0, 0);
+    Entity enemy(enemyTexture, (windowRatio / 5), 0, 0, 0, 0, 0.001);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
     sf::Sprite enemyShadow(enemyShadowTexture);
     enemyShadow.setScale(enemy.getScale());
 
-    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1);
+    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1, 0);
     
     std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
 
@@ -132,9 +129,11 @@ int main() {
     float elapsedTime;
 
     bool isKey_M_released = true;
+    bool isKey_SPACE_released = true;
     bool isLaserShot = false;
     bool isPlayerReverse = false;
     bool isLaserReverse = false;
+    bool isPlayerJumping = false;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -171,6 +170,7 @@ int main() {
 
         // Handle keyboard input
         if (player.isAlive()) {
+            
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
                 player.setTexture(playerReverseTexture);
                 isPlayerReverse = true;
@@ -181,14 +181,30 @@ int main() {
                 isPlayerReverse = false;
                 player.move(player.getSpeed(), 0);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                player.move(0, -player.getSpeed());
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                if (isKey_SPACE_released) {
+                    isPlayerJumping = true;
+                    if (jumpSound.getStatus() != sf::Sound::Playing) {
+                        jumpSound.play();
+                    }
+                    isKey_SPACE_released = false;                    
+                }
+            } else {
+                isKey_SPACE_released = true;
             }
+            
+            if (isPlayerJumping) {
+                if (player.getSpeed() > 0) {
+                    player.accelerate(0, -1, -1);
+                } else {
+                    isPlayerJumping = false;
+                }
+            }
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
                 player.move(0, player.getSpeed());
             }
-
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !isLaserShot) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isLaserShot) {
                 if (isPlayerReverse) {
                     laser.setTexture(laserReverseTexture);
                     laser.setPosition(player.getPosition().x - player.getWidth() / 3, player.getPosition().y + player.getHeight() / 1.7);
@@ -204,7 +220,7 @@ int main() {
                 }
                 isLaserShot = true;
             }
-            
+
             if (isLaserShot && laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds()) && isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
                     laser.move(-windowRatio / 2, 0);
@@ -222,7 +238,7 @@ int main() {
                 enemy.setTexture(enemyReverseTexture);
                 enemyShadow.setTexture(enemyShadowReverseTexture);
             }
-            enemy.move(random_X_speed, random_Y_speed);
+            // enemy.move(random_X_speed, random_Y_speed);
         }
 
         // Player border limits
@@ -295,19 +311,18 @@ int main() {
             pointsText.setString(std::to_string(points));
         }
 
-        if (!isPlayerReverse) {
-            playerShadow.setTexture(playerShadowTexture);
-        } else {
-            playerShadow.setTexture(playerShadowTextureReverse);
-        }
-
-        playerShadow.setPosition(player.getPosition().x + 5, player.getPosition().y + 5);
         enemyShadow.setPosition(enemy.getPosition().x + 5, enemy.getPosition().y + 5);
+
+        if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
+            player.accelerate(0, 1, 1);
+        } else if (!isPlayerJumping && player.getPosition().y == playerMax_Y){
+            player.setSpeed(0.4);
+        }
+        
 
         window.clear();
         // window.draw(background);
         window.draw(backgroundSolid);
-        window.draw(playerShadow);
         window.draw(player);        
         window.draw(laser);
         window.draw(enemyShadow);

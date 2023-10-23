@@ -7,12 +7,14 @@ Entity::Entity(const sf::Texture& texture,
                float initial_X,
                float initial_Y,
                int lives,
-               float speed) {
+               float speed,
+               float acceleration) {
     Entity::Sprite::setTexture(texture);
     Entity::Sprite::setScale(scale, scale);
     Entity::Sprite::setPosition(initial_X, initial_Y);
     this->lives = lives;
     this->speed = speed;
+    this->acceleration = acceleration;
     this->initial_X = initial_X;
     this->initial_Y = initial_Y;
 }
@@ -48,6 +50,11 @@ void Entity::setLives(int lives) {
 
 void Entity::setSpeed(float speed) {
     this->speed = speed;
+}
+
+void Entity::accelerate(int X, int Y, int Z) {
+    this->speed += acceleration * Z;
+    Entity::move(X * speed, Y * speed);
 }
 
 float Entity::getWidth() {

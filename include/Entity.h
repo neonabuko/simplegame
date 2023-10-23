@@ -8,6 +8,7 @@ class Entity : public sf::Sprite {
 private:
     int lives;
     float speed{};
+    float acceleration{};
     float initial_X{};
     float initial_Y{};
 
@@ -17,7 +18,8 @@ public:
            float initial_X,
            float initial_Y,
            int lives,
-           float speed);
+           float speed,
+           float acceleration);
 
     float getSpeed() const;
 
@@ -38,6 +40,8 @@ public:
     float getWidth();
 
     float getHeight();
+    
+    void accelerate(int X, int Y, int Z);
 };
 
 #endif //SIMPLEGAME_ENTITY_H
