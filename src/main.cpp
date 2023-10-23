@@ -5,6 +5,32 @@
 #include "../src/include/Entity.h"
 #include "../src/include/Assets.h"
 
+float enemyRandomSpeed_X;
+float enemyRandomSpeed_Y;
+float elapsedTime;
+std::uniform_real_distribution<float> timeIntervalRange(1, 1);
+std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
+std::random_device randomDevice;
+std::mt19937 gen(randomDevice());
+float generationInterval = timeIntervalRange(gen);
+
+sf::Font hackNerdFont;
+
+
+int FPS_count = 0;
+std::string FPS_toString = std::to_string(FPS_count);
+sf::Text FPS_Text("FPS " + FPS_toString, hackNerdFont, 22);
+
+void generateRandomSpeeds() {
+    if (elapsedTime >= generationInterval) {
+        enemyRandomSpeed_X = enemySpeedRange(gen);
+        enemyRandomSpeed_Y = enemySpeedRange(gen);
+        elapsedTime = 0;
+        FPS_Text.setString("FPS " + std::to_string(FPS_count));
+        FPS_count = 0;
+    }
+}
+
 int main() {
     float window_X = 1600;
     float window_Y = 900;
@@ -13,7 +39,7 @@ int main() {
 
     Assets::loadTextures();
     Assets::loadSounds();
-    Assets::loadFonts();
+    hackNerdFont.loadFromFile("../src/assets/font/HackNerdFont-Regular.ttf");
 
     // Sounds
     sf::Sound pop(Assets::Sounds::pop);
@@ -39,22 +65,22 @@ int main() {
     heart.setScale(windowRatio / 6, windowRatio / 6);
     heart.setPosition((window_X / 4), window_Y / 800);
 
-    float playerSpeed_X = (window_X / (4800));
-    float playerSpeed_Y = (window_Y / (1800));
-    float playerAcceleration = (window_Y / 1850000);
-    Entity player(Assets::Textures::player, (windowRatio / 5), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
+    float playerSpeed_X = (1000);
+    float playerSpeed_Y = (1200);
+    float playerAcceleration = (4000);
+    Entity player(Assets::Textures::player, (window_X / 5500), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
+    float playerMax_X = window_X - player.getWidth() - 200;
+    float playerMax_Y = window_Y - player.getHeight();
 
-    Entity enemy(Assets::Textures::enemy, (windowRatio / 5), 0, 0, 0, 0, (windowRatio / 6), 0.001);
+    Entity enemy(Assets::Textures::enemy, (window_X / 5500), 0, 0, 0, 0, (windowRatio / 6), 0.001);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+    float enemyMax_X = window_X - enemy.getWidth();
+    float enemyMax_Y = window_Y - enemy.getHeight();
 
-    Entity laser(Assets::Textures::laser, (windowRatio / 20), -window_X, 0, 0, 1, (windowRatio / 6), 0);
-    
-    std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
-
-    sf::Font hackNerdFont(Assets::Fonts::hackNerd);
+    Entity laser(Assets::Textures::laser, (windowRatio / 20), -window_X, 0, 0, 3000, 0, 0);
 
     int points = 0;
     std::string pointsToString = std::to_string(points);
@@ -78,19 +104,11 @@ int main() {
     float gameover_Y = (window.getSize().y - gameoverBounds.height) / 2;
     gameover.setPosition(gameover_X, gameover_Y);
 
-    int FPS_count = 0;
-    std::string FPS_toString = std::to_string(FPS_count);
-    sf::Text FPS_Text("FPS " + FPS_toString ,hackNerdFont, 25);
-    FPS_Text.setPosition(window_X / 1.4, window_Y / 800);
-
-    // Random Number Generator
-    std::random_device randomDevice;
-    std::mt19937 gen(randomDevice());
+    FPS_Text.setPosition(window_X / 1.1, pointsText.getPosition().y);
 
     sf::Clock clock;
-    std::uniform_real_distribution<float> timeIntervalRange(1, 1);
-    float generationInterval = timeIntervalRange(gen);
-    float elapsedTime;
+    sf::Clock deltaClock;
+    float deltaTime = 0.0f;
 
     bool isKey_M_released = true;
     bool isKey_SPACE_released = true;
@@ -100,7 +118,6 @@ int main() {
     bool isPlayerJumping = false;
 
     while (window.isOpen()) {
-        // sf::sleep(sf::Time(sf::seconds(0.1)));
         sf::Event event{};
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -125,32 +142,21 @@ int main() {
         }
 
         elapsedTime += clock.restart().asSeconds();
-        float random_X_speed;
-        float random_Y_speed;
+        deltaTime = deltaClock.restart().asSeconds();
         FPS_count++;
-        if (elapsedTime >= generationInterval) {
-            random_X_speed = enemySpeedRange(gen);
-            random_Y_speed = enemySpeedRange(gen);
-            elapsedTime = 0;
-            FPS_Text.setString("FPS " + std::to_string(laser.getPosition().x));
-            FPS_count = 0;
-        }
-
-        float playerMax_X = window_X - player.getWidth() - 100;
-        float playerMax_Y = window_Y - player.getHeight();
+        generateRandomSpeeds();
 
         // Handle keyboard input
-        if (player.isAlive()) {
-            
+        if (player.isAlive()) {   
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 player.setTexture(Assets::Textures::player_reverse);
                 isPlayerReverse = true;
-                player.move(-player.getSpeed_X(), 0);
+                player.move(-player.getSpeed_X() * deltaTime, 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
                 player.setTexture(Assets::Textures::player);
                 isPlayerReverse = false;
-                player.move(player.getSpeed_X(), 0);
+                player.move(player.getSpeed_X() * deltaTime, 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
                 if (isKey_SPACE_released) {
@@ -159,24 +165,25 @@ int main() {
                         if (jumpSound.getStatus() != sf::Sound::Playing) {
                             jumpSound.play();
                         }
-                    }
-                    
+                    }            
                     isKey_SPACE_released = false;                    
                 }
             } else {
                 isKey_SPACE_released = true;
             }
-            
+
+            // Jumping        
             if (isPlayerJumping) {
-                player.accelerate(0, -1, -1);
+                player.accelerate(0, -1, -1, deltaTime);
                 if (player.getPosition().y > playerMax_Y) {
                     isPlayerJumping = false;
                     player.setSpeed_Y(playerSpeed_Y);
                 }
             }
 
+            // Gravity
             if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
-                player.accelerate(0, 1, 1);
+                player.accelerate(0, 1, 1, deltaTime);
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isLaserShot) {
@@ -198,20 +205,21 @@ int main() {
 
             if (isLaserShot && isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
-                    laser.move(-window_X / 1300, 0);
+                    laser.move(-(laser.getSpeed_X() * deltaTime), 0);
                 }
             } else if (isLaserShot && !isLaserReverse) {
                 if (laser.getPosition().x > -laser.getWidth()) {
-                    laser.move(window_X / 1300, 0);
+                    laser.move(laser.getSpeed_X() * deltaTime, 0);
                 }
             }
 
-            if (random_X_speed < 0) {
+
+            if (enemyRandomSpeed_X < 0) {
                 enemy.setTexture(Assets::Textures::enemy);
             } else {
                 enemy.setTexture(Assets::Textures::enemy_reverse);
             }
-            // enemy.move(random_X_speed, random_Y_speed);
+            enemy.move(enemyRandomSpeed_X, enemyRandomSpeed_Y);
         }
 
         // Player border limits
@@ -229,9 +237,6 @@ int main() {
         }
 
         // Enemy border limits
-        float enemyMax_X = window_X - enemy.getWidth();
-        float enemyMax_Y = window_Y - enemy.getHeight();
-
         if (enemy.getPosition().x > enemyMax_X) {
             enemy.setPosition(enemyMax_X, enemy.getPosition().y);
         }
@@ -285,14 +290,13 @@ int main() {
         if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
             background.getPosition().x + background.getGlobalBounds().width > window_X) {
             background.move(-0.1, 0);
-        }
-
-        if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
+        } else if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
             background.getPosition().x < 0) {
             background.move(0.1, 0);
         }
 
         window.clear();
+
         window.draw(background);
         window.draw(player);        
         window.draw(laser);

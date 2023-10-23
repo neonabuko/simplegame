@@ -49,7 +49,7 @@ public:
 
     float getHeight();
     
-    void accelerate(int X, int Y, int Z);
+    void accelerate(int X, int Y, int Z, float deltaTime);
 };
 
 #endif //SIMPLEGAME_ENTITY_H

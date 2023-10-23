@@ -66,9 +66,9 @@ void Entity::setAcceleration(float acceleration) {
     this->acceleration = acceleration;
 }
 
-void Entity::accelerate(int X, int Y, int Z) {
-    this->speed_Y += acceleration * Z;
-    Entity::move(0, Y * speed_Y);
+void Entity::accelerate(int X, int Y, int Z, float deltaTime) {
+    this->speed_Y += acceleration * Z * deltaTime;
+    Entity::move(0, Y * speed_Y * deltaTime);
 }
 
 float Entity::getWidth() {

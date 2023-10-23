@@ -22,11 +22,6 @@ namespace Assets {
         sf::SoundBuffer laserShoot;
         sf::SoundBuffer pop;
         sf::SoundBuffer shrink_ray;
-        sf::Music soundtrack;
-    }
-
-    namespace Fonts {
-        sf::Font hackNerd;
     }
     
     void loadTextures() {
@@ -48,11 +43,6 @@ namespace Assets {
         Sounds::laserShoot.loadFromFile("../src/assets/sound/laserShoot.ogg");
         Sounds::pop.loadFromFile("../src/assets/sound/pop.ogg");
         Sounds::shrink_ray.loadFromFile("../src/assets/sound/shrink_ray.ogg");
-        Sounds::soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
-    }
-
-    void loadFonts() {
-        Fonts::hackNerd.loadFromFile("../src/assets/font/HackNerdFont-Regular.ttf");
     }
 }
     
