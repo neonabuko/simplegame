@@ -12,15 +12,14 @@ git clone https://github.com/neonabuko/simplegame
 
 cd simplegame
 
-cmake --build cmake-build-debug --target simplegame -j 10
+cmake --build /home/neo/Projects/Cpp/simplegame/build --config Debug --target all -j 14
 ```
 
 <h2>Running</h2>
 
 ```shell
-cd simplegame
-cmake --build /home/neo/Projects/Cpp/simplegame/build --config Debug --target all -j 14
-cd build && ./simplegame
+cd simplegame/build/
+./simplegame
 ```
 
 </div>
