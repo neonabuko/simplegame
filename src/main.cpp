@@ -8,8 +8,8 @@
 float enemyRandomSpeed_X;
 float enemyRandomSpeed_Y;
 float elapsedTime;
-std::uniform_real_distribution<float> timeIntervalRange(1, 1);
-std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
+std::uniform_real_distribution<float> timeIntervalRange(0, 2);
+std::uniform_real_distribution<float> enemySpeedRange(-1500, 1500);
 std::random_device randomDevice;
 std::mt19937 gen(randomDevice());
 float generationInterval = timeIntervalRange(gen);
@@ -48,6 +48,7 @@ int main() {
     sf::Sound explosion(Assets::Sounds::explosion);
     sf::Sound gameoverSound(Assets::Sounds::gameover);
     sf::Sound jumpSound(Assets::Sounds::jump);
+    sf::Sound hurt(Assets::Sounds::hurt);
 
     sf::Music soundtrack;
     soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
@@ -74,7 +75,7 @@ int main() {
     float playerMax_X = window_X - player.getWidth() - 200;
     float playerMax_Y = window_Y - player.getHeight();
 
-    Entity enemy(Assets::Textures::enemy, (window_X / 5500), 0, 0, 0, 0, (windowRatio / 6), 0.001);
+    Entity enemy(Assets::Textures::enemy, (window_X / 5500), 0, 0, 0, 1000, 1200, 4000);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
     float enemyMax_X = window_X - enemy.getWidth();
@@ -219,7 +220,7 @@ int main() {
             } else {
                 enemy.setTexture(Assets::Textures::enemy_reverse);
             }
-            enemy.move(enemyRandomSpeed_X, enemyRandomSpeed_Y);
+            enemy.move(enemyRandomSpeed_X * deltaTime, enemyRandomSpeed_Y * deltaTime);
         }
 
         // Player border limits
@@ -262,18 +263,21 @@ int main() {
         sf::FloatRect laserGlobalBounds = laser.getGlobalBounds();
         
         // Collision player <-> enemy
-        // if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
-        //     pop.play();
-        //     player.setPosition(player.getInitial_X(), player.getInitial_Y());
-        //     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+        if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
+            if (hurt.getStatus() != sf::Sound::Playing) {
+                hurt.play();
+            }
+            player.setPosition(player.getInitial_X(), player.getInitial_Y());
+            enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
 
-        //     player.setLives(-1);
-        //     lives.setString(std::to_string(player.getLives()));
+            player.setLives(-1);
+            lives.setString(std::to_string(player.getLives()));
 
-        //     if (player.getLives() == 0) {
-        //         gameoverSound.play();
-        //     }
-        // }
+            if (player.getLives() == 0) {
+                soundtrack.stop();
+                gameoverSound.play();
+            }
+        }
 
         // Collision laser -> enemy
         if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
