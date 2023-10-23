@@ -63,7 +63,7 @@ int main() {
     soundtrack.setLoop(true);
 
     sf::Sprite background(backgroundTexture);
-    background.setScale(window_X / 1920, window_Y / 1080);
+    background.setScale(window_X / (1920 / 4), window_Y / 1080);
 
     sf::Sprite heart(heartTexture);
     heart.setScale(windowRatio / 6, windowRatio / 6);
@@ -90,8 +90,8 @@ int main() {
     int points = 0;
     std::string pointsToString = std::to_string(points);
     sf::Text pointsText("SCORE " + pointsToString, hackNerdFont, 30);
-    float points_X = window_X / 2.2;
-    float points_Y = window_Y / 800;
+    float points_X = window.getSize().x / 2.2;
+    float points_Y = window.getSize().y / 800;
     pointsText.setFillColor(sf::Color::White);
     pointsText.setPosition(points_X, points_Y);
     
@@ -105,8 +105,8 @@ int main() {
     sf::Text gameover("GAME OVER", hackNerdFont, 55);
     gameover.setFillColor(sf::Color::White);
     sf::FloatRect gameoverBounds = gameover.getLocalBounds();
-    float gameover_X = (window_X - gameoverBounds.width) / 2;
-    float gameover_Y = (window_Y - gameoverBounds.height) / 2;
+    float gameover_X = (window.getSize().x - gameoverBounds.width) / 2;
+    float gameover_Y = (window.getSize().y - gameoverBounds.height) / 2;
     gameover.setPosition(gameover_X, gameover_Y);
 
     int FPS_count = 0;
@@ -131,6 +131,7 @@ int main() {
     bool isPlayerJumping = false;
 
     while (window.isOpen()) {
+        // sf::sleep(sf::Time(sf::seconds(0.1)));
         sf::Event event{};
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -166,6 +167,9 @@ int main() {
             FPS_count = 0;
         }
 
+        float playerMax_X = window_X - player.getWidth() - 100;
+        float playerMax_Y = window_Y - player.getHeight();
+
         // Handle keyboard input
         if (player.isAlive()) {
             
@@ -181,10 +185,13 @@ int main() {
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
                 if (isKey_SPACE_released) {
-                    isPlayerJumping = true;
-                    if (jumpSound.getStatus() != sf::Sound::Playing) {
-                        jumpSound.play();
+                    if (player.getPosition().y == playerMax_Y) {
+                        isPlayerJumping = true;
+                        if (jumpSound.getStatus() != sf::Sound::Playing) {
+                            jumpSound.play();
+                        }
                     }
+                    
                     isKey_SPACE_released = false;                    
                 }
             } else {
@@ -192,10 +199,10 @@ int main() {
             }
             
             if (isPlayerJumping) {
-                if (player.getSpeed_Y() > 0) {
-                    player.accelerate(0, -1, -1);
-                } else {
+                player.accelerate(0, -1, -1);
+                if (player.getPosition().y > playerMax_Y) {
                     isPlayerJumping = false;
+                    player.setSpeed_Y(playerSpeed_Y);
                 }
             }
 
@@ -235,9 +242,6 @@ int main() {
         }
 
         // Player border limits
-        float playerMax_X = window_X - player.getWidth();
-        float playerMax_Y = window_Y - player.getHeight();
-
         if (player.getPosition().x > playerMax_X) {
             player.setPosition(playerMax_X, player.getPosition().y);
         }
@@ -280,17 +284,28 @@ int main() {
         sf::FloatRect laserGlobalBounds = laser.getGlobalBounds();
         
         // Collision player <-> enemy
-        if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
-            pop.play();
-            player.setPosition(player.getInitial_X(), player.getInitial_Y());
-            enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+        // if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
+        //     pop.play();
+        //     player.setPosition(player.getInitial_X(), player.getInitial_Y());
+        //     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
 
-            player.setLives(-1);
-            lives.setString(std::to_string(player.getLives()));
+        //     player.setLives(-1);
+        //     lives.setString(std::to_string(player.getLives()));
 
-            if (player.getLives() == 0) {
-                gameoverSound.play();
-            }
+        //     if (player.getLives() == 0) {
+        //         gameoverSound.play();
+        //     }
+        // }
+
+        // Background movement
+        if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
+            background.getPosition().x + background.getGlobalBounds().width > window_X) {
+            background.move(-0.1, 0);
+        }
+
+        if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
+            background.getPosition().x < 0) {
+            background.move(0.1, 0);
         }
 
         // Collision laser -> enemy

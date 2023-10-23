@@ -54,11 +54,11 @@ void Entity::setLives(int lives) {
     this->lives += lives;
 }
 
-void Entity::setSpeed_X(float speed) {
+void Entity::setSpeed_X(float speed_X) {
     this->speed_X = speed_X;
 }
 
-void Entity::setSpeed_Y(float speed) {
+void Entity::setSpeed_Y(float speed_Y) {
     this->speed_Y = speed_Y;
 }
 
