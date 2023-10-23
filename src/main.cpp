@@ -22,15 +22,44 @@ int main() {
     if (!heartTexture.loadFromFile(iconPath + "heart.png")) return 1;
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile(iconPath + "player.png")) return 1;
+    sf::Texture playerReverseTexture;
+    if (!playerReverseTexture.loadFromFile(iconPath + "player_reverse.png")) return 1;
     sf::Texture enemyTexture;
     if (!enemyTexture.loadFromFile(iconPath + "enemy.png")) return 1;
+    sf::Texture enemyReverseTexture;
+    if (!enemyReverseTexture.loadFromFile(iconPath + "enemy_reverse.png")) return 1;
     sf::Texture laserTexture;
     if (!laserTexture.loadFromFile(iconPath + "laser.png")) return 1;
+    sf::Texture laserReverseTexture;
+    if (!laserReverseTexture.loadFromFile(iconPath + "laser_reverse.png")) return 1;
 
-    sf::Sprite background(backgroundTexture);
+    // Sound Buffers
+    sf::SoundBuffer pop_buffer;
+    if (!pop_buffer.loadFromFile(soundPath + "pop.ogg")) return 1;
+    sf::SoundBuffer shrink_ray_buffer;
+    if (!shrink_ray_buffer.loadFromFile(soundPath + "shrink_ray.ogg")) return 1;
+    sf::SoundBuffer laser_shoot_buffer;
+    if (!laser_shoot_buffer.loadFromFile(soundPath + "laserShoot.ogg")) return 1;
+    sf::SoundBuffer explosion_buffer;
+    if (!explosion_buffer.loadFromFile(soundPath + "explosion.ogg")) return 1;
+
+    // Sounds
+    sf::Sound pop(pop_buffer);
+    sf::Sound shrinkRay(shrink_ray_buffer);
+    sf::Sound laserShoot(laser_shoot_buffer);
+    sf::Sound explosion(explosion_buffer);
+
+    sf::Music soundtrack;
+    if (!soundtrack.openFromFile(soundPath + "soundtrack.ogg")) return 1;
+
+    soundtrack.setVolume(30);
+    soundtrack.play();
+    soundtrack.setLoop(true);
 
     sf::RectangleShape backgroundSolid(sf::Vector2f(window_X, window_Y));
     backgroundSolid.setFillColor(sf::Color(40, 40, 40));
+
+    sf::Sprite background(backgroundTexture);
 
     sf::Sprite heartSprite(heartTexture);
     heartSprite.setScale(sf::Vector2f(0.3, 0.3));
@@ -46,11 +75,11 @@ int main() {
     float gameover_Y = (window_Y - gameoverBounds.height) / 2;
     gameover.setPosition(gameover_X, gameover_Y);
 
-    Entity player(playerTexture,(windowRatio / 4),0, 0,5,(windowRatio / 6));
+    Entity player(playerTexture, (windowRatio / 5), 0, window_Y, 5, (windowRatio / 6));
 
-    Entity enemy(enemyTexture, (windowRatio / 4), window_X, window_Y, 0, 0);
+    Entity enemy(enemyTexture, (windowRatio / 5), window_X, window_Y, 0, 0);
 
-    Entity laser(laserTexture, (windowRatio / 15), -window_X, 0, 0, 1);
+    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1);
     
     std::uniform_real_distribution<float> enemySpeedRange(-1, 1);
     
@@ -68,26 +97,10 @@ int main() {
     float generationInterval = timeIntervalRange(gen);
     float elapsedTime;
 
-    sf::SoundBuffer pop_buffer;
-    if (!pop_buffer.loadFromFile(soundPath + "pop.ogg")) return 1;
-    sf::SoundBuffer shrink_ray_buffer;
-    if (!shrink_ray_buffer.loadFromFile(soundPath + "shrink_ray.ogg")) return 1;
-    sf::SoundBuffer laser_shoot_buffer;
-    if (!laser_shoot_buffer.loadFromFile(soundPath + "laserShoot.ogg")) return 1;
-
-    sf::Music soundtrack;
-    if (!soundtrack.openFromFile(soundPath + "soundtrack.ogg")) return 1;
-
-    sf::Sound popSound(pop_buffer);
-    sf::Sound shrinkRaySound(shrink_ray_buffer);
-    sf::Sound laserShootSound(laser_shoot_buffer);
-
-    // soundtrack.setVolume(70);
-    // soundtrack.play();
-    // soundtrack.setLoop(true);
-
     bool isKey_M_released = true;
     bool isLaserShot = false;
+    bool isPlayerReverse = false;
+    bool isLaserReverse = false;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -102,10 +115,10 @@ int main() {
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             if (isKey_M_released) {
-                if (soundtrack.getVolume() == 70) {
+                if (soundtrack.getVolume() == 30) {
                     soundtrack.setVolume(0);
                 } else {
-                    soundtrack.setVolume(70);
+                    soundtrack.setVolume(30);
                 }
                 isKey_M_released = false;
             }
@@ -125,9 +138,13 @@ int main() {
         // Handle keyboard input
         if (player.isAlive()) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+                player.setTexture(playerReverseTexture);
+                isPlayerReverse = true;
                 player.move(-player.getSpeed(), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                player.setTexture(playerTexture);
+                isPlayerReverse = false;
                 player.move(player.getSpeed(), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
@@ -137,18 +154,38 @@ int main() {
                 player.move(0, player.getSpeed());
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                laser.setPosition(player.getPosition().x + 200, player.getPosition().y + 150);
-                if (laserShootSound.getStatus() != sf::Sound::Playing) {
-                    laserShootSound.play();
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !isLaserShot) {
+                if (isPlayerReverse) {
+                    laser.setTexture(laserReverseTexture);
+                    laser.setPosition(player.getPosition().x - player.getWidth() / 3, player.getPosition().y + player.getHeight() / 1.7);
+                    isLaserReverse = true;
+                } else {
+                    laser.setTexture(laserTexture);
+                    laser.setPosition(player.getPosition().x + player.getWidth() / 1.5, player.getPosition().y + player.getHeight() / 1.7);
+                    isLaserReverse = false;
+                }
+
+                if (laserShoot.getStatus() != sf::Sound::Playing) {
+                    laserShoot.play();
                 }
                 isLaserShot = true;
             }
             
-            if (isLaserShot && laser.getPosition().x != laser.getInitial_X()) {
-                laser.move(1, 0);
+            if (isLaserShot && laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds()) && isLaserReverse) {
+                if (laser.getPosition().x > -laser.getWidth()) {
+                    laser.move(-windowRatio / 2, 0);
+                }
+            } else if (isLaserShot && laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds()) && !isLaserReverse) {
+                if (laser.getPosition().x > -laser.getWidth()) {
+                    laser.move(windowRatio / 2, 0);
+                }
             }
 
+            if (random_X_speed < 0) {
+                enemy.setTexture(enemyTexture);
+            } else {
+                enemy.setTexture(enemyReverseTexture);
+            }
             enemy.move(random_X_speed, random_Y_speed);
         }
 
@@ -187,11 +224,9 @@ int main() {
         }
 
         // Laser border limits
-        if (laser.getPosition().x > window_X) {
+        if (!laser.getGlobalBounds().intersects(backgroundSolid.getGlobalBounds())) {
             laser.setPosition(window_X, laser.getPosition().y);
-        }
-        if (laser.getPosition().y > window_Y) {
-            laser.setPosition(laser.getPosition().x, window_Y);
+            isLaserShot = false;
         }
 
         // Entities Bounds
@@ -201,7 +236,7 @@ int main() {
         
         // Collision player <-> enemy
         if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
-            popSound.play();
+            pop.play();
             player.setPosition(player.getInitial_X(), player.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
 
@@ -211,8 +246,8 @@ int main() {
 
         // Collision laser -> enemy
         if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
-            if (popSound.getStatus() != sf::Sound::Playing) {
-                popSound.play();
+            if (explosion.getStatus() != sf::Sound::Playing) {
+                explosion.play();
             }
             laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
@@ -221,12 +256,11 @@ int main() {
         window.clear();
         // window.draw(background);
         window.draw(backgroundSolid);
-        window.draw(laser);
         window.draw(player);
+        window.draw(laser);
         window.draw(enemy);
         window.draw(livesText);
         window.draw(heartSprite);
-        window.draw(player);
 
         if (!player.isAlive()) {
             window.draw(gameover);
