@@ -1,7 +1,7 @@
 <div align="center">
 <h1 style="font-size: 48px">Simple Game</h1>
-<img style="margin-right: 40px" src="src/assets/icon/player.png" alt="player" width="266" height="283.5">
-<img src="src/assets/icon/enemy.png" alt="enemy" width="225.5" height="240.5">
+<img style="margin-right: 40px" src="src/assets/icon/player.png" alt="player" width="169" height="180">
+<img src="src/assets/icon/enemy.png" alt="enemy" width="155.5" height="170.5">
 </div>
 
 <div>
