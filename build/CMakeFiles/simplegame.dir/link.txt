@@ -1,1 +1,0 @@
-/usr/bin/g++  -g -g CMakeFiles/simplegame.dir/src/main.cpp.o CMakeFiles/simplegame.dir/src/entity/Entity.cpp.o -o simplegame  /usr/lib/libsfml-graphics.so.2.6.0 /usr/lib/libsfml-audio.so.2.6.0 /usr/lib/libsfml-window.so.2.6.0 /usr/lib/libsfml-system.so.2.6.0 

@@ -1,3 +1,0 @@
-/home/neo/Projects/Cpp/simplegame/build/CMakeFiles/simplegame.dir
-/home/neo/Projects/Cpp/simplegame/build/CMakeFiles/edit_cache.dir
-/home/neo/Projects/Cpp/simplegame/build/CMakeFiles/rebuild_cache.dir
