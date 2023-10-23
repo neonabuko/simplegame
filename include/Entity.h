@@ -27,6 +27,8 @@ public:
 
     float getInitial_Y() const;
 
+    void setInitialPosition(float initial_X, float initial_Y);
+
     int getLives() const;
 
     void setLives(int lives);

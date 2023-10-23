@@ -37,6 +37,11 @@ float Entity::getInitial_Y() const {
     return initial_Y;
 }
 
+void Entity::setInitialPosition(float initial_X, float initial_Y) {
+    this->initial_X = initial_X;
+    this->initial_Y = initial_Y;
+}
+
 void Entity::setLives(int lives) {
     this->lives += lives;
 }

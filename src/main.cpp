@@ -22,10 +22,18 @@ int main() {
     if (!heartTexture.loadFromFile(iconPath + "heart.png")) return 1;
     sf::Texture playerTexture;
     if (!playerTexture.loadFromFile(iconPath + "player.png")) return 1;
+    sf::Texture playerShadowTexture;
+    if (!playerShadowTexture.loadFromFile(iconPath + "player_shadow.png")) return 1;
+    sf::Texture playerShadowTextureReverse;
+    if (!playerShadowTextureReverse.loadFromFile(iconPath + "player_shadow_reverse.png")) return 1;
     sf::Texture playerReverseTexture;
     if (!playerReverseTexture.loadFromFile(iconPath + "player_reverse.png")) return 1;
     sf::Texture enemyTexture;
     if (!enemyTexture.loadFromFile(iconPath + "enemy.png")) return 1;
+    sf::Texture enemyShadowTexture;
+    if (!enemyShadowTexture.loadFromFile(iconPath + "enemy_shadow.png")) return 1;
+    sf::Texture enemyShadowReverseTexture;
+    if (!enemyShadowReverseTexture.loadFromFile(iconPath + "enemy_shadow_reverse.png")) return 1;
     sf::Texture enemyReverseTexture;
     if (!enemyReverseTexture.loadFromFile(iconPath + "enemy_reverse.png")) return 1;
     sf::Texture laserTexture;
@@ -35,19 +43,22 @@ int main() {
 
     // Sound Buffers
     sf::SoundBuffer pop_buffer;
-    if (!pop_buffer.loadFromFile(soundPath + "pop.ogg")) return 1;
+    if (!pop_buffer.loadFromFile(soundPath + "hurt.ogg")) return 1;
     sf::SoundBuffer shrink_ray_buffer;
     if (!shrink_ray_buffer.loadFromFile(soundPath + "shrink_ray.ogg")) return 1;
     sf::SoundBuffer laser_shoot_buffer;
     if (!laser_shoot_buffer.loadFromFile(soundPath + "laserShoot.ogg")) return 1;
     sf::SoundBuffer explosion_buffer;
     if (!explosion_buffer.loadFromFile(soundPath + "explosion.ogg")) return 1;
+    sf::SoundBuffer gameover_buffer;
+    if (!gameover_buffer.loadFromFile(soundPath + "gameover.ogg")) return 1;
 
     // Sounds
     sf::Sound pop(pop_buffer);
     sf::Sound shrinkRay(shrink_ray_buffer);
     sf::Sound laserShoot(laser_shoot_buffer);
     sf::Sound explosion(explosion_buffer);
+    sf::Sound gameoverSound(gameover_buffer);
 
     sf::Music soundtrack;
     if (!soundtrack.openFromFile(soundPath + "soundtrack.ogg")) return 1;
@@ -61,12 +72,48 @@ int main() {
 
     sf::Sprite background(backgroundTexture);
 
-    sf::Sprite heartSprite(heartTexture);
-    heartSprite.setScale(sf::Vector2f(0.3, 0.3));
-    heartSprite.setPosition((window_X / 2) - 50, 10);
+    sf::Sprite heart(heartTexture);
+    heart.setScale(windowRatio / 6, windowRatio / 6);
+    heart.setPosition((window_X / 3), windowRatio * 8);
+
+    Entity player(playerTexture, (windowRatio / 5), 0, 0, 5, (windowRatio / 6));
+    player.setInitialPosition(0, window_Y - player.getHeight());
+    player.setPosition(0, window_Y - player.getHeight());
+    sf::Sprite playerShadow(playerShadowTexture);
+    playerShadow.setScale(player.getScale());
+
+    Entity enemy(enemyTexture, (windowRatio / 5), 0, 0, 0, 0);
+    enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
+    enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+    sf::Sprite enemyShadow(enemyShadowTexture);
+    enemyShadow.setScale(enemy.getScale());
+
+    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1);
+    
+    std::uniform_real_distribution<float> enemySpeedRange(-0.5, 0.5);
 
     sf::Font hackNerdFont;
     if (!hackNerdFont.loadFromFile(fontPath + "HackNerdFont-Regular.ttf")) return 1;
+
+    sf::Text scoreText("SCORE", hackNerdFont, 30);
+    scoreText.setFillColor(sf::Color::White);
+    float score_X = window_X / 1.8;
+    float score_Y = windowRatio * 8;
+    scoreText.setPosition(score_X, score_Y);
+
+    int points = 0;
+    std::string pointsToString = std::to_string(points);
+    sf::Text pointsText(pointsToString, hackNerdFont, 30);
+    float points_X = scoreText.getPosition().x + scoreText.getLocalBounds().width + 40;
+    float points_Y = scoreText.getPosition().y;
+    pointsText.setPosition(points_X, points_Y);
+    
+    std::string livesToString = std::to_string(player.getLives());
+    sf::Text lives(livesToString, hackNerdFont, 30);
+    lives.setFillColor(sf::Color::White);
+    float lives_X = heart.getPosition().x + heart.getGlobalBounds().width + 40;
+    float lives_Y = heart.getPosition().y;
+    lives.setPosition(lives_X, lives_Y);
 
     sf::Text gameover("GAME OVER", hackNerdFont, 55);
     gameover.setFillColor(sf::Color::White);
@@ -74,19 +121,6 @@ int main() {
     float gameover_X = (window_X - gameoverBounds.width) / 2;
     float gameover_Y = (window_Y - gameoverBounds.height) / 2;
     gameover.setPosition(gameover_X, gameover_Y);
-
-    Entity player(playerTexture, (windowRatio / 5), 0, window_Y, 5, (windowRatio / 6));
-
-    Entity enemy(enemyTexture, (windowRatio / 5), window_X, window_Y, 0, 0);
-
-    Entity laser(laserTexture, (windowRatio / 20), -window_X, 0, 0, 1);
-    
-    std::uniform_real_distribution<float> enemySpeedRange(-1, 1);
-    
-    std::string livesToString = std::to_string(player.getLives());
-    sf::Text livesText(livesToString, hackNerdFont, 30);
-    livesText.setFillColor(sf::Color::White);
-    livesText.setPosition(heartSprite.getPosition().x + (float) livesText.getCharacterSize() * 2, heartSprite.getPosition().y);
 
     // Random Number Generator
     std::random_device randomDevice;
@@ -130,8 +164,8 @@ int main() {
         float random_X_speed;
         float random_Y_speed;
         if (elapsedTime >= generationInterval) {
-            random_X_speed = enemySpeedRange(gen) / 3;
-            random_Y_speed = enemySpeedRange(gen) / 3;
+            random_X_speed = enemySpeedRange(gen);
+            random_Y_speed = enemySpeedRange(gen);
             elapsedTime = 0;
         }
 
@@ -183,13 +217,15 @@ int main() {
 
             if (random_X_speed < 0) {
                 enemy.setTexture(enemyTexture);
+                enemyShadow.setTexture(enemyShadowTexture);
             } else {
                 enemy.setTexture(enemyReverseTexture);
+                enemyShadow.setTexture(enemyShadowReverseTexture);
             }
             enemy.move(random_X_speed, random_Y_speed);
         }
 
-        // Entity border limits
+        // Player border limits
         float playerMax_X = window_X - player.getWidth();
         float playerMax_Y = window_Y - player.getHeight();
 
@@ -241,7 +277,11 @@ int main() {
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
 
             player.setLives(-1);
-            livesText.setString(std::to_string(player.getLives()));
+            lives.setString(std::to_string(player.getLives()));
+
+            if (player.getLives() == 0) {
+                gameoverSound.play();
+            }
         }
 
         // Collision laser -> enemy
@@ -251,16 +291,31 @@ int main() {
             }
             laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+            points++;
+            pointsText.setString(std::to_string(points));
         }
+
+        if (!isPlayerReverse) {
+            playerShadow.setTexture(playerShadowTexture);
+        } else {
+            playerShadow.setTexture(playerShadowTextureReverse);
+        }
+
+        playerShadow.setPosition(player.getPosition().x + 5, player.getPosition().y + 5);
+        enemyShadow.setPosition(enemy.getPosition().x + 5, enemy.getPosition().y + 5);
 
         window.clear();
         // window.draw(background);
         window.draw(backgroundSolid);
-        window.draw(player);
+        window.draw(playerShadow);
+        window.draw(player);        
         window.draw(laser);
+        window.draw(enemyShadow);
         window.draw(enemy);
-        window.draw(livesText);
-        window.draw(heartSprite);
+        window.draw(heart);
+        window.draw(lives);
+        window.draw(scoreText);
+        window.draw(pointsText);
 
         if (!player.isAlive()) {
             window.draw(gameover);
