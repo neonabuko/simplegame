@@ -8,8 +8,8 @@
 float enemyRandomSpeed_X;
 float enemyRandomSpeed_Y;
 float elapsedTime;
-std::uniform_real_distribution<float> timeIntervalRange(0, 2);
-std::uniform_real_distribution<float> enemySpeedRange(-1500, 1500);
+std::uniform_real_distribution<float> timeIntervalRange(0.1, 1);
+std::uniform_real_distribution<float> enemySpeedRange(-1000, 100);
 std::random_device randomDevice;
 std::mt19937 gen(randomDevice());
 float generationInterval = timeIntervalRange(gen);
@@ -45,16 +45,22 @@ int main() {
     sf::Sound pop(Assets::Sounds::pop);
     sf::Sound shrinkRay(Assets::Sounds::shrink_ray);
     sf::Sound laserShoot(Assets::Sounds::laserShoot);
+    sf::Sound laserShootBig(Assets::Sounds::laserShootBig);
     sf::Sound explosion(Assets::Sounds::explosion);
     sf::Sound gameoverSound(Assets::Sounds::gameover);
     sf::Sound jumpSound(Assets::Sounds::jump);
     sf::Sound hurt(Assets::Sounds::hurt);
+    sf::Sound stomp(Assets::Sounds::stomp);
 
     sf::Music soundtrack;
     soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
-
-    soundtrack.setVolume(30);
+    soundtrack.setVolume(50);
     soundtrack.play();
+    soundtrack.setLoop(true);
+
+    sf::Music soundtrackBig;
+    soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
+    soundtrack.setVolume(50);
     soundtrack.setLoop(true);
 
     sf::RectangleShape windowBox(sf::Vector2f(window_X, window_Y));
@@ -72,10 +78,10 @@ int main() {
     Entity player(Assets::Textures::player, (window_X / 5500), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
-    float playerMax_X = window_X - player.getWidth() - 200;
+    float playerMax_X = window_X / 1.8;
     float playerMax_Y = window_Y - player.getHeight();
 
-    Entity enemy(Assets::Textures::enemy, (window_X / 5500), 0, 0, 0, 1000, 1200, 4000);
+    Entity enemy(Assets::Textures::enemy, (window_X / 5500), 0, 0, 1, 1000, 1200, 4000);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
     float enemyMax_X = window_X - enemy.getWidth();
@@ -117,6 +123,7 @@ int main() {
     bool isPlayerReverse = false;
     bool isLaserReverse = false;
     bool isPlayerJumping = false;
+    bool isPlayerBig = false;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -179,6 +186,9 @@ int main() {
                 if (player.getPosition().y > playerMax_Y) {
                     isPlayerJumping = false;
                     player.setSpeed_Y(playerSpeed_Y);
+                    if (player.getScale().x > 0.5) {
+                        stomp.play();                        
+                    }                    
                 }
             }
 
@@ -198,8 +208,12 @@ int main() {
                     isLaserReverse = false;
                 }
 
-                if (laserShoot.getStatus() != sf::Sound::Playing) {
-                    laserShoot.play();
+                if (player.getScale().x < 0.5) {
+                    if (laserShoot.getStatus() != sf::Sound::Playing) {
+                        laserShoot.play();
+                    }
+                } else {
+                    laserShootBig.play();
                 }
                 isLaserShot = true;
             }
@@ -214,13 +228,14 @@ int main() {
                 }
             }
 
-
             if (enemyRandomSpeed_X < 0) {
                 enemy.setTexture(Assets::Textures::enemy);
             } else {
                 enemy.setTexture(Assets::Textures::enemy_reverse);
             }
-            enemy.move(enemyRandomSpeed_X * deltaTime, enemyRandomSpeed_Y * deltaTime);
+            if (enemy.isAlive()) {
+                enemy.move(enemyRandomSpeed_X * deltaTime, 0);
+            }
         }
 
         // Player border limits
@@ -275,10 +290,12 @@ int main() {
 
             if (player.getLives() == 0) {
                 soundtrack.stop();
+                soundtrackBig.stop();
                 gameoverSound.play();
             }
         }
-
+        playerMax_X = window_X / 1.8;
+        playerMax_Y = window_Y - player.getHeight();
         // Collision laser -> enemy
         if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
             if (explosion.getStatus() != sf::Sound::Playing) {
@@ -286,6 +303,16 @@ int main() {
             }
             laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+            // enemy.setLives(-1);
+            if (player.getScale().x < 0.7) {
+                player.setScale(player.getScale().x + 0.005, player.getScale().y + 0.005);
+                laser.setScale(laser.getScale().x + 0.002, laser.getScale().y + 0.002);
+            }
+            if (player.getScale().x > 0.5 && player.getScale().x < 0.501) {
+                background.setTexture(Assets::Textures::backgroundRed);
+                soundtrack.stop();
+                soundtrackBig.play();
+            }
             points++;
             pointsText.setString("SCORE " + std::to_string(points));
         }
@@ -302,9 +329,11 @@ int main() {
         window.clear();
 
         window.draw(background);
-        window.draw(player);        
+        window.draw(player);
         window.draw(laser);
+
         window.draw(enemy);
+        
         window.draw(heart);
         window.draw(lives);
         window.draw(pointsText);
