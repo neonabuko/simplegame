@@ -7,26 +7,25 @@
 
 float enemyRandomSpeed_X;
 float enemyRandomSpeed_Y;
-float elapsedTime;
-std::uniform_real_distribution<float> timeIntervalRange(0.1, 1);
-std::uniform_real_distribution<float> enemySpeedRange(-1000, 100);
-std::random_device randomDevice;
-std::mt19937 gen(randomDevice());
-float generationInterval = timeIntervalRange(gen);
+float elapsedTimeSinceRandomSpeedGeneration;
+std::uniform_real_distribution<float> speedGeneration_randomTimeInterval(0.1, 1);
+std::uniform_real_distribution<float> enemyRandomSpeedRange(-1400, -200);
+std::random_device randomSpeedDevice;
+std::mt19937 gen(randomSpeedDevice());
+float randomSpeedGenerationInterval = speedGeneration_randomTimeInterval(gen);
 
 sf::Font hackNerdFont;
-
 
 int FPS_count = 0;
 std::string FPS_toString = std::to_string(FPS_count);
 sf::Text FPS_Text("FPS " + FPS_toString, hackNerdFont, 22);
 
-void generateRandomSpeeds(int argument) {
-    if (elapsedTime >= generationInterval) {
-        enemyRandomSpeed_X = enemySpeedRange(gen);
-        enemyRandomSpeed_Y = enemySpeedRange(gen);
-        elapsedTime = 0;
-        FPS_Text.setString("FPS " + std::to_string(argument));
+void generateRandomSpeeds(float argument) {
+    if (elapsedTimeSinceRandomSpeedGeneration >= randomSpeedGenerationInterval) {
+        enemyRandomSpeed_X = enemyRandomSpeedRange(gen);
+        enemyRandomSpeed_Y = enemyRandomSpeedRange(gen);
+        elapsedTimeSinceRandomSpeedGeneration = 0;
+        FPS_Text.setString(std::to_string(argument));
         FPS_count = 0;
     }
 }
@@ -60,8 +59,8 @@ int main() {
 
     sf::Music soundtrackBig;
     soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
-    soundtrack.setVolume(70);
-    soundtrack.setLoop(true);
+    soundtrackBig.setVolume(100);
+    soundtrackBig.setLoop(true);
 
     sf::Sprite background(Assets::Textures::background);
     background.setScale(window_X / (1920), window_Y / 1080);
@@ -72,6 +71,9 @@ int main() {
     sf::Sprite heart(Assets::Textures::heart);
     heart.setScale(windowRatio / 6, windowRatio / 6);
     heart.setPosition((window_X / 4), window_Y / 800);
+
+    sf::Sprite explosionSprite(Assets::Textures::explosion);
+    explosionSprite.setScale(0.3, 0.3);
 
     float playerSpeed_X = 900;
     float playerSpeed_Y = 1200;
@@ -97,16 +99,22 @@ int main() {
     float points_Y = window.getSize().y / 800;
     pointsText.setFillColor(sf::Color::White);
     pointsText.setPosition(points_X, points_Y);
+    pointsText.setOutlineColor(sf::Color::Black);
+    pointsText.setOutlineThickness(2);    
     
     std::string livesToString = std::to_string(player.getLives());
     sf::Text lives(livesToString, hackNerdFont, 30);
     lives.setFillColor(sf::Color::White);
+    lives.setOutlineColor(sf::Color::Black);
+    lives.setOutlineThickness(2);    
     float lives_X = heart.getPosition().x + heart.getGlobalBounds().width + 20;
     float lives_Y = heart.getPosition().y;
     lives.setPosition(lives_X, lives_Y);
 
-    sf::Text gameover("GAME OVER", hackNerdFont, 55);
+    sf::Text gameover("GAME OVER", hackNerdFont, 100 * (window_X / 1920));
     gameover.setFillColor(sf::Color::White);
+    gameover.setOutlineColor(sf::Color::Black);
+    gameover.setOutlineThickness(2);
     sf::FloatRect gameoverBounds = gameover.getLocalBounds();
     float gameover_X = (window.getSize().x - gameoverBounds.width) / 2;
     float gameover_Y = (window.getSize().y - gameoverBounds.height) / 2;
@@ -117,9 +125,12 @@ int main() {
     sf::Clock clock;
     sf::Clock deltaClock;
     sf::Clock laserClock;
+    sf::Clock explosionClock;
     float deltaTime = 0.0f;
     sf::Time lastShotTime = sf::seconds(0);
     float laserCooldown = 0.5;
+    sf::Time explosionStartTime = sf::seconds(0);
+    float explosionDuration = 0.5;
 
     bool isKey_M_released = true;
     bool isKey_SPACE_released = true;
@@ -129,6 +140,7 @@ int main() {
     bool isPlayerJumping = false;
     bool isPlayerBig = false;
     bool isLaserAvailable = true;
+    bool isExplosion = false;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -154,14 +166,14 @@ int main() {
             isKey_M_released = true;
         }
 
-        elapsedTime += clock.restart().asSeconds();
+        elapsedTimeSinceRandomSpeedGeneration += clock.restart().asSeconds();
         deltaTime = deltaClock.restart().asSeconds();
         FPS_count++;
-        generateRandomSpeeds(FPS_count);
 
         sf::Time elapsedTimeSinceShot = laserClock.getElapsedTime();
         if (elapsedTimeSinceShot - lastShotTime >= sf::seconds(laserCooldown)) {
             isLaserAvailable = true;
+            lastShotTime = elapsedTimeSinceShot;
         }
 
         // Handle keyboard input
@@ -235,7 +247,6 @@ int main() {
                 }
                 isLaserShot = true;
                 isLaserAvailable = false;
-                lastShotTime = elapsedTimeSinceShot;
             }
 
             if (isLaserShot && isLaserReverse) {
@@ -254,7 +265,7 @@ int main() {
                 enemy.setTexture(Assets::Textures::enemy_reverse);
             }
             if (enemy.isAlive()) {
-                // enemy.move(enemyRandomSpeed_X * deltaTime, 0);
+                enemy.move(enemyRandomSpeed_X * deltaTime, 0);
             }
         }
 
@@ -318,15 +329,20 @@ int main() {
         playerMax_Y = window_Y - player.getHeight();
         // Collision laser -> enemy
         if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
-            if (explosion.getStatus() != sf::Sound::Playing) {
-                explosion.play();
+            isExplosion = true;
+            if (explosion.getStatus() == sf::Sound::Playing) {
+                explosion.stop();
             }
+            explosion.play();
+            explosionStartTime = explosionClock.getElapsedTime();
+            explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y);
+
             laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
             // enemy.setLives(-1);
-            if (player.getScale().x < 0.7) {
+            if (player.getScale().x < 0.6) {
                 player.setScale(player.getScale().x + 0.005, player.getScale().y + 0.005);
-                laser.setScale(laser.getScale().x + 0.002, laser.getScale().y + 0.002);
+                laser.setScale(laser.getScale().x + 0.004, laser.getScale().y + 0.004);
             }
             if (player.getScale().x > 0.5 && player.getScale().x < 0.501) {
                 isPlayerBig = true;
@@ -341,22 +357,44 @@ int main() {
         }
 
         // Background movement
-        if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
-            background.getPosition().x + background.getGlobalBounds().width > window_X) {
-            background.move(-0.05, 0);
-        } else if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
-            background.getPosition().x < 0) {
-            background.move(0.05, 0);
+        if (player.isAlive()) {
+            if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
+                background.getPosition().x + background.getGlobalBounds().width > window_X) {
+                background.move(-0.05, 0);
+            } else if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
+                background.getPosition().x < 0) {
+                background.move(0.05, 0);
+            }
         }
 
-        window.clear();
+        
 
+        window.clear();
         window.draw(background);
-        window.draw(player);
+
+        if (player.isAlive()) {
+            window.draw(player);
+            window.draw(enemy);    
+        }
+
         window.draw(laser);
 
-        window.draw(enemy);
-        
+        if (isExplosion) {
+            sf::Time elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
+            window.draw(explosionSprite);
+            if (elapsedTimeSinceExplosion - explosionStartTime > sf::seconds(explosionDuration / 2) &&
+                elapsedTimeSinceExplosion - explosionStartTime < sf::seconds(explosionDuration)) {
+                explosionSprite.setTexture(Assets::Textures::explosion_opaque50);
+            }
+            if (elapsedTimeSinceExplosion - explosionStartTime > sf::seconds(explosionDuration)) {
+                isExplosion = false;
+                explosionClock.restart();
+                explosionSprite.setTexture(Assets::Textures::explosion);
+            }
+        }
+
+        generateRandomSpeeds(FPS_count);
+
         window.draw(heart);
         window.draw(lives);
         window.draw(pointsText);

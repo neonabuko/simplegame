@@ -15,6 +15,8 @@ namespace Assets {
         sf::Texture laserBlue_reverse;
         sf::Texture player;
         sf::Texture player_reverse;
+        sf::Texture explosion;
+        sf::Texture explosion_opaque50;
     }
 
     namespace Sounds {
@@ -41,6 +43,8 @@ namespace Assets {
         Textures::enemy_reverse.loadFromFile("../src/assets/icon/enemy_reverse.png");
         Textures::player.loadFromFile("../src/assets/icon/player.png");
         Textures::player_reverse.loadFromFile("../src/assets/icon/player_reverse.png");
+        Textures::explosion.loadFromFile("../src/assets/icon/explosion.png");
+        Textures::explosion_opaque50.loadFromFile("../src/assets/icon/explosion_opaque50.png");
     }
 
     void loadSounds() {
