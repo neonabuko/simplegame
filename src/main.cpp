@@ -21,12 +21,12 @@ int FPS_count = 0;
 std::string FPS_toString = std::to_string(FPS_count);
 sf::Text FPS_Text("FPS " + FPS_toString, hackNerdFont, 22);
 
-void generateRandomSpeeds() {
+void generateRandomSpeeds(int argument) {
     if (elapsedTime >= generationInterval) {
         enemyRandomSpeed_X = enemySpeedRange(gen);
         enemyRandomSpeed_Y = enemySpeedRange(gen);
         elapsedTime = 0;
-        FPS_Text.setString("FPS " + std::to_string(FPS_count));
+        FPS_Text.setString("FPS " + std::to_string(argument));
         FPS_count = 0;
     }
 }
@@ -64,7 +64,7 @@ int main() {
     soundtrack.setLoop(true);
 
     sf::Sprite background(Assets::Textures::background);
-    background.setScale(window_X / (1920 / 4), window_Y / 1080);
+    background.setScale(window_X / (1920), window_Y / 1080);
 
     sf::RectangleShape windowBox(sf::Vector2f(background.getLocalBounds().width, background.getLocalBounds().height));
     windowBox.setPosition(background.getPosition().x, background.getPosition().y);
@@ -73,9 +73,9 @@ int main() {
     heart.setScale(windowRatio / 6, windowRatio / 6);
     heart.setPosition((window_X / 4), window_Y / 800);
 
-    float playerSpeed_X = (1000);
-    float playerSpeed_Y = (1200);
-    float playerAcceleration = (4000);
+    float playerSpeed_X = 900;
+    float playerSpeed_Y = 1200;
+    float playerAcceleration = 4000;
     Entity player(Assets::Textures::player, (window_X / 5500), 0, 0, 5, playerSpeed_X, playerSpeed_Y, playerAcceleration);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
@@ -88,7 +88,7 @@ int main() {
     float enemyMax_X = window_X - enemy.getWidth();
     float enemyMax_Y = window_Y - enemy.getHeight();
 
-    Entity laser(Assets::Textures::laser, (windowRatio / 18), -window_X, 0, 0, 3000, 0, 0);
+    Entity laser(Assets::Textures::laserBlue, (window_Y / 5500), -window_X, 0, 0, 3000, 0, 0);
 
     int points = 0;
     std::string pointsToString = std::to_string(points);
@@ -157,7 +157,7 @@ int main() {
         elapsedTime += clock.restart().asSeconds();
         deltaTime = deltaClock.restart().asSeconds();
         FPS_count++;
-        generateRandomSpeeds();
+        generateRandomSpeeds(FPS_count);
 
         sf::Time elapsedTimeSinceShot = laserClock.getElapsedTime();
         if (elapsedTimeSinceShot - lastShotTime >= sf::seconds(laserCooldown)) {
@@ -209,17 +209,17 @@ int main() {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && isLaserAvailable) {
                 if (isPlayerReverse) {
-                    if (!isPlayerBig) {
-                        laser.setTexture(Assets::Textures::laser_reverse);
+                    if (isPlayerBig) {
+                        laser.setTexture(Assets::Textures::laserRed_reverse);
                     } else {
                         laser.setTexture(Assets::Textures::laserBlue_reverse);
                     }
                     laser.setPosition(player.getPosition().x - player.getWidth() / 3, player.getPosition().y + player.getHeight() / 1.7);
                     isLaserReverse = true;
                 } else {
-                    if (!isPlayerBig) {
-                        laser.setTexture(Assets::Textures::laser);
-                    } else {
+                    if (isPlayerBig) {
+                        laser.setTexture(Assets::Textures::laserRed);
+                    }  else {
                         laser.setTexture(Assets::Textures::laserBlue);
                     }
                     laser.setPosition(player.getPosition().x + player.getWidth() / 1.5, player.getPosition().y + player.getHeight() / 1.7);
@@ -343,10 +343,10 @@ int main() {
         // Background movement
         if (player.getPosition().x > playerMax_X - 1 && sf::Keyboard::isKeyPressed(sf::Keyboard::D) && 
             background.getPosition().x + background.getGlobalBounds().width > window_X) {
-            background.move(-0.1, 0);
+            background.move(-0.05, 0);
         } else if (player.getPosition().x == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
             background.getPosition().x < 0) {
-            background.move(0.1, 0);
+            background.move(0.05, 0);
         }
 
         window.clear();

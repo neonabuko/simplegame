@@ -9,8 +9,8 @@ namespace Assets {
         sf::Texture enemy;
         sf::Texture enemy_reverse;
         sf::Texture heart;
-        sf::Texture laser;
-        sf::Texture laser_reverse;
+        sf::Texture laserRed;
+        sf::Texture laserRed_reverse;
         sf::Texture laserBlue;
         sf::Texture laserBlue_reverse;
         sf::Texture player;
@@ -33,8 +33,8 @@ namespace Assets {
         Textures::background.loadFromFile("../src/assets/icon/background.jpg");
         Textures::backgroundRed.loadFromFile("../src/assets/icon/backgroundRed.jpg");
         Textures::heart.loadFromFile("../src/assets/icon/heart.png");
-        Textures::laser.loadFromFile("../src/assets/icon/laser.png");
-        Textures::laser_reverse.loadFromFile("../src/assets/icon/laser_reverse.png");
+        Textures::laserRed.loadFromFile("../src/assets/icon/laser.png");
+        Textures::laserRed_reverse.loadFromFile("../src/assets/icon/laser_reverse.png");
         Textures::laserBlue.loadFromFile("../src/assets/icon/laserBlue.png");
         Textures::laserBlue_reverse.loadFromFile("../src/assets/icon/laserBlue_reverse.png");
         Textures::enemy.loadFromFile("../src/assets/icon/enemy.png");
