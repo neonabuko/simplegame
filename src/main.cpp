@@ -54,19 +54,20 @@ int main() {
 
     sf::Music soundtrack;
     soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
-    soundtrack.setVolume(50);
+    soundtrack.setVolume(70);
     soundtrack.play();
     soundtrack.setLoop(true);
 
     sf::Music soundtrackBig;
     soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
-    soundtrack.setVolume(50);
+    soundtrack.setVolume(70);
     soundtrack.setLoop(true);
-
-    sf::RectangleShape windowBox(sf::Vector2f(window_X, window_Y));
 
     sf::Sprite background(Assets::Textures::background);
     background.setScale(window_X / (1920 / 4), window_Y / 1080);
+
+    sf::RectangleShape windowBox(sf::Vector2f(background.getLocalBounds().width, background.getLocalBounds().height));
+    windowBox.setPosition(background.getPosition().x, background.getPosition().y);
 
     sf::Sprite heart(Assets::Textures::heart);
     heart.setScale(windowRatio / 6, windowRatio / 6);
@@ -87,7 +88,7 @@ int main() {
     float enemyMax_X = window_X - enemy.getWidth();
     float enemyMax_Y = window_Y - enemy.getHeight();
 
-    Entity laser(Assets::Textures::laser, (windowRatio / 20), -window_X, 0, 0, 3000, 0, 0);
+    Entity laser(Assets::Textures::laser, (windowRatio / 18), -window_X, 0, 0, 3000, 0, 0);
 
     int points = 0;
     std::string pointsToString = std::to_string(points);
@@ -115,7 +116,10 @@ int main() {
 
     sf::Clock clock;
     sf::Clock deltaClock;
+    sf::Clock laserClock;
     float deltaTime = 0.0f;
+    sf::Time lastShotTime = sf::seconds(0);
+    float laserCooldown = 0.5;
 
     bool isKey_M_released = true;
     bool isKey_SPACE_released = true;
@@ -124,6 +128,7 @@ int main() {
     bool isLaserReverse = false;
     bool isPlayerJumping = false;
     bool isPlayerBig = false;
+    bool isLaserAvailable = true;
 
     while (window.isOpen()) {
         sf::Event event{};
@@ -138,10 +143,10 @@ int main() {
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
             if (isKey_M_released) {
-                if (soundtrack.getVolume() == 30) {
+                if (soundtrack.getVolume() == 70) {
                     soundtrack.setVolume(0);
                 } else {
-                    soundtrack.setVolume(30);
+                    soundtrack.setVolume(70);
                 }
                 isKey_M_released = false;
             }
@@ -153,6 +158,11 @@ int main() {
         deltaTime = deltaClock.restart().asSeconds();
         FPS_count++;
         generateRandomSpeeds();
+
+        sf::Time elapsedTimeSinceShot = laserClock.getElapsedTime();
+        if (elapsedTimeSinceShot - lastShotTime >= sf::seconds(laserCooldown)) {
+            isLaserAvailable = true;
+        }
 
         // Handle keyboard input
         if (player.isAlive()) {   
@@ -197,13 +207,21 @@ int main() {
                 player.accelerate(0, 1, 1, deltaTime);
             }
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isLaserShot) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && isLaserAvailable) {
                 if (isPlayerReverse) {
-                    laser.setTexture(Assets::Textures::laser_reverse);
+                    if (!isPlayerBig) {
+                        laser.setTexture(Assets::Textures::laser_reverse);
+                    } else {
+                        laser.setTexture(Assets::Textures::laserBlue_reverse);
+                    }
                     laser.setPosition(player.getPosition().x - player.getWidth() / 3, player.getPosition().y + player.getHeight() / 1.7);
                     isLaserReverse = true;
                 } else {
-                    laser.setTexture(Assets::Textures::laser);
+                    if (!isPlayerBig) {
+                        laser.setTexture(Assets::Textures::laser);
+                    } else {
+                        laser.setTexture(Assets::Textures::laserBlue);
+                    }
                     laser.setPosition(player.getPosition().x + player.getWidth() / 1.5, player.getPosition().y + player.getHeight() / 1.7);
                     isLaserReverse = false;
                 }
@@ -216,6 +234,8 @@ int main() {
                     laserShootBig.play();
                 }
                 isLaserShot = true;
+                isLaserAvailable = false;
+                lastShotTime = elapsedTimeSinceShot;
             }
 
             if (isLaserShot && isLaserReverse) {
@@ -223,7 +243,7 @@ int main() {
                     laser.move(-(laser.getSpeed_X() * deltaTime), 0);
                 }
             } else if (isLaserShot && !isLaserReverse) {
-                if (laser.getPosition().x > -laser.getWidth()) {
+                if (laser.getPosition().x < window_X) {
                     laser.move(laser.getSpeed_X() * deltaTime, 0);
                 }
             }
@@ -234,7 +254,7 @@ int main() {
                 enemy.setTexture(Assets::Textures::enemy_reverse);
             }
             if (enemy.isAlive()) {
-                enemy.move(enemyRandomSpeed_X * deltaTime, 0);
+                // enemy.move(enemyRandomSpeed_X * deltaTime, 0);
             }
         }
 
@@ -309,6 +329,9 @@ int main() {
                 laser.setScale(laser.getScale().x + 0.002, laser.getScale().y + 0.002);
             }
             if (player.getScale().x > 0.5 && player.getScale().x < 0.501) {
+                isPlayerBig = true;
+                laserCooldown = 0.4;
+                laser.setSpeed_X(laser.getSpeed_X() * 1.1);
                 background.setTexture(Assets::Textures::backgroundRed);
                 soundtrack.stop();
                 soundtrackBig.play();
