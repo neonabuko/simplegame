@@ -97,7 +97,7 @@ int main() {
     }
 
     float playerSpeed_X = window_X / 1.8;
-    float playerSpeed_Y = window_Y * 1.8;
+    float playerSpeed_Y = window_Y * 2.4;
     float playerAcceleration = 4000;
     int playerLives = 5;
     float playerScale = window_X / 5500;
@@ -105,13 +105,14 @@ int main() {
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
     float playerMax_X;
-    float playerMax_Y = window_Y - player.getHeight();
+    float playerMax_Y = window_Y - player.getHeight() - 10;
 
-    Entity enemy(Textures::enemy, (window_X / 5500), 0, 0, 1, 1000, 1200, 4000);
+    float enemyScale = (window_X / 2000);
+    Entity enemy(Textures::enemy, enemyScale, 0, 0, 1, 1000, 1200, 4000);
     enemy.setInitialPosition(window_X - enemy.getWidth(), window_Y - enemy.getHeight());
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
     float enemyMax_X = window_X - enemy.getWidth();
-    float enemyMax_Y = window_Y - enemy.getHeight();
+    float enemyMax_Y = window_Y - enemy.getHeight() - 10;
 
     float laserScale = (window_Y / 5500);
     Entity laser(Textures::laserBlue, laserScale, -window_X, 0, 0, 3000, 0, 0);
@@ -182,95 +183,6 @@ int main() {
             }
         }
 
-        // Player border limits
-        if (player.getPosition().x > playerMax_X) {
-            player.setPosition(playerMax_X, player.getPosition().y);
-        }
-        if (player.getPosition().x < 0) {
-            player.setPosition(0, player.getPosition().y);
-        }
-        if (player.getPosition().y > playerMax_Y) {
-            player.setPosition(player.getPosition().x, playerMax_Y);
-        }
-        if (player.getPosition().y < 0) {
-            player.setPosition(player.getPosition().x, 0);
-        }
-
-        // Laser border limits
-        if (!laser.getGlobalBounds().intersects(windowBox.getGlobalBounds())) {
-            laser.setPosition(window_X, laser.getPosition().y);
-            isLaserShot = false;
-        }
-
-        FloatRect playerGlobalBounds = player.getGlobalBounds();
-        FloatRect enemyGlobalBounds = enemy.getGlobalBounds();
-        FloatRect laserGlobalBounds = laser.getGlobalBounds();
-        
-        // Player <-> Enemy collision
-        if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
-            if (hurt.getStatus() != Sound::Playing) {
-                hurt.play();
-            }
-            player.setPosition(player.getInitial_X(), player.getInitial_Y());
-            player.setLives(-1);
-            enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
-            lives.setString(to_string(player.getLives()));
-
-            if (player.getLives() == 0) {
-                soundtrack.stop();
-                soundtrackBig.stop();
-                gameoverSound.play();
-                isGameOver = true;
-            }
-        }
-        
-        playerMax_X = window_X / 1.8;
-        playerMax_Y = window_Y - player.getHeight();
-
-        // Laser -> Enemy Collision 
-        if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
-            elapsedTimeSinceExplosion = Time::Zero;
-            if (explosion.getStatus() == Sound::Playing) {
-                explosion.stop();
-            }
-            explosion.play();
-            explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y - explosionSprite.getScale().y * 35);
-
-            laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
-            enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
-            enemy.setLives(-1);
-            elapsedTimeSinceEnemyDied = Time::Zero;
-            if (player.getScale().x < 0.5) {
-                player.setScale(player.getScale().x + 0.01, player.getScale().y + 0.01);
-                laser.setScale(laser.getScale().x + 0.008, laser.getScale().y + 0.008);
-            }
-            if (player.getScale().x > 0.5 && player.getScale().x < 0.501) {
-                isPlayerBig = true;
-                laserCooldown = seconds(0.4);
-                laser.setSpeed_X(laser.getSpeed_X() * 1.2);
-                laser.setScale(laser.getScale().x * 2, laser.getScale().y * 2);
-                soundtrack.stop();
-                soundtrackBig.play();
-            }
-            points++;
-            pointsText.setString("SCORE " + to_string(points));
-            isExplosion = true;
-            explosionClock.restart();
-            enemySpawnClock.restart();
-        }
-
-        // Background movement
-        if (player.isAlive()) {
-            if (player.getPosition().x > playerMax_X - 1 && Keyboard::isKeyPressed(Keyboard::D) && 
-                background.getPosition().x + background.getGlobalBounds().width > window_X) {
-                background.move(-0.05, 0);
-            } else if (player.getPosition().x == 0 && Keyboard::isKeyPressed(Keyboard::A) &&
-                background.getPosition().x < 0) {
-                background.move(0.05, 0);
-            }
-        }
-
-
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             window.close();
         }
@@ -319,17 +231,29 @@ int main() {
             } else {
                 enemy.setTexture(Textures::enemy_reverse);
             }
+
             if (isPlayerBig) {
-                laser.setTexture(Textures::laserRed_reverse);
-                laser.setTexture(Textures::laserRed);
+                if (isLaserReverse) {
+                    laser.setTexture(Textures::laserRed_reverse);
+                } else {
+                    laser.setTexture(Textures::laserRed);
+                }
                 background.setTexture(Textures::backgroundRed);
             } else {
-                laser.setTexture(Textures::laserBlue_reverse);
-                laser.setTexture(Textures::laserBlue);
+                if (isLaserReverse) {
+                    laser.setTexture(Textures::laserBlue_reverse);
+                } else {
+                    laser.setTexture(Textures::laserBlue);
+                }
                 background.setTexture(Textures::background);
             }
 
-            //Player Movement
+            // Gravity
+            if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
+                player.accelerate(0, 1, 1, deltaTime);
+            }            
+
+            // Player Controller
             if (Keyboard::isKeyPressed(Keyboard::A)) {
                 isPlayerReverse = true;
                 player.move(-player.getSpeed_X() * deltaTime, 0);
@@ -357,27 +281,24 @@ int main() {
                 }
             }
 
-            // Gravity
-            if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
-                player.accelerate(0, 1, 1, deltaTime);
-            }
-
             // Shoot Laser
             if (Keyboard::isKeyPressed(Keyboard::Enter) && isLaserAvailable) {
                 elapsedTimeSinceShot = Time::Zero;
-                
+                float laserOrigin_X;
+                float laserOrigin_Y;               
                 if (isPlayerReverse) {
                     isLaserReverse = true;
-                    laser.setPosition(player.getPosition().x - player.getWidth() / 3, player.getPosition().y + player.getHeight() / 1.7);
+                    laserOrigin_X = player.getPosition().x - player.getWidth() / 4; 
+                    laserOrigin_Y = player.getPosition().y + player.getHeight() / 1.7;
+                    laser.setPosition(Vector2f(laserOrigin_X, laserOrigin_Y));
                 } else {
                     isLaserReverse = false;
-                    laser.setPosition(player.getPosition().x + player.getWidth() / 1.5, player.getPosition().y + player.getHeight() / 1.7);
+                    laserOrigin_X = player.getPosition().x + player.getWidth() / 1.5; 
+                    laserOrigin_Y = player.getPosition().y + player.getHeight() / 1.7;                    
+                    laser.setPosition(Vector2f(laserOrigin_X, laserOrigin_Y));
                 }
-
                 if (isPlayerBig) {
-                    if (laserShootBig.getStatus() != Sound::Playing) {
-                        laserShootBig.play();
-                    }
+                    laserShootBig.play();
                 } else {
                     laserShoot.play();
                 }
@@ -431,13 +352,99 @@ int main() {
         } else {
             window.draw(gameover);
         }
+
+        // Player border limits
+        if (player.getPosition().x > playerMax_X) {
+            player.setPosition(playerMax_X, player.getPosition().y);
+        }
+        if (player.getPosition().x < 0) {
+            player.setPosition(0, player.getPosition().y);
+        }
+        if (player.getPosition().y > playerMax_Y) {
+            player.setPosition(player.getPosition().x, playerMax_Y);
+        }
+        if (player.getPosition().y < 0) {
+            player.setPosition(player.getPosition().x, 0);
+        }
+
+        // Laser border limits
+        if (!laser.getGlobalBounds().intersects(windowBox.getGlobalBounds())) {
+            laser.setPosition(window_X, laser.getPosition().y);
+            isLaserShot = false;
+        }
+
+        FloatRect playerGlobalBounds = player.getGlobalBounds();
+        FloatRect enemyGlobalBounds = enemy.getGlobalBounds();
+        FloatRect laserGlobalBounds = laser.getGlobalBounds();
         
+        // Player <-> Enemy collision
+        if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
+            if (hurt.getStatus() != Sound::Playing) {
+                hurt.play();
+            }
+            player.setPosition(player.getInitial_X(), player.getInitial_Y());
+            player.setLives(-1);
+            enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+            lives.setString(to_string(player.getLives()));
+
+            if (player.getLives() == 0) {
+                soundtrack.stop();
+                soundtrackBig.stop();
+                gameoverSound.play();
+                isGameOver = true;
+            }
+        }
+        
+        playerMax_X = window_X / 1.8;
+        playerMax_Y = window_Y - player.getHeight();
+
+        // Laser -> Enemy Collision 
+        if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
+            elapsedTimeSinceExplosion = Time::Zero;
+            if (explosion.getStatus() == Sound::Playing) {
+                explosion.stop();
+            }
+            explosion.play();
+            explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y - explosionSprite.getScale().y * 55);
+
+            laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
+            enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+            enemy.setLives(-1);
+            elapsedTimeSinceEnemyDied = Time::Zero;
+            if (player.getScale().x < 0.5015) {
+                player.setScale(player.getScale().x + 0.01, player.getScale().y + 0.01);
+                laser.setScale(laser.getScale().x + 0.008, laser.getScale().y + 0.008);
+            }
+            if (player.getScale().x > 0.5 && player.getScale().x < 0.501) {
+                isPlayerBig = true;
+                laserCooldown = seconds(0.4);
+                laser.setSpeed_X(laser.getSpeed_X() * 1.2);
+                laser.setScale(laser.getScale().x * 2, laser.getScale().y * 2);
+                soundtrack.stop();
+                soundtrackBig.play();
+            }
+            points++;
+            pointsText.setString("SCORE " + to_string(points));
+            isExplosion = true;
+            explosionClock.restart();
+            enemySpawnClock.restart();
+        }
+
+        // Background movement
+        if (player.isAlive()) {
+            if (player.getPosition().x > playerMax_X - 1 && Keyboard::isKeyPressed(Keyboard::D) && 
+                background.getPosition().x + background.getGlobalBounds().width > window_X) {
+                background.move(-0.05, 0);
+            } else if (player.getPosition().x == 0 && Keyboard::isKeyPressed(Keyboard::A) && background.getPosition().x < 0) {
+                background.move(0.05, 0);
+            }
+        }
+
         generateRandomSpeeds();
         displayFPS(FPS_count);
 
         window.draw(laser);
 
-        float currentFrameFloat;
         if (isExplosion) {
             if (elapsedTimeSinceExplosion < explosionDuration) {
                 currentFrame = static_cast<int>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size());
