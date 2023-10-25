@@ -13,7 +13,7 @@ float enemyRandomSpeed_X = -200;
 float enemyRandomSpeed_Y;
 float elapsedTimeSinceRandomSpeedGeneration;
 uniform_real_distribution<float> speedGeneration_randomTimeInterval(1, 3);
-uniform_real_distribution<float> enemyRandomSpeedRange(-400, -100);
+uniform_real_distribution<float> enemyRandomSpeedRange(-200, -100);
 random_device randomSpeedDevice;
 mt19937 gen(randomSpeedDevice());
 float randomSpeedGenerationInterval = speedGeneration_randomTimeInterval(gen);
@@ -317,10 +317,12 @@ int main() {
 
             if (isLaserShot) {
                 if (isLaserReverse) {
+                    player.setTexture(Textures::player_shooting_reverse);
                     if (laser.getPosition().x > -laser.getWidth()) {
                         laser.move(-(laser.getSpeed_X() * deltaTime), 0);
                     }
                 } else {
+                    player.setTexture(Textures::player_shooting);
                     if (laser.getPosition().x < window_X) {
                         laser.move(laser.getSpeed_X() * deltaTime, 0);
                     }
@@ -434,14 +436,16 @@ int main() {
         if (player.isAlive()) {
             if (player.getPosition().x > playerMax_X - 1 && Keyboard::isKeyPressed(Keyboard::D) && 
                 background.getPosition().x + background.getGlobalBounds().width > window_X) {
-                background.move(-0.05, 0);
+                background.move(-200 * deltaTime, 0);
+                enemy.move(-200 * deltaTime, 0);
             } else if (player.getPosition().x == 0 && Keyboard::isKeyPressed(Keyboard::A) && background.getPosition().x < 0) {
-                background.move(0.05, 0);
+                background.move(200 * deltaTime, 0);
+                enemy.move(200 * deltaTime, 0);
             }
         }
 
         generateRandomSpeeds();
-        displayFPS(FPS_count);
+        displayFPS(enemyRandomSpeed_X);
 
         window.draw(laser);
 
