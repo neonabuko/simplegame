@@ -9,7 +9,7 @@ float enemyRandomSpeed_X;
 float enemyRandomSpeed_Y;
 float elapsedTimeSinceRandomSpeedGeneration;
 std::uniform_real_distribution<float> speedGeneration_randomTimeInterval(0.1, 1);
-std::uniform_real_distribution<float> enemyRandomSpeedRange(-1400, -200);
+std::uniform_real_distribution<float> enemyRandomSpeedRange(-140, -20);
 std::random_device randomSpeedDevice;
 std::mt19937 gen(randomSpeedDevice());
 float randomSpeedGenerationInterval = speedGeneration_randomTimeInterval(gen);
@@ -19,8 +19,9 @@ sf::Font hackNerdFont;
 int FPS_count = 0;
 std::string FPS_toString = std::to_string(FPS_count);
 sf::Text FPS_Text("FPS " + FPS_toString, hackNerdFont, 22);
+sf::Text someText("", hackNerdFont, 30);
 
-void generateRandomSpeeds(float argument) {
+void generateRandomSpeeds(int argument) {
     if (elapsedTimeSinceRandomSpeedGeneration >= randomSpeedGenerationInterval) {
         enemyRandomSpeed_X = enemyRandomSpeedRange(gen);
         enemyRandomSpeed_Y = enemyRandomSpeedRange(gen);
@@ -28,6 +29,13 @@ void generateRandomSpeeds(float argument) {
         FPS_Text.setString(std::to_string(argument));
         FPS_count = 0;
     }
+}
+
+void displaySomeText(auto argument) {
+    someText.setPosition(1400, 40);
+    someText.setOutlineColor(sf::Color::Black);
+    someText.setOutlineThickness(2);
+    someText.setString(std::to_string(argument));
 }
 
 int main() {
@@ -72,8 +80,20 @@ int main() {
     heart.setScale(windowRatio / 6, windowRatio / 6);
     heart.setPosition((window_X / 4), window_Y / 800);
 
-    sf::Sprite explosionSprite(Assets::Textures::explosion);
-    explosionSprite.setScale(0.3, 0.3);
+    sf::Sprite explosionSprite;
+    explosionSprite.setScale(1.5, 1.5);
+
+    std::vector<sf::Texture> explosionTextures;
+    
+    for (int i = 1; i <= 25; ++i) {
+        std::string texturePath = "../src/assets/icon/explosion" + std::to_string(i) + ".png";
+        sf::Texture texture;
+        if (texture.loadFromFile(texturePath)) {
+            explosionTextures.push_back(texture);
+        } else {
+            return 1;
+        }
+    }
 
     float playerSpeed_X = 900;
     float playerSpeed_Y = 1200;
@@ -126,11 +146,19 @@ int main() {
     sf::Clock deltaClock;
     sf::Clock laserClock;
     sf::Clock explosionClock;
-    float deltaTime = 0.0f;
+    sf::Clock enemySpawnClock;
+
+    float deltaTime = 0;
     sf::Time lastShotTime = sf::seconds(0);
     float laserCooldown = 0.5;
-    sf::Time explosionStartTime = sf::seconds(0);
-    float explosionDuration = 0.5;
+    
+    sf::Time explosionDuration = sf::seconds(1);
+    sf::Time elapsedTimeSinceExplosion = sf::Time::Zero;
+
+    sf::Time elapsedTimeSinceEnemyDied = sf::Time::Zero;
+    sf::Time enemySpawnWait = sf::seconds(2);
+
+    int currentFrame = 0;
 
     bool isKey_M_released = true;
     bool isKey_SPACE_released = true;
@@ -329,17 +357,17 @@ int main() {
         playerMax_Y = window_Y - player.getHeight();
         // Collision laser -> enemy
         if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
-            isExplosion = true;
+            elapsedTimeSinceExplosion = sf::Time::Zero;
             if (explosion.getStatus() == sf::Sound::Playing) {
                 explosion.stop();
             }
             explosion.play();
-            explosionStartTime = explosionClock.getElapsedTime();
-            explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y);
+            explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y - explosionSprite.getScale().y * 35);
 
             laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
-            // enemy.setLives(-1);
+            enemy.setLives(-1);
+            elapsedTimeSinceEnemyDied = sf::Time::Zero;
             if (player.getScale().x < 0.6) {
                 player.setScale(player.getScale().x + 0.005, player.getScale().y + 0.005);
                 laser.setScale(laser.getScale().x + 0.004, laser.getScale().y + 0.004);
@@ -354,6 +382,9 @@ int main() {
             }
             points++;
             pointsText.setString("SCORE " + std::to_string(points));
+            isExplosion = true;
+            explosionClock.restart();
+            enemySpawnClock.restart();
         }
 
         // Background movement
@@ -367,38 +398,51 @@ int main() {
             }
         }
 
-        
-
         window.clear();
         window.draw(background);
 
         if (player.isAlive()) {
             window.draw(player);
-            window.draw(enemy);    
-        }
 
+            if (enemy.isAlive()) {
+                window.draw(enemy);
+            } else {
+                elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
+                if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
+                    enemy.setLives(1);
+                    elapsedTimeSinceEnemyDied = enemySpawnWait;
+                }
+            }
+            
+        }
+        
         window.draw(laser);
 
+        float currentFrameFloat;
         if (isExplosion) {
-            sf::Time elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
-            window.draw(explosionSprite);
-            if (elapsedTimeSinceExplosion - explosionStartTime > sf::seconds(explosionDuration / 2) &&
-                elapsedTimeSinceExplosion - explosionStartTime < sf::seconds(explosionDuration)) {
-                explosionSprite.setTexture(Assets::Textures::explosion_opaque50);
-            }
-            if (elapsedTimeSinceExplosion - explosionStartTime > sf::seconds(explosionDuration)) {
+            if (elapsedTimeSinceExplosion < explosionDuration) {
+                currentFrameFloat = static_cast<float>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size());
+                currentFrame = static_cast<int>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size());
+
+                currentFrame = std::min(currentFrame, static_cast<int>(explosionTextures.size() - 1));
+
+                explosionSprite.setTexture(explosionTextures[currentFrame]);
+                window.draw(explosionSprite);
+            } else {
                 isExplosion = false;
-                explosionClock.restart();
-                explosionSprite.setTexture(Assets::Textures::explosion);
+                elapsedTimeSinceExplosion = explosionDuration;
             }
+            elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
         }
 
         generateRandomSpeeds(FPS_count);
+        displaySomeText(elapsedTimeSinceEnemyDied.asSeconds());
 
         window.draw(heart);
         window.draw(lives);
         window.draw(pointsText);
         window.draw(FPS_Text);
+        window.draw(someText);
 
         if (!player.isAlive()) {
             window.draw(gameover);
