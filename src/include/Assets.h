@@ -22,6 +22,14 @@ namespace Assets {
         Texture player_reverse;
         Texture player_shooting;
         Texture player_shooting_reverse;
+        Texture player_powerup;
+        Texture player_reverse_powerup;
+        Texture player_shooting_powerup;
+        Texture player_shooting_reverse_powerup;
+        Texture player_golden;
+        Texture player_golden_reverse;
+        Texture player_golden_shooting;
+        Texture player_golden_shooting_reverse;
 
         Texture explosion1;
         Texture explosion2;
@@ -47,7 +55,6 @@ namespace Assets {
         Texture explosion22;
         Texture explosion23;
         Texture explosion24;
-        Texture explosion25;
     }
 
     namespace Sounds {
@@ -60,62 +67,80 @@ namespace Assets {
         SoundBuffer pop;
         SoundBuffer shrink_ray;
         SoundBuffer stomp;
+        SoundBuffer powerUp;
     }
     
     using namespace Textures;
-    void loadTextures() {
-        heart.loadFromFile("../src/assets/icon/heart.png");
-        background.loadFromFile("../src/assets/icon/background.jpg");
-        backgroundRed.loadFromFile("../src/assets/icon/backgroundRed.jpg");
-        laserRed.loadFromFile("../src/assets/icon/laser.png");
-        laserRed_reverse.loadFromFile("../src/assets/icon/laser_reverse.png");
-        laserBlue.loadFromFile("../src/assets/icon/laserBlue.png");
-        laserBlue_reverse.loadFromFile("../src/assets/icon/laserBlue_reverse.png");
-        enemy.loadFromFile("../src/assets/icon/enemy.png");
-        enemy_reverse.loadFromFile("../src/assets/icon/enemy_reverse.png");
-        player.loadFromFile("../src/assets/icon/player.png");
-        player_reverse.loadFromFile("../src/assets/icon/player_reverse.png");
-        player_shooting.loadFromFile("../src/assets/icon/player_shooting.png");
-        player_shooting_reverse.loadFromFile("../src/assets/icon/player_shooting_reverse.png");
+    using namespace std;
 
-        explosion1.loadFromFile("../src/assets/icon/explosion1.png");
-        explosion2.loadFromFile("../src/assets/icon/explosion2.png");
-        explosion3.loadFromFile("../src/assets/icon/explosion3.png");
-        explosion4.loadFromFile("../src/assets/icon/explosion4.png");
-        explosion5.loadFromFile("../src/assets/icon/explosion5.png");
-        explosion6.loadFromFile("../src/assets/icon/explosion6.png");
-        explosion7.loadFromFile("../src/assets/icon/explosion7.png");
-        explosion8.loadFromFile("../src/assets/icon/explosion8.png");
-        explosion9.loadFromFile("../src/assets/icon/explosion9.png");
-        explosion10.loadFromFile("../src/assets/icon/explosion10.png");
-        explosion11.loadFromFile("../src/assets/icon/explosion11.png");
-        explosion12.loadFromFile("../src/assets/icon/explosion12.png");
-        explosion13.loadFromFile("../src/assets/icon/explosion13.png");
-        explosion14.loadFromFile("../src/assets/icon/explosion14.png");
-        explosion15.loadFromFile("../src/assets/icon/explosion15.png");
-        explosion16.loadFromFile("../src/assets/icon/explosion16.png");
-        explosion17.loadFromFile("../src/assets/icon/explosion17.png");
-        explosion18.loadFromFile("../src/assets/icon/explosion18.png");
-        explosion19.loadFromFile("../src/assets/icon/explosion19.png");
-        explosion20.loadFromFile("../src/assets/icon/explosion20.png");
-        explosion21.loadFromFile("../src/assets/icon/explosion21.png");
-        explosion22.loadFromFile("../src/assets/icon/explosion22.png");
-        explosion23.loadFromFile("../src/assets/icon/explosion23.png");
-        explosion24.loadFromFile("../src/assets/icon/explosion24.png");
-        explosion25.loadFromFile("../src/assets/icon/explosion25.png");
+    void loadTextures() {
+        string iconPath = "../src/assets/icon/";
+
+        heart.loadFromFile(iconPath + "heart.png");
+
+        background.loadFromFile(iconPath + "background.jpg");
+        backgroundRed.loadFromFile(iconPath + "backgroundRed.jpg");
+
+        laserRed.loadFromFile(iconPath + "laser.png");
+        laserRed_reverse.loadFromFile(iconPath + "laser_reverse.png");
+        laserBlue.loadFromFile(iconPath + "laserBlue.png");
+        laserBlue_reverse.loadFromFile(iconPath + "laserBlue_reverse.png");
+
+        enemy.loadFromFile(iconPath + "enemy.png");
+        enemy_reverse.loadFromFile(iconPath + "enemy_reverse.png");
+
+        player.loadFromFile(iconPath + "player.png");
+        player_reverse.loadFromFile(iconPath + "player_reverse.png");
+        player_shooting.loadFromFile(iconPath + "player_shooting.png");
+        player_shooting_reverse.loadFromFile(iconPath + "player_shooting_reverse.png");
+        player_powerup.loadFromFile(iconPath + "player_powerup.png");
+        player_reverse_powerup.loadFromFile(iconPath + "player_reverse_powerup.png");
+        player_shooting_powerup.loadFromFile(iconPath + "player_shooting_powerup.png");
+        player_shooting_reverse_powerup.loadFromFile(iconPath + "player_shooting_reverse_powerup.png");
+        player_golden.loadFromFile(iconPath + "player_golden.png");
+        player_golden_reverse.loadFromFile(iconPath + "player_golden_reverse.png");
+        player_golden_shooting.loadFromFile(iconPath + "player_golden_shooting.png");
+        player_golden_shooting_reverse.loadFromFile(iconPath + "player_golden_shooting_reverse.png");
+
+        explosion1.loadFromFile(iconPath + "explosion1.png");
+        explosion2.loadFromFile(iconPath + "explosion2.png");
+        explosion3.loadFromFile(iconPath + "explosion3.png");
+        explosion4.loadFromFile(iconPath + "explosion4.png");
+        explosion5.loadFromFile(iconPath + "explosion5.png");
+        explosion6.loadFromFile(iconPath + "explosion6.png");
+        explosion7.loadFromFile(iconPath + "explosion7.png");
+        explosion8.loadFromFile(iconPath + "explosion8.png");
+        explosion9.loadFromFile(iconPath + "explosion9.png");
+        explosion10.loadFromFile(iconPath + "explosion10.png");
+        explosion11.loadFromFile(iconPath + "explosion11.png");
+        explosion12.loadFromFile(iconPath + "explosion12.png");
+        explosion13.loadFromFile(iconPath + "explosion13.png");
+        explosion14.loadFromFile(iconPath + "explosion14.png");
+        explosion15.loadFromFile(iconPath + "explosion15.png");
+        explosion16.loadFromFile(iconPath + "explosion16.png");
+        explosion17.loadFromFile(iconPath + "explosion17.png");
+        explosion18.loadFromFile(iconPath + "explosion18.png");
+        explosion19.loadFromFile(iconPath + "explosion19.png");
+        explosion20.loadFromFile(iconPath + "explosion20.png");
+        explosion21.loadFromFile(iconPath + "explosion21.png");
+        explosion22.loadFromFile(iconPath + "explosion22.png");
+        explosion23.loadFromFile(iconPath + "explosion23.png");
+        explosion24.loadFromFile(iconPath + "explosion24.png");
     }
 
     using namespace Sounds;
     void loadSounds() {
-        explosion.loadFromFile("../src/assets/sound/explosion.ogg");
-        gameover.loadFromFile("../src/assets/sound/gameover.ogg");
-        hurt.loadFromFile("../src/assets/sound/hurt.ogg");
-        jump.loadFromFile("../src/assets/sound/jump.ogg");
-        laserShoot.loadFromFile("../src/assets/sound/laserShoot.ogg");
-        laserShootBig.loadFromFile("../src/assets/sound/laserShootBig.ogg");
-        pop.loadFromFile("../src/assets/sound/pop.ogg");
-        shrink_ray.loadFromFile("../src/assets/sound/shrink_ray.ogg");
-        stomp.loadFromFile("../src/assets/sound/stomp.ogg");
+        string soundPath = "../src/assets/sound/";
+
+        explosion.loadFromFile(soundPath + "explosion.ogg");
+        gameover.loadFromFile(soundPath + "gameover.ogg");
+        hurt.loadFromFile(soundPath + "hurt.ogg");
+        jump.loadFromFile(soundPath + "jump.ogg");
+        laserShoot.loadFromFile(soundPath + "laserShoot.ogg");
+        laserShootBig.loadFromFile(soundPath + "laserShootBig.ogg");
+        pop.loadFromFile(soundPath + "pop.ogg");
+        shrink_ray.loadFromFile(soundPath + "shrink_ray.ogg");
+        stomp.loadFromFile(soundPath + "stomp.ogg");
+        powerUp.loadFromFile(soundPath + "powerUp.ogg");
     }
 }
-    

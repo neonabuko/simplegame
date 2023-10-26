@@ -2,6 +2,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include "../include/Entity.h"
 
+using namespace sf;
+
 Entity::Entity(const sf::Texture& texture,
                float scale,
                float initial_X,
@@ -10,15 +12,17 @@ Entity::Entity(const sf::Texture& texture,
                float speed_X,
                float speed_Y,
                float acceleration) {
-    Entity::Sprite::setTexture(texture);
-    Entity::Sprite::setScale(scale, scale);
-    Entity::Sprite::setPosition(initial_X, initial_Y);
+    this->scale_X = scale;
+    this->scale_Y = scale;
     this->lives = lives;
     this->speed_X = speed_X;
     this->speed_Y = speed_Y;
     this->acceleration = acceleration;
     this->initial_X = initial_X;
     this->initial_Y = initial_Y;
+    Entity::Sprite::setTexture(texture);
+    Entity::Sprite::setScale(scale, scale);
+    Entity::Sprite::setPosition(initial_X, initial_Y);
 }
 
 int Entity::getLives() const {
@@ -79,4 +83,10 @@ float Entity::getWidth() {
 float Entity::getHeight() {
     return Entity::Sprite::getLocalBounds().height *
            Entity::Sprite::getScale().y;
+}
+
+void Entity::setScale(float scale_X, float scale_Y) {
+    this->scale_X = scale_X;
+    this->scale_Y = scale_Y;
+    Entity::Sprite::setScale(scale_X, scale_Y);
 }

@@ -59,11 +59,12 @@ int main() {
     Sound jumpSound(Sounds::jump);
     Sound hurt(Sounds::hurt);
     Sound stomp(Sounds::stomp);
+    Sound powerUp(Sounds::powerUp);
 
     Music soundtrack;
     soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
     soundtrack.setVolume(100);
-    soundtrack.play();
+    // soundtrack.play();
     soundtrack.setLoop(true);
 
     Music soundtrackBig;
@@ -85,8 +86,8 @@ int main() {
     explosionSprite.setScale(1.5, 1.5);
 
     vector<Texture> explosionTextures;
-    
-    for (int i = 1; i <= 25; ++i) {
+
+    for (int i = 1; i <= 24; ++i) {
         string texturePath = "../src/assets/icon/explosion" + to_string(i) + ".png";
         Texture texture;
         if (texture.loadFromFile(texturePath)) {
@@ -96,16 +97,22 @@ int main() {
         }
     }
 
-    float playerSpeed_X = window_X / 1.8;
-    float playerSpeed_Y = window_Y * 2.4;
+    float playerSpeed_X = window_X / 3;
+    float playerSpeed_Y = window_Y * 2;
     float playerAcceleration = 4000;
     int playerLives = 5;
     float playerScale = window_X / 5500;
+    float playerScaleOriginal = window_X / 5500;
     Entity player(Textures::player, playerScale, 0, 0, playerLives, playerSpeed_X, playerSpeed_Y, playerAcceleration);
     player.setInitialPosition(0, window_Y - player.getHeight());
     player.setPosition(0, window_Y - player.getHeight());
     float playerMax_X;
-    float playerMax_Y = window_Y - player.getHeight() - 10;
+    float playerMax_Y = window_Y - player.getHeight();
+
+    RectangleShape playerBox;
+    playerBox.setOutlineColor(sf::Color::Red);
+    playerBox.setOutlineThickness(2.0f);
+    playerBox.setFillColor(sf::Color::Transparent);    
 
     float enemyScale = (window_X / 2000);
     Entity enemy(Textures::enemy, enemyScale, 0, 0, 1, 1000, 1200, 4000);
@@ -114,7 +121,8 @@ int main() {
     float enemyMax_X = window_X - enemy.getWidth();
     float enemyMax_Y = window_Y - enemy.getHeight() - 10;
 
-    float laserScale = (window_Y / 5500);
+    float laserScale = window_Y / 5500;
+    float laserScaleOriginal = window_Y / 5500;
     Entity laser(Textures::laserBlue, laserScale, -window_X, 0, 0, 3000, 0, 0);
 
     int points = 0;
@@ -156,7 +164,7 @@ int main() {
     float deltaTime = 0;
     Time laserCooldown = seconds(0.5);
     
-    Time explosionDuration = seconds(1);
+    Time explosionDuration = seconds(0.4);
     Time elapsedTimeSinceExplosion = Time::Zero;
     Time elapsedTimeSinceEnemyDied = Time::Zero;
     Time elapsedTimeSinceShot = Time::Zero;
@@ -166,14 +174,18 @@ int main() {
     int currentFrame = 0;
 
     bool isKey_M_released = true;
-    bool isLaserShot = false;
+    bool isShooting = false;
     bool isPlayerReverse = false;
     bool isPlayerJumping = false;
     bool isPlayerBig = false;
-    bool isLaserAvailable = true;
     bool isExplosion = false;
     bool isGameOver = false;
     bool isLaserReverse = false;
+    bool isFullScreen = false;
+    bool isF11Pressed = false;
+    bool isPowerUp = false;
+
+    float newWindowRatio;
 
     while (window.isOpen()) {
         Event event{};
@@ -182,6 +194,11 @@ int main() {
                 window.close();
             }
         }
+        newWindowRatio = window.getSize().x / window_X;
+
+        player.setScale(playerScale * newWindowRatio, playerScale * newWindowRatio);
+        laser.setScale(laserScale * newWindowRatio, laserScale * newWindowRatio);
+        displayFPS(player.getSpeed_Y());
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             window.close();
@@ -192,10 +209,10 @@ int main() {
                 isGameOver = false;
                 player.setLives(playerLives);
                 background.setTexture(Textures::background);
-                soundtrack.play();
-                player.setScale(Vector2f(playerScale, playerScale));
-                laser.setScale(Vector2f(laserScale, laserScale));
+                playerScale = playerScaleOriginal;
+                laserScale = laserScaleOriginal;
                 isPlayerBig = false;
+                soundtrack.play();
             }
         }
 
@@ -212,19 +229,70 @@ int main() {
             isKey_M_released = true;
         }
 
-        playerMax_X = window.getSize().x / 1.2;
+        playerMax_X = window.getSize().x / 1.3;
 
         elapsedTimeSinceRandomSpeedGeneration += clock.restart().asSeconds();
         deltaTime = deltaClock.restart().asSeconds();
         FPS_count++;
 
-
         if (!isGameOver) {
+            playerBox.setPosition(player.getPosition());
+            playerBox.setSize(sf::Vector2f(player.getWidth(), player.getHeight()));
+
+            if (isPowerUp) {
+                laserScale += 0.03 * newWindowRatio * deltaTime;
+                playerScale += 0.03 * newWindowRatio * deltaTime;
+                playerMax_Y = window_Y - player.getHeight();
+                if (!isPlayerJumping) {
+                    player.setPosition(player.getPosition().x, playerMax_Y);
+                }
+            }
+
             // Set textures
             if (isPlayerReverse) {
-                player.setTexture(Textures::player_reverse);
+                if (isShooting) {
+                    if (isPowerUp) {
+                        player.setTexture(Textures::player_shooting_reverse_powerup);
+                    } else {
+                        if (isPlayerBig) {
+                            player.setTexture(Textures::player_golden_shooting_reverse);
+                        } else {
+                            player.setTexture(Textures::player_shooting_reverse);
+                        }
+                    }
+                } else {
+                    if (isPowerUp) {
+                        player.setTexture(Textures::player_reverse_powerup);
+                    } else {
+                        if (isPlayerBig) {
+                            player.setTexture(Textures::player_golden_reverse);
+                        } else {
+                            player.setTexture(Textures::player_reverse);
+                        }
+                    }
+                }
             } else {
-                player.setTexture(Textures::player);
+                if (isShooting && laser.getPosition().x < 1000) {
+                    if (isPowerUp) {
+                        player.setTexture(Textures::player_shooting_powerup);
+                    } else {
+                        if (isPlayerBig) {
+                            player.setTexture(Textures::player_golden_shooting);
+                        } else {
+                            player.setTexture(Textures::player_shooting);
+                        }
+                    }
+                } else {
+                    if (isPowerUp) {
+                        player.setTexture(Textures::player_powerup);    
+                    } else {
+                        if (isPlayerBig) {
+                            player.setTexture(Textures::player_golden);
+                        } else {
+                            player.setTexture(Textures::player);
+                        }
+                    }
+                }
             }
             if (player.getPosition().x < enemy.getPosition().x) {
                 enemy.setTexture(Textures::enemy);
@@ -248,11 +316,23 @@ int main() {
                 background.setTexture(Textures::background);
             }
 
+            // Jumping
+            if (isPlayerJumping) {
+                player.accelerate(0, -1, -1, deltaTime);
+                if (player.getPosition().y > playerMax_Y) {
+                    player.setSpeed_Y(playerSpeed_Y);
+                    isPlayerJumping = false;
+                    if (isPlayerBig) {
+                        stomp.play();  
+                    }      
+                }
+            }
+
             // Gravity
             if (!isPlayerJumping && player.getPosition().y != playerMax_Y) {
                 player.accelerate(0, 1, 1, deltaTime);
-            }            
-
+            }
+                        
             // Player Controller
             if (Keyboard::isKeyPressed(Keyboard::A)) {
                 isPlayerReverse = true;
@@ -269,20 +349,8 @@ int main() {
                 jumpSound.play();
             }
 
-            // Jumping        
-            if (isPlayerJumping) {
-                player.accelerate(0, -1, -1, deltaTime);
-                if (player.getPosition().y > playerMax_Y) {
-                    player.setSpeed_Y(playerSpeed_Y);
-                    isPlayerJumping = false;
-                    if (isPlayerBig) {
-                        stomp.play();  
-                    }      
-                }
-            }
-
             // Shoot Laser
-            if (Keyboard::isKeyPressed(Keyboard::Enter) && isLaserAvailable) {
+            if (Keyboard::isKeyPressed(Keyboard::Enter) && !isShooting) {
                 elapsedTimeSinceShot = Time::Zero;
                 float laserOrigin_X;
                 float laserOrigin_Y;               
@@ -302,27 +370,24 @@ int main() {
                 } else {
                     laserShoot.play();
                 }
-                isLaserShot = true;
-                isLaserAvailable = false;
+                isShooting = true;
                 laserClock.restart();
             }
 
-            if (!isLaserAvailable) {
+            if (isShooting) {
                 elapsedTimeSinceShot = laserClock.getElapsedTime();
                 if (elapsedTimeSinceShot > laserCooldown) {
-                    isLaserAvailable = true;
+                    isShooting = false;
                     elapsedTimeSinceShot = laserCooldown;
                 }
             }
 
-            if (isLaserShot) {
+            if (isShooting) {
                 if (isLaserReverse) {
-                    player.setTexture(Textures::player_shooting_reverse);
                     if (laser.getPosition().x > -laser.getWidth()) {
                         laser.move(-(laser.getSpeed_X() * deltaTime), 0);
                     }
                 } else {
-                    player.setTexture(Textures::player_shooting);
                     if (laser.getPosition().x < window_X) {
                         laser.move(laser.getSpeed_X() * deltaTime, 0);
                     }
@@ -338,9 +403,9 @@ int main() {
             if (enemy.isAlive()) {
                 window.draw(enemy);
                 if (player.getPosition().x < enemy.getPosition().x) {
-                    enemy.move(enemyRandomSpeed_X * deltaTime, 0);
+                    // enemy.move(enemyRandomSpeed_X * deltaTime, 0);
                 } else {
-                    enemy.move(-enemyRandomSpeed_X * deltaTime, 0);
+                    // enemy.move(-enemyRandomSpeed_X * deltaTime, 0);
                 }                
             } else {
                 enemy.setPosition(0, -enemy.getHeight());
@@ -371,16 +436,15 @@ int main() {
 
         // Laser border limits
         if (!laser.getGlobalBounds().intersects(windowBox.getGlobalBounds())) {
-            laser.setPosition(window_X, laser.getPosition().y);
-            isLaserShot = false;
+            laser.setPosition(window_X, -200);
         }
 
-        FloatRect playerGlobalBounds = player.getGlobalBounds();
-        FloatRect enemyGlobalBounds = enemy.getGlobalBounds();
-        FloatRect laserGlobalBounds = laser.getGlobalBounds();
+        FloatRect playerBounds = player.getGlobalBounds();
+        FloatRect enemyBounds = enemy.getGlobalBounds();
+        FloatRect laserBounds = laser.getGlobalBounds();
         
         // Player <-> Enemy collision
-        if (playerGlobalBounds.intersects(enemyGlobalBounds)) {
+        if (playerBounds.intersects(enemyBounds)) {
             if (hurt.getStatus() != Sound::Playing) {
                 hurt.play();
             }
@@ -401,7 +465,7 @@ int main() {
         playerMax_Y = window_Y - player.getHeight();
 
         // Laser -> Enemy Collision 
-        if (laserGlobalBounds.intersects(enemyGlobalBounds)) {
+        if (laserBounds.intersects(enemyBounds)) {
             elapsedTimeSinceExplosion = Time::Zero;
             if (explosion.getStatus() == Sound::Playing) {
                 explosion.stop();
@@ -413,17 +477,20 @@ int main() {
             enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
             enemy.setLives(-1);
             elapsedTimeSinceEnemyDied = Time::Zero;
-            if (player.getScale().x < 0.5015) {
-                player.setScale(player.getScale().x + 0.01, player.getScale().y + 0.01);
-                laser.setScale(laser.getScale().x + 0.008, laser.getScale().y + 0.008);
-            }
-            if (player.getScale().x > 0.5 && player.getScale().x < 0.501) {
+
+            if (player.getScale().x < 0.5 * newWindowRatio) {
+                if (points % 2 == 0) {
+                    isPowerUp = true;
+                    powerUp.play();
+                }
+            } else {
                 isPlayerBig = true;
-                laserCooldown = seconds(0.4);
-                laser.setSpeed_X(laser.getSpeed_X() * 1.2);
-                laser.setScale(laser.getScale().x * 2, laser.getScale().y * 2);
+                laserCooldown = seconds(0.38);
+
                 soundtrack.stop();
-                soundtrackBig.play();
+                if (soundtrackBig.getStatus() != Sound::Playing) {
+                    soundtrackBig.play();
+                }
             }
             points++;
             pointsText.setString("SCORE " + to_string(points));
@@ -444,19 +511,18 @@ int main() {
             }
         }
 
-        generateRandomSpeeds();
-        displayFPS(enemyRandomSpeed_X);
-
+        generateRandomSpeeds();        
         window.draw(laser);
 
         if (isExplosion) {
             if (elapsedTimeSinceExplosion < explosionDuration) {
-                currentFrame = static_cast<int>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size());
+                currentFrame = static_cast<int>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size() / explosionDuration.asSeconds());
                 currentFrame = min(currentFrame, static_cast<int>(explosionTextures.size() - 1));
                 explosionSprite.setTexture(explosionTextures[currentFrame]);
                 window.draw(explosionSprite);
             } else {
                 isExplosion = false;
+                isPowerUp = false;
                 elapsedTimeSinceExplosion = explosionDuration;
             }
             elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
@@ -467,6 +533,7 @@ int main() {
         window.draw(pointsText);
         window.draw(FPS_Text);
         window.draw(someText);
+        window.draw(playerBox);
 
         window.display();
     }

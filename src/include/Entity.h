@@ -6,7 +6,9 @@
 
 class Entity : public sf::Sprite {
 private:
-    int lives;
+    float scale_X{};
+    float scale_Y{};
+    int lives{};
     float speed_X{};
     float speed_Y{};
     float acceleration{};
@@ -42,6 +44,8 @@ public:
     void setSpeed_X(float speed_X);
 
     void setSpeed_Y(float speed_Y);
+
+    void setScale(float scale_X, float scale_Y);
 
     void setAcceleration(float acceleration);
 
