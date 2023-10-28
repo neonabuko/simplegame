@@ -447,7 +447,7 @@ int main() {
             if (gameoverFrame.getPosition().y < (window.getSize().y - gameoverFrame.getGlobalBounds().height) / 3) {
                 gameoverFrame.move(0, 3);
                 FloatRect frameRect = gameoverFrame.getGlobalBounds();
-                gameover.setPosition(gameoverFrame.getPosition().x + 200, gameoverFrame.getPosition().y + 270);
+                gameover.setPosition(gameoverFrame.getPosition().x + 200 * currentWindowRatio, gameoverFrame.getPosition().y + 270 * currentWindowRatio);
             }
             window.draw(gameoverFrame);
             window.draw(gameover);            
