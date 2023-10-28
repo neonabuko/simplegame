@@ -16,6 +16,7 @@ private:
     float acceleration{};
     float initial_X{};
     float initial_Y{};
+    bool isJumping{};
 
 public:
     Entity(const sf::Texture& texture,
@@ -62,6 +63,10 @@ public:
     void accelerate(int X, int Y, int Z, float deltaTime);
 
     bool jump(float deltaTime, float initialSpeed_Y);
+
+    void setIsJumping(bool isJumping);
+
+    bool getIsJumping();
 };
 
 #endif //SIMPLEGAME_ENTITY_H

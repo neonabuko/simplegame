@@ -108,3 +108,11 @@ bool Entity::jump(float deltaTime, float initialSpeed_Y) {
         return true;
     }
 }
+
+void Entity::setIsJumping(bool isJumping) {
+    this->isJumping = isJumping;
+}
+
+bool Entity::getIsJumping() {
+    return this->isJumping;
+}

@@ -83,10 +83,9 @@ int main() {
     float playerInitial_X = 0;
     float playerInitial_Y = window_Y;
     int playerLives = 1;
-    float playerSpeed_X = window_X / 2.5;
+    float playerSpeed_X = window_X / 2.2;
     float playerInitialSpeed_Y = window_Y * 2;
     float playerAcceleration = 5000;
-
     Entity player(Textures::player, playerInitialScale, playerInitial_X, playerInitial_Y, playerLives, playerSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.setPosition(0, window_Y - player.getHeight());
     float playerMax_X;
@@ -103,6 +102,17 @@ int main() {
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
     float enemyMax_X = window_X - enemy.getWidth();
     float enemyMax_Y;
+
+    vector<Entity> enemies;
+    enemies.push_back(enemy);
+    enemies.push_back(enemy);
+    enemies.push_back(enemy);
+
+    float enemiesMax_Y;
+
+    for (int i = 0; i < enemies.size(); i++) {
+        enemies[i].setPosition(300 * (i + 1), window_Y - enemies[i].getHeight());
+    }
 
     float laserScale = window_Y / 6500;
     float laserScaleOriginal = window_Y / 6500;
@@ -177,7 +187,7 @@ int main() {
     bool isFullScreen = false;
     bool isF11Pressed = false;
     bool isPowerUp = false;
-
+    bool areJumping = false;
     float enemySpeed_X = -200;
     float currentWindowRatio;
     float FPS_count;
@@ -220,6 +230,7 @@ int main() {
         if (Keyboard::isKeyPressed(Keyboard::R)) {
             if (isGameOver) {
                 player.setLives(playerLives);
+                lives.setString(to_string(playerLives));
                 background.setTexture(Textures::background);
                 playerScale = playerInitialScale;
                 laserScale = laserScaleOriginal;
@@ -252,7 +263,7 @@ int main() {
         if (player.getPosition().y == playerMax_Y) {
             player.setSpeed_Y(playerInitialSpeed_Y);
         }
-
+        
         float playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
         float jumpVolume = 100 * exp(-0.0002 * playerEnemyDistance);
         jumpSound.setVolume(jumpVolume);
@@ -266,8 +277,6 @@ int main() {
         playerBox.setSize(sf::Vector2f(player.getWidth(), player.getHeight()));
 
         deltaTime = deltaClock.restart().asSeconds();
-
-        FPS_to_text(player.getScale().x);
 
         if (!isGameOver) {
             if (isPowerUp) {
@@ -361,7 +370,19 @@ int main() {
             } else {
                 isEnemyJumping = enemy.jump(deltaTime, 4000);
             }
-                        
+
+            // Gravity Enemies
+            for (int i = 0; i < enemies.size(); i++) {
+                if (areJumping == false && enemies[i].getPosition().y < enemyMax_Y) {
+                    enemies[i].accelerate(0, 1, 1, deltaTime);
+                } else {
+                    areJumping = enemies[i].jump(deltaTime, 4000);
+                    if (enemies[i].getPosition().y > enemyMax_Y) {
+                        enemies[i].setSpeed_Y(playerInitial_Y);
+                    }
+                }
+            }
+     
             // Move Left
             if (Keyboard::isKeyPressed(Keyboard::A)) {
                 isPlayerReverse = true;
@@ -429,11 +450,14 @@ int main() {
             window.draw(player);
             if (enemy.isAlive()) {
                 window.draw(enemy);
+                for (Entity en : enemies) {
+                    window.draw(en);
+                }
                 if (player.getPosition().x < enemy.getPosition().x) {
                     enemy.move(enemySpeed_X * deltaTime, 0);
                 } else {
                     enemy.move(-enemySpeed_X * deltaTime, 0);
-                }                
+                }   
             } else {
                 enemy.setPosition(0, -enemy.getHeight());
                 elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
@@ -501,15 +525,16 @@ int main() {
             elapsedTimeSinceEnemyDied = Time::Zero;
 
             playerScore++;
+            enemySpeed_X -= 10;
 
             if (player.getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
-                if (playerScore % 1 == 0) {
+                if (playerScore % 5 == 0) {
                     isPowerUp = true;
                     powerUp.play();
                 } else {
                     isPowerUp = false;
                 }
-            } else if ((int)player.getScale().x * 10 == (int)playerInitialScale * 19) {
+            } else if ((int) player.getScale().x * 10 == (int) playerInitialScale * 20) {
                 laser.setSpeed_X(laserInitialSpeed_X * 2);
                 isPlayerBig = true;
                 laserCooldown = seconds(0.38);
