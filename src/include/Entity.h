@@ -6,6 +6,8 @@
 
 class Entity : public sf::Sprite {
 private:
+    float initialScale_X{};
+    float initialScale_Y{};
     float scale_X{};
     float scale_Y{};
     int lives{};
@@ -25,19 +27,27 @@ public:
            float speed_Y,
            float acceleration);
 
-    float getSpeed_X() const;
+    float getInitialScale_X() const;
 
-    float getSpeed_Y() const;
-
-    bool isAlive() const;
+    float getInitialScale_Y() const;
 
     float getInitial_X() const;
 
     float getInitial_Y() const;
 
-    void setInitialPosition(float initial_X, float initial_Y);
-
     int getLives() const;
+
+    float getSpeed_X() const;
+
+    float getSpeed_Y() const;
+
+    float getWidth();
+
+    float getHeight();
+
+    void setScale(float scale_X, float scale_Y);
+
+    void setInitialPosition(float initial_X, float initial_Y);
 
     void setLives(int lives);
 
@@ -45,15 +55,13 @@ public:
 
     void setSpeed_Y(float speed_Y);
 
-    void setScale(float scale_X, float scale_Y);
-
     void setAcceleration(float acceleration);
 
-    float getWidth();
+    bool isAlive() const;
 
-    float getHeight();
-    
     void accelerate(int X, int Y, int Z, float deltaTime);
+
+    bool jump(float deltaTime, float initialSpeed_Y);
 };
 
 #endif //SIMPLEGAME_ENTITY_H

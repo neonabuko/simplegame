@@ -6,6 +6,7 @@ using namespace sf;
 namespace Assets {
     namespace Textures {
         Texture heart;
+        Texture frame;
 
         Texture background;
         Texture backgroundRed;
@@ -77,6 +78,7 @@ namespace Assets {
         string iconPath = "../src/assets/icon/";
 
         heart.loadFromFile(iconPath + "heart.png");
+        frame.loadFromFile(iconPath + "frame.png");
 
         background.loadFromFile(iconPath + "background.jpg");
         backgroundRed.loadFromFile(iconPath + "backgroundRed.jpg");
