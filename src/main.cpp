@@ -79,6 +79,7 @@ int main() {
     }
 
     float playerScale = window_X / 5500;
+    float playerInitialScale = window_X / 5500;
     float playerInitial_X = 0;
     float playerInitial_Y = window_Y;
     int playerLives = 1;
@@ -86,11 +87,10 @@ int main() {
     float playerInitialSpeed_Y = window_Y * 2;
     float playerAcceleration = 5000;
 
-    Entity player(Textures::player, playerScale, playerInitial_X, playerInitial_Y, playerLives, playerSpeed_X, playerInitialSpeed_Y, playerAcceleration);
+    Entity player(Textures::player, playerInitialScale, playerInitial_X, playerInitial_Y, playerLives, playerSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.setPosition(0, window_Y - player.getHeight());
     float playerMax_X;
     float playerMax_Y;
-    float playerInitialScale = player.getInitialScale_X();
 
     RectangleShape playerBox;
     playerBox.setOutlineColor(sf::Color::Red);
@@ -157,12 +157,12 @@ int main() {
     Time elapsedTimeSinceEnemyDied = Time::Zero;
     Time elapsedTimeSinceShot = Time::Zero;
 
-    float deltaTime = 0;
-    float playerScaleIncreaseFactor = 0.08;
+    float deltaTime;
+    float playerScaleIncreaseFactor = 0.03;
 
     Time enemySpawnWait = seconds(0.3);
 
-    int currentFrame = 0;
+    int currentFrame;
 
     bool isKey_M_released = true;
     bool isKey_Space_released = true;
@@ -180,7 +180,7 @@ int main() {
 
     float enemySpeed_X = -200;
     float currentWindowRatio;
-    float FPS_count = 0;
+    float FPS_count;
     
     while (window.isOpen()) {
         Event event{};
@@ -254,11 +254,11 @@ int main() {
         }
 
         float playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
-        float jumpVolume = 100 - (playerEnemyDistance / 32);
+        float jumpVolume = 100 * exp(-0.0002 * playerEnemyDistance);
+        jumpSound.setVolume(jumpVolume);
         
         if (enemy.getPosition().y > enemyMax_Y) {
             enemy.setSpeed_Y(playerInitialSpeed_Y);
-            jumpSound.setVolume(jumpVolume);
             jumpSound.play();
         }
 
@@ -267,7 +267,7 @@ int main() {
 
         deltaTime = deltaClock.restart().asSeconds();
 
-        FPS_to_text(jumpSound.getVolume());
+        FPS_to_text(player.getScale().x);
 
         if (!isGameOver) {
             if (isPowerUp) {
@@ -500,23 +500,26 @@ int main() {
             enemy.setLives(-1);
             elapsedTimeSinceEnemyDied = Time::Zero;
 
-            if (player.getScale().x < 0.5 * currentWindowRatio) {
-                if (playerScore % 3 == 0) {
+            playerScore++;
+
+            if (player.getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
+                if (playerScore % 1 == 0) {
                     isPowerUp = true;
                     powerUp.play();
                 } else {
                     isPowerUp = false;
                 }
-            } else {
+            } else if ((int)player.getScale().x * 10 == (int)playerInitialScale * 19) {
                 laser.setSpeed_X(laserInitialSpeed_X * 2);
                 isPlayerBig = true;
                 laserCooldown = seconds(0.38);
-                soundtrack.stop();
+                if (soundtrack.getStatus() == Sound::Playing) {
+                    soundtrack.stop();
+                }
                 if (soundtrackBig.getStatus() != Sound::Playing) {
                     soundtrackBig.play();
                 }
             }
-            playerScore++;
             playerScoreText.setString("SCORE " + to_string(playerScore));
             isExplosion = true;
             explosionClock.restart();
