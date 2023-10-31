@@ -100,7 +100,7 @@ void Entity::setScale(float scale_X, float scale_Y) {
     Entity::Sprite::setScale(scale_X, scale_Y);
 }
 
-bool Entity::jump(float deltaTime, float initialSpeed_Y) {
+bool Entity::jump(float deltaTime) {
     if (speed_Y < 0) {
         return false;
     } else {

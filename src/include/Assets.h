@@ -3,6 +3,7 @@
 #include <SFML/Audio.hpp>
 
 using namespace sf;
+using namespace std;
 namespace Assets {
     namespace Textures {
         Texture heart;
@@ -56,19 +57,44 @@ namespace Assets {
         Texture explosion22;
         Texture explosion23;
         Texture explosion24;
+
+        vector<Texture> explosionTextures;
     }
 
     namespace Sounds {
-        SoundBuffer explosion;
-        SoundBuffer gameover;
-        SoundBuffer hurt;
-        SoundBuffer jump;
-        SoundBuffer laserShoot;
-        SoundBuffer laserShootBig;
-        SoundBuffer pop;
-        SoundBuffer shrink_ray;
-        SoundBuffer stomp;
-        SoundBuffer powerUp;
+        SoundBuffer explosionBuffer;
+        SoundBuffer gameoverBuffer;
+        SoundBuffer hurtBuffer;
+        SoundBuffer jumpBuffer;
+        SoundBuffer laserShootBuffer;
+        SoundBuffer laserShootBigBuffer;
+        SoundBuffer popBuffer;
+        SoundBuffer shrink_rayBuffer;
+        SoundBuffer stompBuffer;
+        SoundBuffer powerUpBuffer;
+
+        Sound explosion;
+        Sound gameover;
+        Sound hurt;
+        Sound jump;
+        Sound laserShoot;
+        Sound laserShootBig;
+        Sound pop;
+        Sound shrink_ray;
+        Sound stomp;
+        Sound powerUp;
+
+        Music soundtrack;
+        Music soundtrackBig;        
+    }
+
+    namespace Clocks {
+        Clock randomSpeedClock;
+        Clock deltaClock;
+        Clock laserClock;
+        Clock explosionClock;
+        Clock enemySpawnClock;
+        Clock FPSClock;        
     }
     
     using namespace Textures;
@@ -128,21 +154,41 @@ namespace Assets {
         explosion22.loadFromFile(iconPath + "explosion22.png");
         explosion23.loadFromFile(iconPath + "explosion23.png");
         explosion24.loadFromFile(iconPath + "explosion24.png");
+
+        for (int i = 1; i <= 24; ++i) {
+            string texturePath = "../src/assets/icon/explosion" + to_string(i) + ".png";
+            Texture texture;
+            texture.loadFromFile(texturePath);
+            explosionTextures.push_back(texture);
+        }        
     }
 
     using namespace Sounds;
     void loadSounds() {
         string soundPath = "../src/assets/sound/";
 
-        explosion.loadFromFile(soundPath + "explosion.ogg");
-        gameover.loadFromFile(soundPath + "gameover.ogg");
-        hurt.loadFromFile(soundPath + "hurt.ogg");
-        jump.loadFromFile(soundPath + "jump.ogg");
-        laserShoot.loadFromFile(soundPath + "laserShoot.ogg");
-        laserShootBig.loadFromFile(soundPath + "laserShootBig.ogg");
-        pop.loadFromFile(soundPath + "pop.ogg");
-        shrink_ray.loadFromFile(soundPath + "shrink_ray.ogg");
-        stomp.loadFromFile(soundPath + "stomp.ogg");
-        powerUp.loadFromFile(soundPath + "powerUp.ogg");
+        explosionBuffer.loadFromFile(soundPath + "explosion.ogg");
+        gameoverBuffer.loadFromFile(soundPath + "gameover.ogg");
+        hurtBuffer.loadFromFile(soundPath + "hurt.ogg");
+        jumpBuffer.loadFromFile(soundPath + "jump.ogg");
+        laserShootBuffer.loadFromFile(soundPath + "laserShoot.ogg");
+        laserShootBigBuffer.loadFromFile(soundPath + "laserShootBig.ogg");
+        popBuffer.loadFromFile(soundPath + "pop.ogg");
+        shrink_rayBuffer.loadFromFile(soundPath + "shrink_ray.ogg");
+        stompBuffer.loadFromFile(soundPath + "stomp.ogg");
+        powerUpBuffer.loadFromFile(soundPath + "powerUp.ogg");
+
+        explosion = Sound(explosionBuffer);
+        gameover  = Sound(gameoverBuffer);
+        hurt = Sound(hurtBuffer);
+        jump = Sound(jumpBuffer);
+        laserShoot = Sound(laserShootBuffer);
+        laserShootBig = Sound(laserShootBigBuffer);
+        pop = Sound(popBuffer);
+        shrink_ray = Sound(shrink_rayBuffer);
+        stomp = Sound(stompBuffer);
+
+        soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
+        soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
     }
 }

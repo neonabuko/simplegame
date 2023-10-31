@@ -62,7 +62,7 @@ public:
 
     void accelerate(int X, int Y, int Z, float deltaTime);
 
-    bool jump(float deltaTime, float initialSpeed_Y);
+    bool jump(float deltaTime);
 
     void setIsJumping(bool isJumping);
 
