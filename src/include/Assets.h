@@ -72,6 +72,7 @@ namespace Assets {
         SoundBuffer shrink_rayBuffer;
         SoundBuffer stompBuffer;
         SoundBuffer powerUpBuffer;
+        SoundBuffer stompLightBuffer;
 
         Sound explosion;
         Sound gameover;
@@ -83,6 +84,7 @@ namespace Assets {
         Sound shrink_ray;
         Sound stomp;
         Sound powerUp;
+        Sound stompLight;
 
         Music soundtrack;
         Music soundtrackBig;        
@@ -177,6 +179,7 @@ namespace Assets {
         shrink_rayBuffer.loadFromFile(soundPath + "shrink_ray.ogg");
         stompBuffer.loadFromFile(soundPath + "stomp.ogg");
         powerUpBuffer.loadFromFile(soundPath + "powerUp.ogg");
+        stompLightBuffer.loadFromFile(soundPath + "stompLight.ogg");
 
         explosion = Sound(explosionBuffer);
         gameover  = Sound(gameoverBuffer);
@@ -188,6 +191,7 @@ namespace Assets {
         shrink_ray = Sound(shrink_rayBuffer);
         stomp = Sound(stompBuffer);
         powerUp = Sound(powerUpBuffer);
+        stompLight = Sound(stompLightBuffer);
 
         soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
         soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
