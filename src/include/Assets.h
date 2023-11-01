@@ -187,6 +187,7 @@ namespace Assets {
         pop = Sound(popBuffer);
         shrink_ray = Sound(shrink_rayBuffer);
         stomp = Sound(stompBuffer);
+        powerUp = Sound(powerUpBuffer);
 
         soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
         soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");

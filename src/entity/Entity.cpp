@@ -79,9 +79,9 @@ void Entity::setAcceleration(float acceleration) {
     this->acceleration = acceleration;
 }
 
-void Entity::accelerate(int X, int Y, int Z, float deltaTime) {
-    speed_Y += acceleration * Z * deltaTime;
-    Entity::move(0, Y * speed_Y * deltaTime);
+void Entity::accelerate(float deltaTime) {
+    speed_Y += acceleration * deltaTime;
+    Entity::move(0, speed_Y);
 }
 
 float Entity::getWidth() {
@@ -98,21 +98,4 @@ void Entity::setScale(float scale_X, float scale_Y) {
     this->scale_X = scale_X;
     this->scale_Y = scale_Y;
     Entity::Sprite::setScale(scale_X, scale_Y);
-}
-
-bool Entity::jump(float deltaTime) {
-    if (speed_Y < 0) {
-        return false;
-    } else {
-        accelerate(0, -1, -1, deltaTime);
-        return true;
-    }
-}
-
-void Entity::setIsJumping(bool isJumping) {
-    this->isJumping = isJumping;
-}
-
-bool Entity::getIsJumping() {
-    return this->isJumping;
 }
