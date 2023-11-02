@@ -66,6 +66,7 @@ namespace Assets {
         SoundBuffer gameoverBuffer;
         SoundBuffer hurtBuffer;
         SoundBuffer jumpBuffer;
+        SoundBuffer jumpPlayerBuffer;
         SoundBuffer laserShootBuffer;
         SoundBuffer laserShootBigBuffer;
         SoundBuffer popBuffer;
@@ -73,11 +74,13 @@ namespace Assets {
         SoundBuffer stompBuffer;
         SoundBuffer powerUpBuffer;
         SoundBuffer stompLightBuffer;
+        SoundBuffer stompLightPlayerBuffer;
 
         Sound explosion;
         Sound gameover;
         Sound hurt;
         Sound jump;
+        Sound jumpPlayer;
         Sound laserShoot;
         Sound laserShootBig;
         Sound pop;
@@ -85,6 +88,7 @@ namespace Assets {
         Sound stomp;
         Sound powerUp;
         Sound stompLight;
+        Sound stompLightPlayer;
 
         Music soundtrack;
         Music soundtrackBig;        
@@ -173,6 +177,7 @@ namespace Assets {
         gameoverBuffer.loadFromFile(soundPath + "gameover.ogg");
         hurtBuffer.loadFromFile(soundPath + "hurt.ogg");
         jumpBuffer.loadFromFile(soundPath + "jump.ogg");
+        jumpPlayerBuffer.loadFromFile(soundPath + "jumpPlayer.ogg");
         laserShootBuffer.loadFromFile(soundPath + "laserShoot.ogg");
         laserShootBigBuffer.loadFromFile(soundPath + "laserShootBig.ogg");
         popBuffer.loadFromFile(soundPath + "pop.ogg");
@@ -180,11 +185,13 @@ namespace Assets {
         stompBuffer.loadFromFile(soundPath + "stomp.ogg");
         powerUpBuffer.loadFromFile(soundPath + "powerUp.ogg");
         stompLightBuffer.loadFromFile(soundPath + "stompLight.ogg");
+        stompLightPlayerBuffer.loadFromFile(soundPath + "stompLightPlayer.ogg");
 
         explosion = Sound(explosionBuffer);
         gameover  = Sound(gameoverBuffer);
         hurt = Sound(hurtBuffer);
         jump = Sound(jumpBuffer);
+        jumpPlayer = Sound(jumpPlayerBuffer);
         laserShoot = Sound(laserShootBuffer);
         laserShootBig = Sound(laserShootBigBuffer);
         pop = Sound(popBuffer);
@@ -192,6 +199,7 @@ namespace Assets {
         stomp = Sound(stompBuffer);
         powerUp = Sound(powerUpBuffer);
         stompLight = Sound(stompLightBuffer);
+        stompLightPlayer = Sound(stompLightPlayerBuffer);
 
         soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
         soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");

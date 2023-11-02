@@ -4,17 +4,12 @@
 
 using namespace sf;
 Entity::Entity(const Texture& texture,
-               float scale,
                float initial_X,
                float initial_Y,
                int lives,
                float speed_X,
                float speed_Y,
                float acceleration) {
-    this->initialScale_X = scale;
-    this->initialScale_Y = scale;
-    this->scale_X = scale;
-    this->scale_Y = scale;
     this->lives = lives;
     this->speed_X = speed_X;
     this->speed_Y = speed_Y;
@@ -22,7 +17,6 @@ Entity::Entity(const Texture& texture,
     this->initial_X = initial_X;
     this->initial_Y = initial_Y;
     Entity::Sprite::setTexture(texture);
-    Entity::Sprite::setScale(scale, scale);
     Entity::Sprite::setPosition(initial_X, initial_Y);
 }
 

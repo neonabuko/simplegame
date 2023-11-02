@@ -20,7 +20,6 @@ private:
 
 public:
     Entity(const sf::Texture& texture,
-           float scale,
            float initial_X,
            float initial_Y,
            int lives,
