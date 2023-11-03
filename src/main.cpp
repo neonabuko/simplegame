@@ -209,15 +209,9 @@ int main() {
             soundtrack.play();
         }
 
-        if (Keyboard::isKeyPressed(Keyboard::M)) {
-            if (isKey_M_released) {
-                if (soundtrack.getVolume() > 0) {
-                    soundtrack.setVolume(0);
-                } else {
-                    soundtrack.setVolume(100);
-                }
-                isKey_M_released = false;
-            }
+        if (Keyboard::isKeyPressed(Keyboard::M) && isKey_M_released) {
+            soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
+            isKey_M_released = false;
         } else {
             isKey_M_released = true;
         }
@@ -226,6 +220,9 @@ int main() {
         playerMax_Y = windowInitialSize_Y - player.getHeight();
 
         deltaTime = deltaClock.restart().asSeconds();
+
+        window.clear();
+        window.draw(background);
 
         if (!isGameOver) {
             if (isPowerUp) {
@@ -310,13 +307,6 @@ int main() {
                     laser.setPosition(-windowInitialSize_X, laser.getInitial_Y());
                 }
             }
-        }
-
-        window.clear();
-        window.draw(background);
-
-        if (!isGameOver) {
-            window.draw(player);
 
             for (int i = 0; i < enemies.size(); i++) {
                 // Player -> Enemy Collision 
@@ -432,6 +422,8 @@ int main() {
                 }
             }
             FPS_to_text(jump.getVolume());
+            
+            window.draw(player);
             window.draw(heart);
             window.draw(livesText);
             window.draw(scoreText);
