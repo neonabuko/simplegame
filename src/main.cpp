@@ -17,29 +17,18 @@ using namespace Player;
 using namespace Enemy;
 using namespace TimeDef;
 
-Font pixelFont;
-Text FPS_Text;
-
 void FPS_to_text(float argument) {
     string argumentToString = to_string(argument);
     FPS_Text.setString(argumentToString);
 }
 
 int main() {
-    float window_X = 1600;
-    float window_Y = 900;
     RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
     window.setFramerateLimit(300);
 
     loadTextures();
     loadSounds();
-
-    soundtrack.setVolume(100);
-    soundtrack.play();
-    soundtrack.setLoop(true);
-
-    soundtrackBig.setVolume(100);
-    soundtrackBig.setLoop(true);
+    loadTexts(window_X, window_Y);
     
     Sprite background(Textures::background);
     Vector2u backgroundTextureSize = background.getTexture()->getSize();
@@ -48,15 +37,7 @@ int main() {
     Sprite explosionSprite;
 
     float playerInitial_Y = (float)window.getSize().y;
-    Entity player(Textures::player,
-                    playerInitial_X,
-                    playerInitial_Y,
-                    playerLives, 
-                    playerInitialSpeed_X, 
-                    playerInitialSpeed_Y, 
-                    playerAcceleration
-                 );
-    player.setScale(playerInitialScale, playerInitialScale);
+    Entity player(Textures::player, playerInitial_X, playerInitial_Y, playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.setPosition(0, (float)window.getSize().y - player.getHeight());
 
     RectangleShape playerBox;
@@ -78,53 +59,7 @@ int main() {
 
     float laserScale = (float)window.getSize().y / 6500;
     float laserScaleOriginal = (float)window.getSize().y / 6500;
-    float laserInitialSpeed_X = 3000;
     Entity laser(Textures::laserBlue, -(float)window.getSize().x, -(float)window.getSize().y, 0, laserInitialSpeed_X, 0, 0);
-
-    pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");
-
-    RectangleShape obstacle(Vector2f(150, 150));
-    obstacle.setFillColor(Color::White);
-    obstacle.setPosition(500, (float)window.getSize().y - obstacle.getGlobalBounds().height);
-
-    int playerScore = 0;
-    string pointsToString = to_string(playerScore);
-    Text scoreText("SCORE " + pointsToString, pixelFont, 30);
-    float playerScorePosition_X = (float)window.getSize().x / 2.2;
-    float playerScorePosition_Y = (float)window.getSize().y / 800;
-    scoreText.setFillColor(Color::White);
-    scoreText.setOutlineColor(Color::Black);
-    scoreText.setOutlineThickness(2.2);
-    
-    string livesToString = to_string(player.getLives());
-    Text livesText(livesToString, pixelFont, ((float)window.getSize().x / 40));
-    livesText.setFillColor(Color::White);
-    livesText.setOutlineColor(Color::Black);
-    livesText.setOutlineThickness(2);
-
-    Sprite gameoverFrame(Textures::frame);
-    gameoverFrame.setPosition(((float)window.getSize().x - gameoverFrame.getGlobalBounds().width) / 2, -gameoverFrame.getGlobalBounds().height);
-
-    Text gameoverText("\tGAME OVER\nPress R to restart", pixelFont, 50 * ((float)window.getSize().x / 1920));
-    gameoverText.setFillColor(Color::White);
-    gameoverText.setOutlineColor(Color::Black);
-    gameoverText.setOutlineThickness(2);
-    FloatRect gameoverBounds = gameoverText.getLocalBounds();
-    float gameover_X = ((float)window.getSize().x - gameoverBounds.width) / 2;
-    float gameover_Y = ((float)window.getSize().y - gameoverBounds.height) / 2;
-
-    FPS_Text.setCharacterSize(25);
-    FPS_Text.setFont(pixelFont);
-    FPS_Text.setOutlineThickness(2.5);
-
-    float deltaTime;
-    float playerScaleIncreaseFactor = 0.03;
-    float currentWindowRatio;
-    float FPS_count;
-    float laserOrigin_X;
-    float laserOrigin_Y;
-
-    int currentFrame;
     
     while (window.isOpen()) {
         Event event{};
@@ -155,7 +90,7 @@ int main() {
         background.setScale(1, (window_Y / background.getTexture()->getSize().y));
         heart.setScale(((float)window.getSize().x / 2800.0), ((float)window.getSize().x / 2800.0));
         explosionSprite.setScale(1.5, 1.5);
-        player.setScale(playerInitialScale* currentWindowRatio, playerInitialScale * currentWindowRatio);
+        player.setScale(playerInitialScale * currentWindowRatio, playerInitialScale * currentWindowRatio);
         laser.setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);
 
         FPSStart = FPSClock.getElapsedTime();
@@ -199,10 +134,8 @@ int main() {
             isKey_M_released = true;
         }
 
-        if (!isPlayerColliding) {
-            playerMax_X = window.getSize().x - player.getWidth();
-            playerMax_Y = (float)window.getSize().y - player.getHeight();
-        }
+        playerMax_X = (float)window.getSize().x - player.getWidth();
+        playerMax_Y = (float)window.getSize().y - player.getHeight();
 
         deltaTime = deltaClock.restart().asSeconds();
 
@@ -374,7 +307,6 @@ int main() {
             window.draw(scoreText);
             window.draw(FPS_Text);
             window.draw(laser);
-            window.draw(obstacle);
             // window.draw(playerBox);
         } else {
             if (gameoverFrame.getPosition().y < ((float)window.getSize().y - gameoverFrame.getGlobalBounds().height) / 3) {
@@ -392,22 +324,7 @@ int main() {
         if (player.getPosition().y > playerMax_Y) player.setPosition(player.getPosition().x, playerMax_Y);
         if (player.getPosition().y < 0)           player.setPosition(player.getPosition().x, 0);
 
-        // if (player.getPosition().x + player.getWidth() >= obstacle.getPosition().x &&
-        //     player.getPosition().y + player.getHeight() >= obstacle.getPosition().y) {
-        //         isPlayerColliding = true;
-        //         playerMax_X = obstacle.getPosition().x - player.getWidth();
-        // } 
-        // else if (player.getPosition().y + player.getHeight() >= obstacle.getPosition().y &&
-        //     player.getPosition().x + player.getWidth() > obstacle.getPosition().x &&
-        //     player.getPosition().x > obstacle.getPosition().x &&
-        //     player.getPosition().x < obstacle.getPosition().x + obstacle.getSize().x) {
-        //         isPlayerColliding = true;
-        //         playerMax_Y = obstacle.getPosition().y - player.getHeight();
-        // } 
-        // else {
-        //     isPlayerColliding = false;
-        // }
-        FPS_to_text(background.getScale().y);
+        FPS_to_text(playerMax_Y);
 
         if (isExplosion) {
             elapsedTimeSinceExplosion = explosionClock.getElapsedTime();

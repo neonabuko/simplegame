@@ -7,6 +7,10 @@ using namespace std;
 namespace Assets {
 
     namespace Player {
+        float window_X = 1600;
+        float window_Y = 900;
+
+        int playerScore = 0;
         float playerInitialScale = 0.25;
         float playerInitial_X = 10;
         int playerLives = 3;
@@ -15,6 +19,17 @@ namespace Assets {
         float playerAcceleration = 20;
         float playerMax_X;
         float playerMax_Y;
+
+        float laserInitialSpeed_X = 3000;
+
+        float deltaTime;
+        float playerScaleIncreaseFactor = 0.03;
+        float currentWindowRatio;
+        float FPS_count;
+        float laserOrigin_X;
+        float laserOrigin_Y;
+
+        int currentFrame;
     }
 
     namespace Enemy {
@@ -132,9 +147,59 @@ namespace Assets {
         Clock enemySpawnClock;
         Clock FPSClock;        
     }
+
+    namespace Texts {
+        Font pixelFont;
+        Text scoreText;
+        Text livesText;
+        Sprite gameoverFrame(Textures::frame);
+        Text gameoverText;
+        Text FPS_Text;
+
+        float playerScorePosition_X;
+        float playerScorePosition_Y;
+        float gameover_X;
+        float gameover_Y;
+    }
     
     using namespace Textures;
     using namespace std;
+    using namespace Texts;
+
+    void loadTexts(float window_X, float window_Y) {
+        pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");
+
+        string pointsToString = "0";
+        string livesToString = "0";
+        gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
+        gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
+        playerScorePosition_X = window_X / 2.2;
+        playerScorePosition_Y = window_Y / 800;
+
+        scoreText.setString("SCORE " + pointsToString);
+        scoreText.setFont(pixelFont);
+        scoreText.setCharacterSize(30);
+        scoreText.setFillColor(Color::White);
+        scoreText.setOutlineColor(Color::Black);
+        scoreText.setOutlineThickness(2.2);
+
+        livesText.setString(livesToString);
+        livesText.setFont(pixelFont);
+        livesText.setCharacterSize(window_X / 40);
+        livesText.setFillColor(Color::White);
+        livesText.setOutlineColor(Color::Black);
+        livesText.setOutlineThickness(2);
+
+        gameoverText.setString("\tGAME OVER\nPress R to restart");
+        gameoverText.setFont(pixelFont);
+        gameoverText.setCharacterSize(50 * (window_X / 40));
+        gameoverText.setFillColor(Color::White);
+        gameoverText.setOutlineColor(Color::Black);
+        gameoverText.setOutlineThickness(2);
+
+        FPS_Text.setFont(pixelFont);
+        FPS_Text.setOutlineThickness(2.5);          
+    }
 
     void loadTextures() {
         string iconPath = "../src/assets/icon/";
@@ -233,5 +298,12 @@ namespace Assets {
 
         soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
         soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
+
+        soundtrack.setVolume(100);
+        soundtrack.play();
+        soundtrack.setLoop(true);
+
+        soundtrackBig.setVolume(100);
+        soundtrackBig.setLoop(true);        
     }
 }
