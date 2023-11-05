@@ -162,9 +162,25 @@ namespace Assets {
         float gameover_Y;
     }
     
+    namespace GameSprites {
+        Sprite backgroundSprite;
+        Vector2u backgroundTextureSize;
+        RectangleShape windowBox;
+        Sprite heartSprite;
+        Sprite explosionSprite;
+    }
+
     using namespace Textures;
     using namespace std;
     using namespace Texts;
+    using namespace GameSprites;
+
+    void loadSprites() {
+        backgroundSprite.setTexture(Textures::background);
+        backgroundTextureSize = Textures::background.getSize();
+        windowBox.setScale(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
+        heartSprite.setTexture(Textures::heart);
+    }
 
     void loadTexts(float window_X, float window_Y) {
         pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");

@@ -16,6 +16,7 @@ using namespace Clocks;
 using namespace Player;
 using namespace Enemy;
 using namespace TimeDef;
+using namespace GameSprites;
 
 void FPS_to_text(float argument) {
     string argumentToString = to_string(argument);
@@ -29,30 +30,20 @@ int main() {
     loadTextures();
     loadSounds();
     loadTexts(window_X, window_Y);
-    
-    Sprite background(Textures::background);
-    Vector2u backgroundTextureSize = background.getTexture()->getSize();
-    RectangleShape windowBox(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
-    Sprite heart(Textures::heart);
-    Sprite explosionSprite;
+    loadSprites();
 
     float playerInitial_Y = (float)window.getSize().y;
     Entity player(Textures::player, playerInitial_X, playerInitial_Y, playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.setPosition(0, (float)window.getSize().y - player.getHeight());
 
-    RectangleShape playerBox;
-    playerBox.setOutlineColor(sf::Color::Red);
-    playerBox.setOutlineThickness(2.0f);
-    playerBox.setFillColor(sf::Color::Transparent);    
-
-    Entity enemy(Textures::enemy, background.getGlobalBounds().width, 0, 1, 1000, playerInitialSpeed_Y, 20);
+    Entity enemy(Textures::enemy, backgroundSprite.getGlobalBounds().width, 0, 1, 1000, playerInitialSpeed_Y, 20);
 
     vector<Entity> enemies;
     enemies.push_back(enemy);
     enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].setInitialPosition(background.getGlobalBounds().width - background.getPosition().x - enemies[i].getWidth(), (float)window.getSize().y - enemies[i].getHeight());
+        enemies[i].setInitialPosition(backgroundSprite.getGlobalBounds().width - backgroundSprite.getPosition().x - enemies[i].getWidth(), (float)window.getSize().y - enemies[i].getHeight());
         enemies[i].setPosition(enemy.getInitial_X() - (i * enemies[i].getWidth() / 2), (float)window.getSize().y - enemies[i].getHeight());
         enemies[i].setScale((float)window.getSize().x / 3300, (float)window.getSize().x / 3300);
     }
@@ -71,15 +62,15 @@ int main() {
 
         currentWindowRatio = (float)window.getSize().x / (float)window.getSize().x;
 
-        float livesText_X = heart.getPosition().x + heart.getGlobalBounds().width + 20;
-        float livesText_Y = heart.getPosition().y + (heart.getGlobalBounds().height / 6);
-
         enemyMax_X = (float)window.getSize().x - enemy.getWidth();
+        
+        float livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
+        float livesText_Y = heartSprite.getPosition().y + (heartSprite.getGlobalBounds().height / 6);
 
-        heart.setPosition(((float)window.getSize().x / 4), (float)window.getSize().y / 800);
+        heartSprite.setPosition(((float)window.getSize().x / 4), (float)window.getSize().y / 800);
         livesText.setPosition(livesText_X, livesText_Y);
         scoreText.setPosition(playerScorePosition_X, playerScorePosition_Y);
-        windowBox.setPosition(background.getPosition().x, background.getPosition().y);
+        windowBox.setPosition(backgroundSprite.getPosition().x, backgroundSprite.getPosition().y);
         FPS_Text.setPosition((float)window.getSize().x / 1.55, 10);
 
         livesText.setCharacterSize((float)window.getSize().x / 35.0);
@@ -87,8 +78,8 @@ int main() {
         FPS_Text.setCharacterSize((float)window.getSize().x / 37.0);
 
         gameoverFrame.setScale(window.getSize().x / 1500, (float)window.getSize().x / 1500);
-        background.setScale(1, (window_Y / background.getTexture()->getSize().y));
-        heart.setScale(((float)window.getSize().x / 2800.0), ((float)window.getSize().x / 2800.0));
+        backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
+        heartSprite.setScale(((float)window.getSize().x / 2800.0), ((float)window.getSize().x / 2800.0));
         explosionSprite.setScale(1.5, 1.5);
         player.setScale(playerInitialScale * currentWindowRatio, playerInitialScale * currentWindowRatio);
         laser.setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);
@@ -104,8 +95,8 @@ int main() {
         if (Keyboard::isKeyPressed(Keyboard::R) && isGameOver) {
             isGameOver = false;
 
-            background.setTexture(Textures::background);
-            background.setPosition(0, 0);            
+            backgroundSprite.setTexture(Textures::background);
+            backgroundSprite.setPosition(0, 0);            
 
             player.setLives(playerLives);
             player.setScale(playerInitialScale, playerInitialScale);
@@ -140,7 +131,7 @@ int main() {
         deltaTime = deltaClock.restart().asSeconds();
 
         window.clear();
-        window.draw(background);
+        window.draw(backgroundSprite);
 
         if (!isGameOver) {
             if (isPowerUp) {
@@ -229,7 +220,7 @@ int main() {
                     laser.setPosition(laser.getInitial_X(), laser.getInitial_Y());
 
                     enemies[i].setLives(-1);
-                    enemies[i].setInitialPosition(background.getLocalBounds().width + background.getPosition().x - enemy.getWidth(), 
+                    enemies[i].setInitialPosition(backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x - enemy.getWidth(), 
                                             (float)window.getSize().y - enemy.getHeight());
                     enemies[i].setPosition(enemies[i].getInitial_X(), enemies[i].getInitial_Y());
 
@@ -258,14 +249,14 @@ int main() {
 
                 // Background Movement
                 if (player.getPosition().x > playerMax_X / 2 && Keyboard::isKeyPressed(Keyboard::D) && 
-                    background.getPosition().x + background.getGlobalBounds().width > (float)window.getSize().x) {
+                    backgroundSprite.getPosition().x + backgroundSprite.getGlobalBounds().width > (float)window.getSize().x) {
 
-                    background.move(-200 * deltaTime, 0);
+                    backgroundSprite.move(-200 * deltaTime, 0);
                     player.move(-(player.getSpeed_X() * 0.8) * deltaTime, 0);
                     enemies[i].move(-400 * deltaTime, 0);
 
-                } else if (player.getPosition().x <= 0 && Keyboard::isKeyPressed(Keyboard::A) && background.getPosition().x < 0) {
-                    background.move(200 * deltaTime, 0);
+                } else if (player.getPosition().x <= 0 && Keyboard::isKeyPressed(Keyboard::A) && backgroundSprite.getPosition().x < 0) {
+                    backgroundSprite.move(200 * deltaTime, 0);
                     enemies[i].move(400 * deltaTime, 0);
                 }
 
@@ -302,7 +293,7 @@ int main() {
             }
             
             window.draw(player);
-            window.draw(heart);
+            window.draw(heartSprite);
             window.draw(livesText);
             window.draw(scoreText);
             window.draw(FPS_Text);
