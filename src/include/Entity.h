@@ -17,6 +17,7 @@ private:
     float initial_X{};
     float initial_Y{};
     bool isJumping{};
+    bool isReverse{};
 
 public:
     Entity(const sf::Texture& texture,
@@ -60,6 +61,16 @@ public:
     bool isAlive() const;
 
     void accelerate(float deltaTime);
+
+    void update(float deltaTime, int window_X, int window_Y);
+
+    void setReverse(bool isReverse);
+
+    bool getIsReverse();
+
+    bool getIsJumping();
+
+    void setIsJumping(bool isJumping);
 };
 
 #endif //SIMPLEGAME_ENTITY_H

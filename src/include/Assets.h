@@ -5,6 +5,36 @@
 using namespace sf;
 using namespace std;
 namespace Assets {
+
+    namespace Player {
+        float playerInitialScale = 0.25;
+        float playerInitial_X = 10;
+        int playerLives = 3;
+        float playerInitialSpeed_X = 600;
+        float playerInitialSpeed_Y = -7;
+        float playerAcceleration = 20;
+        float playerMax_X;
+        float playerMax_Y;
+    }
+
+    namespace Enemy {
+        float enemyMax_X;
+        float enemyMax_Y;
+        double enemySpeed_X;
+        double enemySpeed_Y;                
+    }
+
+    namespace TimeDef {
+        Time FPSStart = Time::Zero;
+        Time FPSTimeConstraint = seconds(1);
+        Time laserCooldown = seconds(0.5);
+        Time explosionDuration = seconds(0.6);
+        Time elapsedTimeSinceExplosion = Time::Zero;
+        Time elapsedTimeSinceEnemyDied = Time::Zero;
+        Time elapsedTimeSinceShot = Time::Zero;
+        Time enemySpawnWait = seconds(1.2);        
+    }
+
     namespace Textures {
         Texture heart;
         Texture frame;
@@ -166,7 +196,7 @@ namespace Assets {
             Texture texture;
             texture.loadFromFile(texturePath);
             explosionTextures.push_back(texture);
-        }        
+        }
     }
 
     using namespace Sounds;

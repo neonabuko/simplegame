@@ -1,8 +1,8 @@
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics.hpp>
 #include "../include/Entity.h"
 
 using namespace sf;
+
 Entity::Entity(const Texture& texture,
                float initial_X,
                float initial_Y,
@@ -92,4 +92,53 @@ void Entity::setScale(float scale_X, float scale_Y) {
     this->scale_X = scale_X;
     this->scale_Y = scale_Y;
     Entity::Sprite::setScale(scale_X, scale_Y);
+}
+
+void Entity::setReverse(bool isReverse) {
+    this->isReverse = isReverse;
+}
+
+bool Entity::getIsReverse() {
+    return this->isReverse;
+}
+
+bool Entity::getIsJumping() {
+    return this->isJumping;
+}
+
+void Entity::setIsJumping(bool isJumping) {
+    this->isJumping = isJumping;
+}
+
+void Entity::update(float deltaTime, int window_X, int window_Y) {
+    // Move Left
+    if (Keyboard::isKeyPressed(Keyboard::A)) {
+        Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
+        setReverse(true);
+    }
+    // Move Right
+    if (Keyboard::isKeyPressed(Keyboard::D)) {
+        Entity::move(Entity::getSpeed_X() * deltaTime, 0);
+        setReverse(false);
+    }
+    // Jump
+    if (Keyboard::isKeyPressed(Keyboard::Space)) {
+        if (!Entity::getIsJumping()) {
+            setIsJumping(true);
+        }
+    }
+
+    if (Entity::getPosition().y < window_X - Entity::getHeight()) {
+        if (!Entity::getIsJumping()) {
+            Entity::setPosition(Entity::getPosition().x, 900 - Entity::getHeight());
+        }
+    }
+
+    if (Entity::getIsJumping()) {
+        Entity::accelerate(deltaTime);
+        if (Entity::getPosition().y >= window_Y - Entity::getHeight()) {
+            Entity::setIsJumping(false);
+            Entity::setSpeed_Y(-7);
+        }
+    }    
 }
