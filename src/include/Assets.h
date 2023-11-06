@@ -7,8 +7,6 @@ using namespace std;
 namespace Assets {
 
     namespace Player {
-        float laserScale;
-        float laserScaleOriginal;
 
         float window_X = 1600;
         float window_Y = 900;
@@ -61,11 +59,6 @@ namespace Assets {
         Texture background;
         Texture backgroundRed;
 
-        Texture laserRed;
-        Texture laserRed_reverse;
-        Texture laserBlue;
-        Texture laserBlue_reverse;
-
         Texture enemy_normal;
         Texture enemy_reverse;
 
@@ -111,10 +104,6 @@ namespace Assets {
 
         Sound explosion;
         Sound gameover;
-        Sound hurt;
-        Sound jumpPlayer;
-        Sound stompLightPlayer;
-        Sound powerUp;
 
         Sound stomp;
         Sound jump;
@@ -217,11 +206,6 @@ namespace Assets {
         background.loadFromFile(iconPath + "background.jpg");
         backgroundRed.loadFromFile(iconPath + "backgroundRed.jpg");
 
-        laserRed.loadFromFile(iconPath + "laser.png");
-        laserRed_reverse.loadFromFile(iconPath + "laser_reverse.png");
-        laserBlue.loadFromFile(iconPath + "laserBlue.png");
-        laserBlue_reverse.loadFromFile(iconPath + "laserBlue_reverse.png");
-
         enemy_normal.loadFromFile(iconPath + "enemy.png");
         enemy_reverse.loadFromFile(iconPath + "enemy_reverse.png");
 
@@ -298,8 +282,6 @@ namespace Assets {
     using namespace Player;
     void setSprites(float window_X, float window_Y) {
         playerInitial_Y = window_Y;
-        laserScale = window_Y / 6500;
-        laserScaleOriginal = window_Y / 6500;
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width * 1.3;
 
         heartSprite.setPosition((window_X / 4), window_Y / 800);

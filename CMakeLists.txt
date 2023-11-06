@@ -12,6 +12,8 @@ src/entity/Laser.cpp
 src/include/Entity.h 
 src/include/Assets.h
 src/include/PlayerAssets.h
+src/include/LaserAssets.h
+src/include/Laser.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

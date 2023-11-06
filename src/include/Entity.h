@@ -26,6 +26,8 @@ private:
     sf::Sound stompLight;
 
 public:
+    Entity();
+
     Entity(
         float initial_X,
         float initial_Y,
@@ -70,6 +72,7 @@ public:
                 int window_Y);
 
     void loadPlayerAssets();
+    Entity getLaser();
 };
 
 #endif //SIMPLEGAME_ENTITY_H
