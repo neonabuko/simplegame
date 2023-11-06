@@ -28,7 +28,7 @@ void Laser::setIsShot(bool isShot) {
     this->isShot = isShot;
 }
 
-void Laser::loadLaserAssets() {
+void Laser::load() {
     loadLaserAssets();
 }
 

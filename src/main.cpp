@@ -109,6 +109,7 @@ int main() {
 
         if (!isGameOver) {
             player.update(deltaTime, currentWindow_X, currentWindow_Y);
+            
             elapsedTimeSinceShot = laserClock.getElapsedTime();
 
             for (int i = 0; i < enemies.size(); i++) {

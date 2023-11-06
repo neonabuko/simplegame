@@ -19,7 +19,7 @@ public:
     bool getIsShot();
     void setSpeed(float speed);
     void setIsShot(bool isShot);
-    void loadLaserAssets();
+    void load();
     void update(float deltaTime, float window_X);
 };
 

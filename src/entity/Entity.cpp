@@ -144,6 +144,7 @@ void Entity::setIsBig(bool isBig) {
 void Entity::loadPlayerAssets() {
     loadPlayerTextures();
     loadPlayerSounds();
+    laser.load();
 }
 
 Entity Entity::getLaser() {
@@ -183,6 +184,7 @@ void Entity::update(float deltaTime, int window_X, int window_Y) {
         }
     }
 
+    laser.update(deltaTime, window_X);
     laserCooldownHalf = seconds(laserCooldown.asSeconds() / 2);
     if (Entity::getIsReverse()) {
         if (Entity::getIsShooting() && elapsedTimeSinceShot < laserCooldownHalf) {
@@ -208,13 +210,17 @@ void Entity::update(float deltaTime, int window_X, int window_Y) {
     laser.setScale(laserScaleOriginal, laserScaleOriginal);
     // Shoot Laser
     if (Keyboard::isKeyPressed(Keyboard::Enter) && !Entity::getIsShooting() && !Entity::getIsPowerup()) {
+        Entity::getIsReverse() ? laser.setReverse(true) : laser.setReverse(false);
         laserOrigin_X = Entity::getIsReverse() ? (Entity::getPosition().x - Entity::getWidth() / 4) : (Entity::getPosition().x + Entity::getWidth() / 1.5);
         laserOrigin_Y = Entity::getPosition().y + Entity::getHeight() / 1.65;
         laser.setPosition(Vector2f(laserOrigin_X, laserOrigin_Y));
         Entity::getIsBig() ? laserShootBig.play() : laserShoot.play();
+        Entity::setIsShooting(true);
         laser.setIsShot(true);
         laserClock.restart();
     }
+    
+    if (!laser.getIsShot()) Entity::setIsShooting(false);
 
     float currentWindowRatio = (float) window_X / 1600;
     if (Entity::getIsPowerup()) {

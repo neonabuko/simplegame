@@ -58,9 +58,9 @@ namespace PlayerAssets {
         Time laserCooldownHalf;
         float playerScaleIncreaseFactor = 0.03;
         float playerInitialScale = 0.25;
+        
         float laserOrigin_X;
         float laserOrigin_Y;
-        float laserInitialSpeed_X = 3000;
         float laserScale;
         float laserScaleOriginal;
     }
