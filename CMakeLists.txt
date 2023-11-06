@@ -7,10 +7,11 @@ find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 
 add_executable(simplegame 
 src/main.cpp 
-src/include/Entity.h 
 src/entity/Entity.cpp
-src/include/Assets.h
 src/entity/Laser.cpp
+src/include/Entity.h 
+src/include/Assets.h
+src/include/PlayerAssets.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

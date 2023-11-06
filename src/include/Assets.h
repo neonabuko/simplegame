@@ -7,10 +7,14 @@ using namespace std;
 namespace Assets {
 
     namespace Player {
+        float laserScale;
+        float laserScaleOriginal;
+
         float window_X = 1600;
         float window_Y = 900;
 
         int playerScore = 0;
+        float playerInitial_Y;
         float playerInitialScale = 0.25;
         float playerInitial_X = 10;
         int playerLives = 3;
@@ -62,21 +66,8 @@ namespace Assets {
         Texture laserBlue;
         Texture laserBlue_reverse;
 
-        Texture enemy;
+        Texture enemy_normal;
         Texture enemy_reverse;
-
-        Texture player;
-        Texture player_reverse;
-        Texture player_shooting;
-        Texture player_shooting_reverse;
-        Texture player_powerup;
-        Texture player_reverse_powerup;
-        Texture player_shooting_powerup;
-        Texture player_shooting_reverse_powerup;
-        Texture player_golden;
-        Texture player_golden_reverse;
-        Texture player_golden_shooting;
-        Texture player_golden_shooting_reverse;
 
         Texture explosion1;
         Texture explosion2;
@@ -109,31 +100,29 @@ namespace Assets {
     namespace Sounds {
         SoundBuffer explosionBuffer;
         SoundBuffer gameoverBuffer;
-        SoundBuffer hurtBuffer;
+
         SoundBuffer jumpBuffer;
-        SoundBuffer jumpPlayerBuffer;
         SoundBuffer laserShootBuffer;
         SoundBuffer laserShootBigBuffer;
         SoundBuffer popBuffer;
         SoundBuffer shrink_rayBuffer;
         SoundBuffer stompBuffer;
-        SoundBuffer powerUpBuffer;
         SoundBuffer stompLightBuffer;
-        SoundBuffer stompLightPlayerBuffer;
 
         Sound explosion;
         Sound gameover;
         Sound hurt;
-        Sound jump;
         Sound jumpPlayer;
+        Sound stompLightPlayer;
+        Sound powerUp;
+
+        Sound stomp;
+        Sound jump;
         Sound laserShoot;
         Sound laserShootBig;
         Sound pop;
         Sound shrink_ray;
-        Sound stomp;
-        Sound powerUp;
         Sound stompLight;
-        Sound stompLightPlayer;
 
         Music soundtrack;
         Music soundtrackBig;        
@@ -146,6 +135,14 @@ namespace Assets {
         Clock explosionClock;
         Clock enemySpawnClock;
         Clock FPSClock;        
+    }
+    
+    namespace GameSprites {
+        Sprite backgroundSprite;
+        Vector2u backgroundTextureSize;
+        RectangleShape windowBox;
+        Sprite heartSprite;
+        Sprite explosionSprite;
     }
 
     namespace Texts {
@@ -160,15 +157,9 @@ namespace Assets {
         float playerScorePosition_Y;
         float gameover_X;
         float gameover_Y;
-    }
-    
-    namespace GameSprites {
-        Sprite backgroundSprite;
-        Vector2u backgroundTextureSize;
-        RectangleShape windowBox;
-        Sprite heartSprite;
-        Sprite explosionSprite;
-    }
+        float livesText_X = GameSprites::heartSprite.getPosition().x + GameSprites::heartSprite.getGlobalBounds().width + 20;
+        float livesText_Y = GameSprites::heartSprite.getPosition().y + (GameSprites::heartSprite.getGlobalBounds().height / 6);        
+    }    
 
     using namespace Textures;
     using namespace std;
@@ -231,21 +222,8 @@ namespace Assets {
         laserBlue.loadFromFile(iconPath + "laserBlue.png");
         laserBlue_reverse.loadFromFile(iconPath + "laserBlue_reverse.png");
 
-        enemy.loadFromFile(iconPath + "enemy.png");
+        enemy_normal.loadFromFile(iconPath + "enemy.png");
         enemy_reverse.loadFromFile(iconPath + "enemy_reverse.png");
-
-        player.loadFromFile(iconPath + "player.png");
-        player_reverse.loadFromFile(iconPath + "player_reverse.png");
-        player_shooting.loadFromFile(iconPath + "player_shooting.png");
-        player_shooting_reverse.loadFromFile(iconPath + "player_shooting_reverse.png");
-        player_powerup.loadFromFile(iconPath + "player_powerup.png");
-        player_reverse_powerup.loadFromFile(iconPath + "player_reverse_powerup.png");
-        player_shooting_powerup.loadFromFile(iconPath + "player_shooting_powerup.png");
-        player_shooting_reverse_powerup.loadFromFile(iconPath + "player_shooting_reverse_powerup.png");
-        player_golden.loadFromFile(iconPath + "player_golden.png");
-        player_golden_reverse.loadFromFile(iconPath + "player_golden_reverse.png");
-        player_golden_shooting.loadFromFile(iconPath + "player_golden_shooting.png");
-        player_golden_shooting_reverse.loadFromFile(iconPath + "player_golden_shooting_reverse.png");
 
         explosion1.loadFromFile(iconPath + "explosion1.png");
         explosion2.loadFromFile(iconPath + "explosion2.png");
@@ -286,31 +264,25 @@ namespace Assets {
 
         explosionBuffer.loadFromFile(soundPath + "explosion.ogg");
         gameoverBuffer.loadFromFile(soundPath + "gameover.ogg");
-        hurtBuffer.loadFromFile(soundPath + "hurt.ogg");
+
         jumpBuffer.loadFromFile(soundPath + "jump.ogg");
-        jumpPlayerBuffer.loadFromFile(soundPath + "jumpPlayer.ogg");
         laserShootBuffer.loadFromFile(soundPath + "laserShoot.ogg");
         laserShootBigBuffer.loadFromFile(soundPath + "laserShootBig.ogg");
         popBuffer.loadFromFile(soundPath + "pop.ogg");
         shrink_rayBuffer.loadFromFile(soundPath + "shrink_ray.ogg");
         stompBuffer.loadFromFile(soundPath + "stomp.ogg");
-        powerUpBuffer.loadFromFile(soundPath + "powerUp.ogg");
         stompLightBuffer.loadFromFile(soundPath + "stompLight.ogg");
-        stompLightPlayerBuffer.loadFromFile(soundPath + "stompLightPlayer.ogg");
 
         explosion = Sound(explosionBuffer);
         gameover  = Sound(gameoverBuffer);
-        hurt = Sound(hurtBuffer);
+
         jump = Sound(jumpBuffer);
-        jumpPlayer = Sound(jumpPlayerBuffer);
         laserShoot = Sound(laserShootBuffer);
         laserShootBig = Sound(laserShootBigBuffer);
         pop = Sound(popBuffer);
         shrink_ray = Sound(shrink_rayBuffer);
         stomp = Sound(stompBuffer);
-        powerUp = Sound(powerUpBuffer);
         stompLight = Sound(stompLightBuffer);
-        stompLightPlayer = Sound(stompLightPlayerBuffer);
 
         soundtrack.openFromFile("../src/assets/sound/soundtrack.ogg");
         soundtrackBig.openFromFile("../src/assets/sound/soundtrackBig.ogg");
@@ -321,5 +293,28 @@ namespace Assets {
 
         soundtrackBig.setVolume(100);
         soundtrackBig.setLoop(true);        
+    }
+
+    using namespace Player;
+    void setSprites(float window_X, float window_Y) {
+        playerInitial_Y = window_Y;
+        laserScale = window_Y / 6500;
+        laserScaleOriginal = window_Y / 6500;
+        livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width * 1.3;
+
+        heartSprite.setPosition((window_X / 4), window_Y / 800);
+        livesText.setPosition(livesText_X, livesText_Y);
+        scoreText.setPosition(playerScorePosition_X, playerScorePosition_Y);
+        windowBox.setPosition(backgroundSprite.getPosition().x, backgroundSprite.getPosition().y);
+        FPS_Text.setPosition(window_X / 1.55, 10);
+
+        livesText.setCharacterSize(window_X / 35.0);
+        scoreText.setCharacterSize(window_X / 30.0);
+        FPS_Text.setCharacterSize(window_X / 37.0);
+
+        gameoverFrame.setScale(window_X / 1500, window_X / 1500);
+        backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
+        heartSprite.setScale((window_X / 2800.0), (window_X / 2800.0));
+        explosionSprite.setScale(1.5, 1.5);
     }
 }
