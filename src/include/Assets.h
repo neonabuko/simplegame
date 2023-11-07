@@ -1,6 +1,9 @@
-#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include "../include/Laser.h"
+
+#ifndef ASSETS_H
+#define ASSETS_H
 
 using namespace sf;
 using namespace std;
@@ -22,14 +25,10 @@ namespace Assets {
         float playerMax_X;
         float playerMax_Y;
 
-        float laserInitialSpeed_X = 3000;
-
         float deltaTime;
         float playerScaleIncreaseFactor = 0.03;
         float currentWindowRatio;
         float FPS_count;
-        float laserOrigin_X;
-        float laserOrigin_Y;
 
         int currentFrame;
     }
@@ -44,11 +43,9 @@ namespace Assets {
     namespace TimeDef {
         Time FPSStart = Time::Zero;
         Time FPSTimeConstraint = seconds(1);
-        Time laserCooldown = seconds(0.5);
         Time explosionDuration = seconds(0.6);
         Time elapsedTimeSinceExplosion = Time::Zero;
         Time elapsedTimeSinceEnemyDied = Time::Zero;
-        Time elapsedTimeSinceShot = Time::Zero;
         Time enemySpawnWait = seconds(1.2);        
     }
 
@@ -300,3 +297,5 @@ namespace Assets {
         explosionSprite.setScale(1.5, 1.5);
     }
 }
+
+#endif

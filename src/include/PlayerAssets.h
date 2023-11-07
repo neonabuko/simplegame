@@ -3,72 +3,61 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include "../include/Laser.h"
 
 using namespace sf;
 
 namespace PlayerAssets {
 
     namespace PlayerTextures {
-        Texture player_normal;
-        Texture player_reverse;
-        Texture player_shooting;
-        Texture player_shooting_reverse;
-        Texture player_powerup;
-        Texture player_reverse_powerup;
-        Texture player_shooting_powerup;
-        Texture player_shooting_reverse_powerup;
-        Texture player_golden;
-        Texture player_golden_reverse;
-        Texture player_golden_shooting;
-        Texture player_golden_shooting_reverse;
-
-        Texture laserBlue;
-        Texture laserBlue_reverse;
-        Texture laserRed;
-        Texture laserRed_reverse;
-    }
-
-    namespace LaserDef {
-        Laser laser(-1600, -900, 3000, 20);
+        inline Texture player_normal;
+        inline Texture player_reverse;
+        inline Texture player_shooting;
+        inline Texture player_shooting_reverse;
+        inline Texture player_powerup;
+        inline Texture player_reverse_powerup;
+        inline Texture player_shooting_powerup;
+        inline Texture player_shooting_reverse_powerup;
+        inline Texture player_golden;
+        inline Texture player_golden_reverse;
+        inline Texture player_golden_shooting;
+        inline Texture player_golden_shooting_reverse;
     }
 
     namespace PlayerSounds {
-        SoundBuffer hurtBuffer;
-        SoundBuffer jumpPlayerBuffer;
-        SoundBuffer stompLightPlayerBuffer;
-        SoundBuffer powerUpBuffer;
-
-        SoundBuffer laserShootBuffer;
-        SoundBuffer laserShootBigBuffer;
-
-        Sound hurt;
-        Sound jumpPlayer;
-        Sound stompLightPlayer;
-        Sound powerUp;
-
-        Sound laserShoot;
-        Sound laserShootBig;
+        inline SoundBuffer hurtBuffer;
+        inline SoundBuffer jumpPlayerBuffer;
+        inline SoundBuffer stompLightPlayerBuffer;
+        inline SoundBuffer powerUpBuffer;
+        inline SoundBuffer laserShootBuffer;
+        inline SoundBuffer laserShootBigBuffer;
+        inline Sound hurt;
+        inline Sound jumpPlayer;
+        inline Sound stompLightPlayer;
+        inline Sound powerUp;
+        inline Sound laserShoot;
+        inline Sound laserShootBig;
     }
 
-    namespace Variables {
-        Time laserCooldown = seconds(0.5);
-        Time elapsedTimeSinceShot = Time::Zero;
-        Clock laserClock;
-        Time laserCooldownHalf;
-        float playerScaleIncreaseFactor = 0.03;
-        float playerInitialScale = 0.25;
-        
-        float laserOrigin_X;
-        float laserOrigin_Y;
-        float laserScale;
-        float laserScaleOriginal;
+    namespace PlayerVariables {
+        inline Time shootWait = seconds(0.25);
+        inline Time elapsedTimeSinceShot = Time::Zero;
+
+        inline float playerScaleIncreaseFactor = 0.03;
+        inline float playerInitialScale = 0.25;
+        inline bool isPlayerReverse;
+        inline bool isPowerUp;
+        inline bool isShotInstant;
+        inline bool isPlayerShooting;
+
+        inline float laserPlaceholder_X;
+        inline float laserPlaceholderReverse_X;
+        inline float laserPlaceholder_Y;
     }
 
     using namespace PlayerTextures;
     using namespace PlayerSounds;
 
-    void loadPlayerTextures() {
+    inline void loadPlayerTextures() {
         std::string iconPath = "../src/assets/icon/";
 
         player_normal.loadFromFile(iconPath + "player.png");
@@ -83,14 +72,9 @@ namespace PlayerAssets {
         player_golden_reverse.loadFromFile(iconPath + "player_golden_reverse.png");
         player_golden_shooting.loadFromFile(iconPath + "player_golden_shooting.png");
         player_golden_shooting_reverse.loadFromFile(iconPath + "player_golden_shooting_reverse.png");
-
-        laserBlue.loadFromFile(iconPath + "laserBlue.png");
-        laserBlue_reverse.loadFromFile(iconPath + "laserBlue_reverse.png");
-        laserRed.loadFromFile(iconPath + "laser.png");
-        laserRed_reverse.loadFromFile(iconPath + "laser_reverse.png");
     }
 
-    void loadPlayerSounds() {
+    inline void loadPlayerSounds() {
         std::string soundPath = "../src/assets/sound/";
 
         hurtBuffer.loadFromFile(soundPath + "hurt.ogg");

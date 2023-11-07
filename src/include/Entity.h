@@ -72,7 +72,6 @@ public:
                 int window_Y);
 
     void loadPlayerAssets();
-    Entity getLaser();
 };
 
-#endif //SIMPLEGAME_ENTITY_H
+#endif
