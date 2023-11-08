@@ -26,11 +26,13 @@ namespace LaserAssets {
         inline Clock laserClock;
         inline Time laserCooldownHalf;
 
-        inline float laserOrigin_X;
-        inline float laserOrigin_Y;
-        inline float laserInitialSpeed_X = 3000;
-        inline float laserScale = 0.25;
+        inline float laserOrigin_X = -1600;
+        inline float laserOrigin_Y = -900;
+        inline float laserOriginalSpeed_X = 3000;
+        inline float laserAcceleration = 20;
+        inline float laserScale = 0.2;
         inline float laserScaleOriginal = 0.25;
+        inline float laserScaleIncreaseFactor = 0.03;
     }
 
     using namespace LaserTextures;

@@ -1,10 +1,9 @@
 #include "../include/Laser.h"
 #include "../include/LaserAssets.h"
 #include "../include/PlayerAssets.h"
+#include "../include/GameAssets.h"
 
-Laser::Laser(float initial_X, float initial_Y, float speed, float acceleration) {
-    this->initial_X = initial_X;
-    this->initial_Y = initial_Y;
+Laser::Laser(float speed, float acceleration) {
     this->speed = speed;
     this->acceleration = acceleration;
 }
@@ -12,6 +11,8 @@ Laser::Laser(float initial_X, float initial_Y, float speed, float acceleration) 
 using namespace LaserAssets;
 using namespace LaserTextures;
 using namespace LaserVariables;
+
+using namespace GameAssets;
 
 using namespace PlayerAssets::PlayerVariables;
 
@@ -35,9 +36,11 @@ void Laser::load() {
     loadLaserAssets();
 }
 
-void Laser::update(float deltaTime, float window_X) {
+void Laser::update(float deltaTime) {
 
-    if (isPowerUp) laserScale += (playerScaleIncreaseFactor * (window_X / 1600) * deltaTime) * 1.6;
+    Laser::setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);
+
+    if (isPowerUp) laserScale += (laserScaleIncreaseFactor * deltaTime) * 1.6;
     
     if (isPlayerShooting) {
         if (isShotInstant) {
@@ -46,18 +49,17 @@ void Laser::update(float deltaTime, float window_X) {
             laserOrigin_Y = laserPlaceholder_Y;
             Laser::setPosition(Vector2f(laserOrigin_X, laserOrigin_Y));
             laserClock.restart();
-            
             isShotInstant = false;
         }
         
         elapsedTimeSinceShot = Time::Zero;
         elapsedTimeSinceShot = laserClock.getElapsedTime();
 
-        Laser::getIsReverse() ? Laser::move(-(laserInitialSpeed_X * deltaTime), 0) : Laser::move(laserInitialSpeed_X * deltaTime, 0);
+        Laser::getIsReverse() ? Laser::move(-(laserOriginalSpeed_X * deltaTime), 0) : Laser::move(laserOriginalSpeed_X * deltaTime, 0);
         if (elapsedTimeSinceShot > laserCooldown) {
             isPlayerShooting = false;
             elapsedTimeSinceShot = laserCooldown;
-            Laser::setPosition(-window_X, laserOrigin_Y);
+            Laser::setPosition(-Laser::getWidth(), laserOrigin_Y);
         }
     }
 

@@ -5,22 +5,20 @@
 
 class Laser : public Entity {
 private:
-    float initial_X{};
-    float initial_Y{};
     float speed{};
     float acceleration{};
     bool isReverse{};
     bool isShot{};
 
 public:
-    Laser(float initial_X, float initial_Y, float speed, float acceleration);
+    Laser(float speed, float acceleration);
 
     float getSpeed();
     bool getIsShot();
     void setSpeed(float speed);
     void setIsShot(bool isShot);
     void load();
-    void update(float deltaTime, float window_X);
+    void update(float deltaTime);
 };
 
 #endif

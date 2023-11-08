@@ -7,7 +7,7 @@
 using namespace sf;
 
 namespace PlayerAssets {
-
+    
     namespace PlayerTextures {
         inline Texture player_normal;
         inline Texture player_reverse;
@@ -43,7 +43,16 @@ namespace PlayerAssets {
         inline Time elapsedTimeSinceShot = Time::Zero;
 
         inline float playerScaleIncreaseFactor = 0.03;
+        inline float playerInitial_X = 10;
+        inline float playerInitial_Y;
         inline float playerInitialScale = 0.25;
+        inline float playerInitialSpeed_X = 600;
+        inline float playerInitialSpeed_Y = -7;
+        inline float playerAcceleration = 20;
+        inline float playerMax_X;
+        inline float playerMax_Y;
+
+        inline bool isPlayerBig;
         inline bool isPlayerReverse;
         inline bool isPowerUp;
         inline bool isShotInstant;

@@ -148,18 +148,18 @@ void Entity::loadPlayerAssets() {
 void Entity::update(float deltaTime, int window_X, int window_Y) {
     if (Keyboard::isKeyPressed(Keyboard::A)) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
-        setReverse(true);
+        isPlayerReverse = true;
     }
 
     if (Keyboard::isKeyPressed(Keyboard::D)) {
         Entity::move(Entity::getSpeed_X() * deltaTime, 0);
-        setReverse(false);
+        isPlayerReverse = false;
     }
 
     if (Keyboard::isKeyPressed(Keyboard::Space)) {
         if (!Entity::getIsJumping()) {
             setIsJumping(true);
-            PlayerAssets::jumpPlayer.play();
+            jumpPlayer.play();
         }
     }
 
@@ -174,46 +174,44 @@ void Entity::update(float deltaTime, int window_X, int window_Y) {
         if (Entity::getPosition().y >= window_Y - Entity::getHeight()) {
             Entity::setIsJumping(false);
             Entity::setSpeed_Y(-7);
-            PlayerAssets::stompLightPlayer.play();
+            stompLightPlayer.play();
         }
     }
 
-    if (Entity::getIsReverse()) {
-        if (Entity::getIsShooting() && elapsedTimeSinceShot < shootWait) {
-            Entity::setTexture(Entity::getIsPowerup() ? player_shooting_reverse_powerup : 
-            (Entity::getIsBig() ? player_golden_shooting_reverse : player_shooting_reverse));
+    float windowRatio = window_X / 1600;
+    Entity::setScale(playerInitialScale * windowRatio, playerInitialScale * windowRatio);
+
+    if (isPlayerReverse) {
+        if (isPlayerShooting && elapsedTimeSinceShot < shootWait) {
+            Entity::setTexture(isPowerup ? player_shooting_reverse_powerup : 
+            (isPlayerBig ? player_golden_shooting_reverse : player_shooting_reverse));
         } else {
-            Entity::setTexture(Entity::getIsPowerup() ? player_reverse_powerup : 
-            (Entity::getIsBig() ? player_golden_reverse : player_reverse));
+            Entity::setTexture(isPowerup ? player_reverse_powerup : 
+            (isPlayerBig ? player_golden_reverse : player_reverse));
         }
     } else {
-        if (Entity::getIsShooting() && elapsedTimeSinceShot < shootWait) {
-            Entity::setTexture(Entity::getIsPowerup() ? player_shooting_powerup : 
-            (Entity::getIsBig() ? player_golden_shooting : player_shooting));
+        if (isPlayerShooting && elapsedTimeSinceShot < shootWait) {
+            Entity::setTexture(isPowerup ? player_shooting_powerup : 
+            (isPlayerBig ? player_golden_shooting : player_shooting));
         } else {
-            Entity::setTexture(Entity::getIsPowerup() ? player_powerup : 
-            (Entity::getIsBig() ? player_golden : player_normal));
+            Entity::setTexture(isPowerup ? player_powerup : 
+            (isPlayerBig ? player_golden : player_normal));
         }
     }
 
-    laserPlaceholder_X = (Entity::getPosition().x - 20);
-    laserPlaceholderReverse_X = (Entity::getPosition().x + Entity::getWidth() / 1.5);
+    laserPlaceholder_X = Entity::getPosition().x - 20;
+    laserPlaceholderReverse_X = Entity::getPosition().x + Entity::getWidth() / 1.5;
     laserPlaceholder_Y = Entity::getPosition().y + Entity::getHeight() / 1.65;
 
     // Shoot Laser
     if (Keyboard::isKeyPressed(Keyboard::Enter) && !isPlayerShooting && !isPowerUp) {
-        isPlayerReverse = Entity::getIsReverse();
-        Entity::getIsBig() ? laserShootBig.play() : laserShoot.play();
-        Entity::setIsShooting(true);
+        isPlayerBig ? laserShootBig.play() : laserShoot.play();
         isPlayerShooting = true;
         isShotInstant = true;
     }
 
     float currentWindowRatio = (float) window_X / 1600;
-    if (Entity::getIsPowerup()) {
-        isPowerUp = true;
+    if (isPowerup) {
         playerInitialScale += playerScaleIncreaseFactor * currentWindowRatio * deltaTime;
-    } else {
-        isPowerUp = false;
     }
 }

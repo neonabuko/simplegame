@@ -7,159 +7,132 @@
 
 using namespace sf;
 using namespace std;
-namespace Assets {
+namespace GameAssets {
 
-    namespace Player {
-
-        float window_X = 1600;
-        float window_Y = 900;
-
-        int playerScore = 0;
-        float playerInitial_Y;
-        float playerInitialScale = 0.25;
-        float playerInitial_X = 10;
-        int playerLives = 3;
-        float playerInitialSpeed_X = 600;
-        float playerInitialSpeed_Y = -7;
-        float playerAcceleration = 20;
-        float playerMax_X;
-        float playerMax_Y;
-
-        float deltaTime;
-        float playerScaleIncreaseFactor = 0.03;
-        float currentWindowRatio;
-        float FPS_count;
-
-        int currentFrame;
+    namespace GameVariables {
+        inline float window_X = 1600;
+        inline float window_Y = 900;
+        inline float playerScorePosition_X;
+        inline float playerScorePosition_Y;
+        inline float gameover_X;
+        inline float gameover_Y;
+        inline float deltaTime;
+        inline float currentWindowRatio;
+        inline float FPS_count;
+        inline float livesText_X;
+        inline float livesText_Y;        
+        inline int playerScore;
+        inline int playerLives;
+        inline int currentFrame;
+        inline bool isGameOver;
+        inline bool isKey_M_released;
+        inline bool isExplosion;
     }
 
-    namespace Enemy {
-        float enemyMax_X;
-        float enemyMax_Y;
-        double enemySpeed_X;
-        double enemySpeed_Y;                
+    namespace EnemyVariables {
+        inline float enemyMax_X;
+        inline float enemyMax_Y;
+        inline double enemySpeed_X;
+        inline double enemySpeed_Y;                
     }
 
     namespace TimeDef {
-        Time FPSStart = Time::Zero;
-        Time FPSTimeConstraint = seconds(1);
-        Time explosionDuration = seconds(0.6);
-        Time elapsedTimeSinceExplosion = Time::Zero;
-        Time elapsedTimeSinceEnemyDied = Time::Zero;
-        Time enemySpawnWait = seconds(1.2);        
+        inline Time explosionDuration = seconds(0.6);
+        inline Time elapsedTimeSinceExplosion = Time::Zero;
+        inline Time elapsedTimeSinceEnemyDied = Time::Zero;
+        inline Time enemySpawnWait = seconds(1.2);        
     }
 
     namespace Textures {
-        Texture heart;
-        Texture frame;
-
-        Texture background;
-        Texture backgroundRed;
-
-        Texture enemy_normal;
-        Texture enemy_reverse;
-
-        Texture explosion1;
-        Texture explosion2;
-        Texture explosion3;
-        Texture explosion4;
-        Texture explosion5;
-        Texture explosion6;
-        Texture explosion7;
-        Texture explosion8;
-        Texture explosion9;
-        Texture explosion10;
-        Texture explosion11;
-        Texture explosion12;
-        Texture explosion13;
-        Texture explosion14;
-        Texture explosion15;
-        Texture explosion16;
-        Texture explosion17;
-        Texture explosion18;
-        Texture explosion19;
-        Texture explosion20;
-        Texture explosion21;
-        Texture explosion22;
-        Texture explosion23;
-        Texture explosion24;
-
-        vector<Texture> explosionTextures;
+        inline Texture heart;
+        inline Texture frame;
+        inline Texture background;
+        inline Texture backgroundRed;
+        inline Texture enemy_normal;
+        inline Texture enemy_reverse;
+        inline Texture explosion1;
+        inline Texture explosion2;
+        inline Texture explosion3;
+        inline Texture explosion4;
+        inline Texture explosion5;
+        inline Texture explosion6;
+        inline Texture explosion7;
+        inline Texture explosion8;
+        inline Texture explosion9;
+        inline Texture explosion10;
+        inline Texture explosion11;
+        inline Texture explosion12;
+        inline Texture explosion13;
+        inline Texture explosion14;
+        inline Texture explosion15;
+        inline Texture explosion16;
+        inline Texture explosion17;
+        inline Texture explosion18;
+        inline Texture explosion19;
+        inline Texture explosion20;
+        inline Texture explosion21;
+        inline Texture explosion22;
+        inline Texture explosion23;
+        inline Texture explosion24;
+        inline vector<Texture> explosionTextures;
     }
 
     namespace Sounds {
-        SoundBuffer explosionBuffer;
-        SoundBuffer gameoverBuffer;
-
-        SoundBuffer jumpBuffer;
-        SoundBuffer laserShootBuffer;
-        SoundBuffer laserShootBigBuffer;
-        SoundBuffer popBuffer;
-        SoundBuffer shrink_rayBuffer;
-        SoundBuffer stompBuffer;
-        SoundBuffer stompLightBuffer;
-
-        Sound explosion;
-        Sound gameover;
-
-        Sound stomp;
-        Sound jump;
-        Sound laserShoot;
-        Sound laserShootBig;
-        Sound pop;
-        Sound shrink_ray;
-        Sound stompLight;
-
-        Music soundtrack;
-        Music soundtrackBig;        
+        inline SoundBuffer explosionBuffer;
+        inline SoundBuffer gameoverBuffer;
+        inline SoundBuffer jumpBuffer;
+        inline SoundBuffer stompBuffer;
+        inline SoundBuffer stompLightBuffer;
+        inline Sound explosion;
+        inline Sound gameover;
+        inline Sound stomp;
+        inline Sound jump;
+        inline Sound stompLight;
+        inline Music soundtrack;
+        inline Music soundtrackBig;        
     }
 
     namespace Clocks {
-        Clock randomSpeedClock;
-        Clock deltaClock;
-        Clock laserClock;
-        Clock explosionClock;
-        Clock enemySpawnClock;
-        Clock FPSClock;        
+        inline Clock deltaClock;
+        inline Clock explosionClock;
+        inline Clock enemySpawnClock;
     }
     
     namespace GameSprites {
-        Sprite backgroundSprite;
-        Vector2u backgroundTextureSize;
-        RectangleShape windowBox;
-        Sprite heartSprite;
-        Sprite explosionSprite;
+        inline Sprite backgroundSprite;
+        inline Vector2u backgroundTextureSize;
+        inline RectangleShape windowBox;
+        inline Sprite heartSprite;
+        inline Sprite explosionSprite;
+        inline Sprite gameoverFrame(Textures::frame);
+    }
+
+    namespace Fonts {
+        inline Font pixelFont;
     }
 
     namespace Texts {
-        Font pixelFont;
-        Text scoreText;
-        Text livesText;
-        Sprite gameoverFrame(Textures::frame);
-        Text gameoverText;
-        Text FPS_Text;
-
-        float playerScorePosition_X;
-        float playerScorePosition_Y;
-        float gameover_X;
-        float gameover_Y;
-        float livesText_X = GameSprites::heartSprite.getPosition().x + GameSprites::heartSprite.getGlobalBounds().width + 20;
-        float livesText_Y = GameSprites::heartSprite.getPosition().y + (GameSprites::heartSprite.getGlobalBounds().height / 6);        
-    }    
+        inline Text scoreText;
+        inline Text livesText;
+        inline Text gameoverText;
+        inline Text FPS_Text;
+    } 
 
     using namespace Textures;
-    using namespace std;
     using namespace Texts;
     using namespace GameSprites;
+    using namespace GameVariables;
+    using namespace Fonts;
+    using namespace Sounds;
 
-    void loadSprites() {
+    inline void loadSprites() {
         backgroundSprite.setTexture(Textures::background);
         backgroundTextureSize = Textures::background.getSize();
         windowBox.setScale(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
         heartSprite.setTexture(Textures::heart);
     }
 
-    void loadTexts(float window_X, float window_Y) {
+    inline void loadTexts(float window_X, float window_Y) {
         pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");
 
         string pointsToString = "0";
@@ -194,7 +167,7 @@ namespace Assets {
         FPS_Text.setOutlineThickness(2.5);          
     }
 
-    void loadTextures() {
+    inline void loadTextures() {
         string iconPath = "../src/assets/icon/";
 
         heart.loadFromFile(iconPath + "heart.png");
@@ -239,18 +212,13 @@ namespace Assets {
         }
     }
 
-    using namespace Sounds;
-    void loadSounds() {
+    inline void loadSounds() {
         string soundPath = "../src/assets/sound/";
 
         explosionBuffer.loadFromFile(soundPath + "explosion.ogg");
         gameoverBuffer.loadFromFile(soundPath + "gameover.ogg");
 
         jumpBuffer.loadFromFile(soundPath + "jump.ogg");
-        laserShootBuffer.loadFromFile(soundPath + "laserShoot.ogg");
-        laserShootBigBuffer.loadFromFile(soundPath + "laserShootBig.ogg");
-        popBuffer.loadFromFile(soundPath + "pop.ogg");
-        shrink_rayBuffer.loadFromFile(soundPath + "shrink_ray.ogg");
         stompBuffer.loadFromFile(soundPath + "stomp.ogg");
         stompLightBuffer.loadFromFile(soundPath + "stompLight.ogg");
 
@@ -258,10 +226,6 @@ namespace Assets {
         gameover  = Sound(gameoverBuffer);
 
         jump = Sound(jumpBuffer);
-        laserShoot = Sound(laserShootBuffer);
-        laserShootBig = Sound(laserShootBigBuffer);
-        pop = Sound(popBuffer);
-        shrink_ray = Sound(shrink_rayBuffer);
         stomp = Sound(stompBuffer);
         stompLight = Sound(stompLightBuffer);
 
@@ -276,10 +240,14 @@ namespace Assets {
         soundtrackBig.setLoop(true);        
     }
 
-    using namespace Player;
-    void setSprites(float window_X, float window_Y) {
-        playerInitial_Y = window_Y;
-        livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width * 1.3;
+    inline void setSprites() {
+        playerScore = 0;
+        playerLives = 3;
+
+        currentWindowRatio = window_X / 1600;
+
+        livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
+        livesText_Y = heartSprite.getPosition().y + (heartSprite.getGlobalBounds().height / 6);        
 
         heartSprite.setPosition((window_X / 4), window_Y / 800);
         livesText.setPosition(livesText_X, livesText_Y);

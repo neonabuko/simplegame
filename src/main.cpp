@@ -3,26 +3,24 @@
 #include <random>
 #include <iostream>
 #include "../src/include/Entity.h"
-#include "../src/include/Assets.h"
-#include "../src/include/Booleans.h"
+#include "../src/include/GameAssets.h"
 #include "../src/include/PlayerAssets.h"
 #include "../src/include/LaserAssets.h"
 
 using namespace std;
 using namespace sf;
-using namespace Assets;
+using namespace GameAssets;
 using namespace Textures;
 using namespace Sounds;
-using namespace Booleans;
 using namespace Clocks;
-using namespace Player;
-using namespace Enemy;
+using namespace GameVariables;
+using namespace EnemyVariables;
 using namespace TimeDef;
 using namespace GameSprites;
-using namespace PlayerAssets;
+using namespace PlayerAssets::PlayerVariables;
 using namespace LaserAssets::LaserVariables;
 
-void FPS_to_text(float argument) {
+void debugDisplay(float argument) {
     string argumentToString = to_string(argument);
     FPS_Text.setString(argumentToString);
 }
@@ -41,8 +39,9 @@ int main() {
 
     Entity enemy(backgroundSprite.getGlobalBounds().width, 0, 1, 1000, playerInitialSpeed_Y, 20);
 
-    Laser laser(-1600, -900, 3000, 20);
+    Laser laser(laserOriginalSpeed_X, laserAcceleration);
     laser.load();
+    laser.setPosition(laserOrigin_X, laserOrigin_Y);
 
     vector<Entity> enemies;
     enemies.push_back(enemy);
@@ -66,10 +65,7 @@ int main() {
 
         currentWindowRatio = currentWindow_X / window_X;
 
-        player.setScale(playerInitialScale * currentWindowRatio, playerInitialScale * currentWindowRatio);
-        laser.setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);
-
-        setSprites(window_X, window_Y);
+        setSprites();
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) window.close();
 
@@ -112,7 +108,7 @@ int main() {
 
         if (!isGameOver) {
             player.update(deltaTime, currentWindow_X, currentWindow_Y);
-            laser.update(deltaTime, window_X);
+            laser.update(deltaTime);
 
             for (int i = 0; i < enemies.size(); i++) {
                 // Player -> Enemy Collision
@@ -160,7 +156,7 @@ int main() {
                             player.setIsPowerup(false);
                         }
                     } else if ((int) player.getScale().x * 10 == (int) playerInitialScale * 20) {
-                        // laser.setSpeed_X(laserInitialSpeed_X * 2);
+                        // laser.setSpeed_X(laserOriginalSpeed_X * 2);
                         isPlayerBig = true;
                         if (soundtrack.getStatus() == Sound::Playing) soundtrack.stop();
                         if (soundtrackBig.getStatus() != Sound::Playing) soundtrackBig.play();
@@ -238,7 +234,7 @@ int main() {
         if (player.getPosition().y > playerMax_Y) player.setPosition(player.getPosition().x, playerMax_Y);
         if (player.getPosition().y < 0)           player.setPosition(player.getPosition().x, 0);
         
-        FPS_to_text(PlayerVariables::isPlayerShooting);
+        debugDisplay(elapsedTimeSinceShot.asSeconds());
 
         if (isExplosion) {
             elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
