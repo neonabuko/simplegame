@@ -7,6 +7,7 @@
 #include "../src/include/PlayerAssets.h"
 #include "../src/include/LaserAssets.h"
 #include "../src/include/CollisionDetection.h"
+#include "../src/include/Enemy.h"
 
 using namespace std;
 using namespace sf;
@@ -22,9 +23,9 @@ using namespace PlayerAssets::PlayerVariables;
 using namespace PlayerAssets::PlayerSounds;
 using namespace LaserAssets::LaserVariables;
 
-void debugDisplay(float argument) {
+void displayDebugText(float argument) {
     string argumentToString = to_string(argument);
-    FPS_Text.setString(argumentToString);
+    debugText.setString(argumentToString);
 }
 
 int main() {
@@ -38,22 +39,20 @@ int main() {
     Entity player(playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.loadPlayerAssets();
 
-    Entity enemy(1, 1000, playerInitialSpeed_Y, 20);
+    Enemy enemy;
+    enemy.setLives(1);
+    enemy.setAcceleration(20);
 
     Laser laser(laserOriginalSpeed_X, laserAcceleration);
     laser.load();
     laser.setPosition(laserOrigin_X, laserOrigin_Y);
 
-    vector<Entity> enemies;
+    vector<Enemy> enemies;
     enemies.push_back(enemy);
     enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
-        float enemyInitial_X = backgroundSprite.getGlobalBounds().width - backgroundSprite.getPosition().x - enemies[i].getWidth();
-        float enemyInitial_Y = window_Y - enemies[i].getHeight();
-        enemyInitialPosition = Vector2f(enemyInitial_X, enemyInitial_Y);
-
-        enemies[i].setPosition(enemyInitialPosition);
+        enemies[i].setPosition(1400, 0);
         enemies[i].setScale(window_X / 3300, window_X / 3300);
     }    
 
@@ -73,8 +72,6 @@ int main() {
         if (Keyboard::isKeyPressed(Keyboard::Escape)) window.close();
 
         if (Keyboard::isKeyPressed(Keyboard::R) && isGameOver) {
-            isGameOver = false;
-
             backgroundSprite.setTexture(background);
             backgroundSprite.setPosition(0, 0);            
 
@@ -88,10 +85,10 @@ int main() {
             }
 
             livesText.setString(to_string(playerLives));
-
-            gameoverFrame.setPosition(gameoverFrame.getPosition().x, -gameoverFrame.getLocalBounds().height);
-
+            
             soundtrack.play();
+
+            isGameOver = false;
         }
 
         if (Keyboard::isKeyPressed(Keyboard::M) && isKey_M_released) {
@@ -115,10 +112,8 @@ int main() {
 
             for (int i = 0; i < enemies.size(); i++) {
 
-                // Player -> Enemy Collision
                 if (getCollision(player, enemies[i])) onPlayerEnemyCollision(player, enemies[i]);
 
-                // Laser -> Enemy Collision 
                 if (getCollision(laser, enemies[i])) {
                     onLaserEnemyCollision(laser, enemies[i]);
                     player.grow();
@@ -138,64 +133,41 @@ int main() {
                 }
 
                 enemyMax_Y = currentWindow_Y - enemies[i].getHeight();
-                enemySpeed_X = 200 * deltaTime;
-                enemySpeed_Y = -1800 * deltaTime;
 
                 // Enemy Rendering
                 if (enemies[i].getIsAlive()) {
                     float playerEnemyDistance = abs(player.getPosition().x - enemies[i].getPosition().x);
-                    float jumpVolume = 112 * exp(-0.0004 * playerEnemyDistance);
+                    float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
                     float stompLightVolume = jumpVolume;
                     jump.setVolume(jumpVolume);
                     stompLight.setVolume(stompLightVolume);
 
-                    enemies[i].setTexture(player.getPosition().x < enemies[i].getPosition().x ? enemy_normal : enemy_reverse);
-                    enemies[i].accelerate();
+                    enemies[i].update();
 
-                    player.getPosition().x < enemies[i].getPosition().x ? enemies[i].move(-enemySpeed_X, 0) : enemies[i].move(enemySpeed_X, 0);
-
-                    if (enemies[i].getPosition().y >= enemyMax_Y) {
-                        // if (jump.getStatus() != Sound::Playing) jump.play();
-                        if (stompLight.getStatus() != Sound::Playing) stompLight.play();
-                        enemies[i].setSpeed_Y(enemySpeed_Y);
-                    }
-                    
                     window.draw(enemies[i]);
                 } else {
                     elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
-                    // enemies[i].setPosition(1600, -1000);
                     if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
                         elapsedTimeSinceEnemyDied = enemySpawnWait;
                         enemies[i].setLives(1);
                     }
                 }
             }
-            debugDisplay(enemies[0].getPosition().x);
             
             window.draw(player);
             window.draw(laser);
             window.draw(heartSprite);
             window.draw(livesText);
             window.draw(scoreText);
-            window.draw(FPS_Text);
+            window.draw(debugText);
+
+            displayDebugText(isGameOver);
         } else {
-            if (gameoverFrame.getPosition().y < (currentWindow_Y - gameoverFrame.getGlobalBounds().height) / 3) {
-                gameoverFrame.move(0, 3);
-                FloatRect frameRect = gameoverFrame.getGlobalBounds();
-                gameoverText.setPosition(gameoverFrame.getPosition().x + 200 * currentWindowRatio, gameoverFrame.getPosition().y + 270 * currentWindowRatio);
-            }
-            window.draw(gameoverFrame);
+            gameoverText.setPosition(gameover_X, gameover_Y);
             window.draw(gameoverText);
         }
 
-        // Player border limits
-        if (player.getPosition().x > playerMax_X) player.setPosition(playerMax_X, player.getPosition().y);
-        if (player.getPosition().x < 0)           player.setPosition(0, player.getPosition().y);
-        if (player.getPosition().y > playerMax_Y) player.setPosition(player.getPosition().x, playerMax_Y);
-        if (player.getPosition().y < 0)           player.setPosition(player.getPosition().x, 0);
-
         if (isExplosion) onExplosion();
-
         window.display();
     }
 

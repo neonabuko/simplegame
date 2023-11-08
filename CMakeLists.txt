@@ -10,6 +10,8 @@ src/main.cpp
 src/entity/Entity.cpp
 src/entity/Laser.cpp
 src/collision/CollisionDetection.cpp
+src/entity/Enemy.cpp
+src/include/Enemy.h
 src/include/Entity.h
 src/include/Laser.h
 src/include/GameAssets.h

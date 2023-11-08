@@ -27,6 +27,10 @@ int Entity::getLives() const {
     return lives;
 }
 
+float Entity::getAcceleration() {
+    return this->acceleration;
+}
+
 float Entity::getSpeed_X() const {
     return speed_X;
 }
@@ -140,6 +144,12 @@ void Entity::update() {
         isPlayerReverse = false;
     }
 
+    // Border limits
+    if (Entity::getPosition().x > playerMax_X) Entity::setPosition(playerMax_X, Entity::getPosition().y);
+    if (Entity::getPosition().x < 0)           Entity::setPosition(0, Entity::getPosition().y);
+    if (Entity::getPosition().y > playerMax_Y) Entity::setPosition(Entity::getPosition().x, playerMax_Y);
+    if (Entity::getPosition().y < 0)           Entity::setPosition(Entity::getPosition().x, 0);    
+
     if (Keyboard::isKeyPressed(Keyboard::Space)) {
         if (!Entity::getIsJumping()) {
             setIsJumping(true);
@@ -164,6 +174,7 @@ void Entity::update() {
 
     float windowRatio = window_X / 1600;
     Entity::setScale(playerInitialScale * windowRatio, playerInitialScale * windowRatio);
+    playerCurrent_X = Entity::getPosition().x;
 
     if (isPlayerReverse) {
         if (isPlayerShooting && elapsedTimeSinceShot < shootWait) {

@@ -20,14 +20,10 @@ private:
 public:
     Entity();
 
-    Entity(
-        int lives,
-        float speed_X,
-        float speed_Y,
-        float acceleration
-        );
+    Entity(int lives, float speed_X, float speed_Y, float acceleration);
     
     int getLives() const;
+    float getAcceleration();
     float getWidth();
     float getHeight();
     float getSpeed_X() const;

@@ -51,6 +51,7 @@ namespace PlayerAssets {
         inline float playerAcceleration = 20;
         inline float playerMax_X;
         inline float playerMax_Y;
+        inline float playerCurrent_X;
 
         inline bool isPlayerBig;
         inline bool isPlayerReverse;

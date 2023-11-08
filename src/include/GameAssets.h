@@ -34,8 +34,10 @@ namespace GameAssets {
         inline Vector2f enemyInitialPosition;
         inline float enemyMax_X;
         inline float enemyMax_Y;
-        inline double enemySpeed_X;
-        inline double enemySpeed_Y;                
+        inline float enemySpeed_X;
+        inline float enemySpeed_Y;
+        inline float enemyInitial_X;
+        inline float enemyInitial_Y;
     }
 
     namespace GameTime {
@@ -47,7 +49,6 @@ namespace GameAssets {
 
     namespace Textures {
         inline Texture heart;
-        inline Texture frame;
         inline Texture background;
         inline Texture backgroundRed;
         inline Texture enemy_normal;
@@ -91,7 +92,7 @@ namespace GameAssets {
         inline Sound jump;
         inline Sound stompLight;
         inline Music soundtrack;
-        inline Music soundtrackBig;        
+        inline Music soundtrackBig;   
     }
 
     namespace GameClocks {
@@ -106,7 +107,6 @@ namespace GameAssets {
         inline RectangleShape windowBox;
         inline Sprite heartSprite;
         inline Sprite explosionSprite;
-        inline Sprite gameoverFrame(Textures::frame);
     }
 
     namespace Fonts {
@@ -117,7 +117,7 @@ namespace GameAssets {
         inline Text scoreText;
         inline Text livesText;
         inline Text gameoverText;
-        inline Text FPS_Text;
+        inline Text debugText;
     } 
 
     using namespace Textures;
@@ -140,10 +140,6 @@ namespace GameAssets {
         playerLives = 3;
         string pointsToString = to_string(playerScore);
         string livesToString = to_string(playerLives);
-        gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
-        gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
-        playerScorePosition_X = window_X / 2.2;
-        playerScorePosition_Y = window_Y / 800;
 
         scoreText.setString("SCORE " + pointsToString);
         scoreText.setFont(pixelFont);
@@ -161,20 +157,25 @@ namespace GameAssets {
 
         gameoverText.setString("\tGAME OVER\nPress R to restart");
         gameoverText.setFont(pixelFont);
-        gameoverText.setCharacterSize(50 * (window_X / 40));
+        gameoverText.setCharacterSize(50);
         gameoverText.setFillColor(Color::White);
         gameoverText.setOutlineColor(Color::Black);
         gameoverText.setOutlineThickness(2);
 
-        FPS_Text.setFont(pixelFont);
-        FPS_Text.setOutlineThickness(2.5);          
+        gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
+        gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
+        
+        playerScorePosition_X = window_X / 2.2;
+        playerScorePosition_Y = window_Y / 800;
+
+        debugText.setFont(pixelFont);
+        debugText.setOutlineThickness(2.5);          
     }
 
     inline void loadTextures() {
         string iconPath = "../src/assets/icon/";
 
         heart.loadFromFile(iconPath + "heart.png");
-        frame.loadFromFile(iconPath + "frame.png");
 
         background.loadFromFile(iconPath + "background.jpg");
         backgroundRed.loadFromFile(iconPath + "backgroundRed.jpg");
@@ -253,13 +254,12 @@ namespace GameAssets {
         livesText.setPosition(livesText_X, livesText_Y);
         scoreText.setPosition(playerScorePosition_X, playerScorePosition_Y);
         windowBox.setPosition(backgroundSprite.getPosition().x, backgroundSprite.getPosition().y);
-        FPS_Text.setPosition(window_X / 1.55, 10);
+        debugText.setPosition(window_X / 1.55, 10);
 
         livesText.setCharacterSize(window_X / 35.0);
         scoreText.setCharacterSize(window_X / 30.0);
-        FPS_Text.setCharacterSize(window_X / 37.0);
+        debugText.setCharacterSize(window_X / 37.0);
 
-        gameoverFrame.setScale(window_X / 1500, window_X / 1500);
         backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
         heartSprite.setScale((window_X / 2800.0), (window_X / 2800.0));
         explosionSprite.setScale(1.5, 1.5);

@@ -5,7 +5,7 @@
 
 class Enemy : public Entity {
 public:
-    
+    void update();
 };
 
 #endif
