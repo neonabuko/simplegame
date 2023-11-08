@@ -64,6 +64,7 @@ public:
     void setIsShooting(bool isShooting);
     void setIsPowerup(bool isPowerup);
     void setIsBig(bool isBig);
+    void grow();
 
     void accelerate(float deltaTime);
 

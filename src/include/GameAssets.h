@@ -36,7 +36,7 @@ namespace GameAssets {
         inline double enemySpeed_Y;                
     }
 
-    namespace TimeDef {
+    namespace GameTime {
         inline Time explosionDuration = seconds(0.6);
         inline Time elapsedTimeSinceExplosion = Time::Zero;
         inline Time elapsedTimeSinceEnemyDied = Time::Zero;
@@ -77,7 +77,7 @@ namespace GameAssets {
         inline vector<Texture> explosionTextures;
     }
 
-    namespace Sounds {
+    namespace GameSounds {
         inline SoundBuffer explosionBuffer;
         inline SoundBuffer gameoverBuffer;
         inline SoundBuffer jumpBuffer;
@@ -92,7 +92,7 @@ namespace GameAssets {
         inline Music soundtrackBig;        
     }
 
-    namespace Clocks {
+    namespace GameClocks {
         inline Clock deltaClock;
         inline Clock explosionClock;
         inline Clock enemySpawnClock;
@@ -123,7 +123,7 @@ namespace GameAssets {
     using namespace GameSprites;
     using namespace GameVariables;
     using namespace Fonts;
-    using namespace Sounds;
+    using namespace GameSounds;
 
     inline void loadSprites() {
         backgroundSprite.setTexture(Textures::background);
@@ -132,11 +132,12 @@ namespace GameAssets {
         heartSprite.setTexture(Textures::heart);
     }
 
-    inline void loadTexts(float window_X, float window_Y) {
+    inline void loadTexts() {
         pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");
-
-        string pointsToString = "0";
-        string livesToString = "0";
+        playerScore = 0;
+        playerLives = 3;
+        string pointsToString = to_string(playerScore);
+        string livesToString = to_string(playerLives);
         gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
         gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
         playerScorePosition_X = window_X / 2.2;
@@ -241,9 +242,6 @@ namespace GameAssets {
     }
 
     inline void setSprites() {
-        playerScore = 0;
-        playerLives = 3;
-
         currentWindowRatio = window_X / 1600;
 
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;

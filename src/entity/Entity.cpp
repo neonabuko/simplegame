@@ -2,8 +2,10 @@
 #include <SFML/Audio.hpp>
 #include "../include/Entity.h"
 #include "../include/PlayerAssets.h"
+#include "../include/GameAssets.h"
 
 using namespace sf;
+using namespace GameAssets;
 
 Entity::Entity() {};
 
@@ -143,6 +145,22 @@ void Entity::setIsBig(bool isBig) {
 void Entity::loadPlayerAssets() {
     loadPlayerTextures();
     loadPlayerSounds();
+}
+
+void Entity::grow() {
+    if (Entity::getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
+        if (playerScore % 5 == 0) {
+            Entity::setIsPowerup(true);
+            powerUp.play();
+        } else {
+            Entity::setIsPowerup(false);
+        }
+    } else if ((int) Entity::getScale().x * 10 == (int) playerInitialScale * 20) {
+        // laser.setSpeed_X(laserOriginalSpeed_X * 2);
+        isPlayerBig = true;
+        if (soundtrack.getStatus() == Sound::Playing) soundtrack.stop();
+        if (soundtrackBig.getStatus() != Sound::Playing) soundtrackBig.play();
+    }    
 }
 
 void Entity::update(float deltaTime, int window_X, int window_Y) {

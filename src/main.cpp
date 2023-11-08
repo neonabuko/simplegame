@@ -6,18 +6,20 @@
 #include "../src/include/GameAssets.h"
 #include "../src/include/PlayerAssets.h"
 #include "../src/include/LaserAssets.h"
+#include "../src/include/CollisionDetection.h"
 
 using namespace std;
 using namespace sf;
 using namespace GameAssets;
 using namespace Textures;
-using namespace Sounds;
-using namespace Clocks;
+using namespace GameSounds;
+using namespace GameClocks;
 using namespace GameVariables;
 using namespace EnemyVariables;
-using namespace TimeDef;
+using namespace GameTime;
 using namespace GameSprites;
 using namespace PlayerAssets::PlayerVariables;
+using namespace PlayerAssets::PlayerSounds;
 using namespace LaserAssets::LaserVariables;
 
 void debugDisplay(float argument) {
@@ -26,13 +28,13 @@ void debugDisplay(float argument) {
 }
 
 int main() {
-    RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
-    window.setFramerateLimit(300);
-
     loadTextures();
     loadSounds();
-    loadTexts(window_X, window_Y);
+    loadTexts();
     loadSprites();
+
+    RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
+    window.setFramerateLimit(300);
 
     Entity player(playerInitial_X, playerInitial_Y, playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.loadPlayerAssets();
@@ -52,7 +54,7 @@ int main() {
                                       window_Y - enemies[i].getHeight());
         enemies[i].setPosition(enemy.getInitial_X() - (i * enemies[i].getWidth() / 2), window_Y - enemies[i].getHeight());
         enemies[i].setScale(window_X / 3300, window_X / 3300);
-    }
+    }    
 
     while (window.isOpen()) {
         Event event{};
@@ -111,60 +113,16 @@ int main() {
             laser.update(deltaTime);
 
             for (int i = 0; i < enemies.size(); i++) {
+
                 // Player -> Enemy Collision
-                if (player.getGlobalBounds().intersects(enemies[i].getGlobalBounds())) {
-                    // if (hurt.getStatus() != Sound::Playing) hurt.play();
-
-                    player.setPosition(player.getPosition().x - 200, player.getPosition().y);
-                    player.setLives(-1);
-
-                    enemies[i].setPosition(enemies[i].getPosition().x + 200, enemies[i].getPosition().y);
-
-                    livesText.setString(to_string(player.getLives()));
-
-                    if (player.getLives() == 0) {
-                        soundtrack.stop();
-                        soundtrackBig.stop();
-                        gameover.play();
-                        isGameOver = true;
-                    }          
+                if (getCollision(player, enemies[i])) {
+                    onPlayerEnemyCollision(player, enemies[i]);
                 }
 
                 // Laser -> Enemy Collision 
-                if (laser.getGlobalBounds().intersects(enemies[i].getGlobalBounds())) {
-                    elapsedTimeSinceExplosion = Time::Zero;
-                    elapsedTimeSinceEnemyDied = Time::Zero;
-                    if (explosion.getStatus() == Sound::Playing) explosion.stop();
-                    explosion.play();
-                    explosionSprite.setPosition(enemies[i].getPosition().x, enemies[i].getPosition().y - explosionSprite.getScale().y * 55);
-
-                    laser.setPosition(-currentWindow_X, -currentWindow_Y);
-
-                    enemies[i].setLives(-1);
-                    enemies[i].setInitialPosition(backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x - enemy.getWidth(), 
-                                            currentWindow_Y - enemy.getHeight());
-                    enemies[i].setPosition(enemies[i].getInitial_X(), enemies[i].getInitial_Y());
-
-                    playerScore++;
-                    scoreText.setString("SCORE " + to_string(playerScore));
-
-                    if (player.getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
-                        if (playerScore % 5 == 0) {
-                            player.setIsPowerup(true);
-                            // powerUp.play();
-                        } else {
-                            player.setIsPowerup(false);
-                        }
-                    } else if ((int) player.getScale().x * 10 == (int) playerInitialScale * 20) {
-                        // laser.setSpeed_X(laserOriginalSpeed_X * 2);
-                        isPlayerBig = true;
-                        if (soundtrack.getStatus() == Sound::Playing) soundtrack.stop();
-                        if (soundtrackBig.getStatus() != Sound::Playing) soundtrackBig.play();
-                    }                
-
-                    isExplosion = true;
-                    explosionClock.restart();
-                    enemySpawnClock.restart();
+                if (getCollision(laser, enemies[i])) {
+                    onLaserEnemyCollision(laser, enemies[i]);
+                    player.grow();
                 }
 
                 // Background Movement
@@ -234,7 +192,7 @@ int main() {
         if (player.getPosition().y > playerMax_Y) player.setPosition(player.getPosition().x, playerMax_Y);
         if (player.getPosition().y < 0)           player.setPosition(player.getPosition().x, 0);
         
-        debugDisplay(elapsedTimeSinceShot.asSeconds());
+        debugDisplay(player.getLives());
 
         if (isExplosion) {
             elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
