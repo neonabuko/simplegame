@@ -10,8 +10,6 @@ using namespace GameAssets;
 Entity::Entity() {};
 
 Entity::Entity(
-               float initial_X,
-               float initial_Y,
                int lives,
                float speed_X,
                float speed_Y,
@@ -21,9 +19,6 @@ Entity::Entity(
     this->speed_X = speed_X;
     this->speed_Y = speed_Y;
     this->acceleration = acceleration;
-    this->initial_X = initial_X;
-    this->initial_Y = initial_Y;
-    Entity::Sprite::setPosition(initial_X, initial_Y);
 }
 using namespace PlayerAssets;
 using namespace PlayerVariables;
@@ -44,25 +39,12 @@ bool Entity::getIsAlive() const {
     return lives > 0;
 }
 
-float Entity::getInitial_X() const {
-    return initial_X;
+float Entity::getWidth() {
+    return Entity::getGlobalBounds().width;
 }
 
-float Entity::getInitial_Y() const {
-    return initial_Y;
-}
-
-float Entity::getInitialScale_X() const{
-    return this->initialScale_X;
-}
-
-float Entity::getInitialScale_Y() const{
-    return this->initialScale_Y;
-}
-
-void Entity::setInitialPosition(float initial_X, float initial_Y) {
-    this->initial_X = initial_X;
-    this->initial_Y = initial_Y;
+float Entity::getHeight() {
+    return Entity::getGlobalBounds().height;
 }
 
 void Entity::setLives(int lives) {
@@ -81,25 +63,9 @@ void Entity::setAcceleration(float acceleration) {
     this->acceleration = acceleration;
 }
 
-void Entity::accelerate(float deltaTime) {
+void Entity::accelerate() {
     speed_Y += acceleration * deltaTime;
     Entity::move(0, speed_Y);
-}
-
-float Entity::getWidth() {
-    return Entity::Sprite::getLocalBounds().width *
-           Entity::Sprite::getScale().x;
-}
-
-float Entity::getHeight() {
-    return Entity::Sprite::getLocalBounds().height *
-           Entity::Sprite::getScale().y;
-}
-
-void Entity::setScale(float scale_X, float scale_Y) {
-    this->scale_X = scale_X;
-    this->scale_Y = scale_Y;
-    Entity::Sprite::setScale(scale_X, scale_Y);
 }
 
 void Entity::setReverse(bool isReverse) {
@@ -163,7 +129,7 @@ void Entity::grow() {
     }    
 }
 
-void Entity::update(float deltaTime, int window_X, int window_Y) {
+void Entity::update() {
     if (Keyboard::isKeyPressed(Keyboard::A)) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
         isPlayerReverse = true;
@@ -188,7 +154,7 @@ void Entity::update(float deltaTime, int window_X, int window_Y) {
     }
 
     if (Entity::getIsJumping()) {
-        Entity::accelerate(deltaTime);
+        Entity::accelerate();
         if (Entity::getPosition().y >= window_Y - Entity::getHeight()) {
             Entity::setIsJumping(false);
             Entity::setSpeed_Y(-7);

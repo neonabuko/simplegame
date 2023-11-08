@@ -35,10 +35,10 @@ int main() {
 
     window.setFramerateLimit(300);
 
-    Entity player(playerInitial_X, playerInitial_Y, playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
+    Entity player(playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.loadPlayerAssets();
 
-    Entity enemy(backgroundSprite.getGlobalBounds().width, 0, 1, 1000, playerInitialSpeed_Y, 20);
+    Entity enemy(1, 1000, playerInitialSpeed_Y, 20);
 
     Laser laser(laserOriginalSpeed_X, laserAcceleration);
     laser.load();
@@ -49,9 +49,11 @@ int main() {
     enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].setInitialPosition(backgroundSprite.getGlobalBounds().width - backgroundSprite.getPosition().x - enemies[i].getWidth(), 
-                                      window_Y - enemies[i].getHeight());
-        enemies[i].setPosition(enemy.getInitial_X() - (i * enemies[i].getWidth() / 2), window_Y - enemies[i].getHeight());
+        float enemyInitial_X = backgroundSprite.getGlobalBounds().width - backgroundSprite.getPosition().x - enemies[i].getWidth();
+        float enemyInitial_Y = window_Y - enemies[i].getHeight();
+        enemyInitialPosition = Vector2f(enemyInitial_X, enemyInitial_Y);
+
+        enemies[i].setPosition(enemyInitialPosition);
         enemies[i].setScale(window_X / 3300, window_X / 3300);
     }    
 
@@ -82,7 +84,7 @@ int main() {
             isPlayerBig = false;
 
             for (int i = 0; i < enemies.size(); i++) {
-                enemies[i].setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+                enemies[i].setPosition(enemyInitialPosition);
             }
 
             livesText.setString(to_string(playerLives));
@@ -108,8 +110,8 @@ int main() {
         window.draw(backgroundSprite);
 
         if (!isGameOver) {
-            player.update(deltaTime, currentWindow_X, currentWindow_Y);
-            laser.update(deltaTime);
+            player.update();
+            laser.update();
 
             for (int i = 0; i < enemies.size(); i++) {
 
@@ -148,7 +150,7 @@ int main() {
                     stompLight.setVolume(stompLightVolume);
 
                     enemies[i].setTexture(player.getPosition().x < enemies[i].getPosition().x ? enemy_normal : enemy_reverse);
-                    enemies[i].accelerate(deltaTime);
+                    enemies[i].accelerate();
 
                     player.getPosition().x < enemies[i].getPosition().x ? enemies[i].move(-enemySpeed_X, 0) : enemies[i].move(enemySpeed_X, 0);
 

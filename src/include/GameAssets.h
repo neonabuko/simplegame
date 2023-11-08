@@ -21,7 +21,7 @@ namespace GameAssets {
         inline float currentWindowRatio;
         inline float FPS_count;
         inline float livesText_X;
-        inline float livesText_Y;        
+        inline float livesText_Y;
         inline int playerScore;
         inline int playerLives;
         inline int currentFrame;
@@ -31,6 +31,7 @@ namespace GameAssets {
     }
 
     namespace EnemyVariables {
+        inline Vector2f enemyInitialPosition;
         inline float enemyMax_X;
         inline float enemyMax_Y;
         inline double enemySpeed_X;

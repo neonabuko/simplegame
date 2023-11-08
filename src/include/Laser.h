@@ -18,7 +18,7 @@ public:
     void setSpeed(float speed);
     void setIsShot(bool isShot);
     void load();
-    void update(float deltaTime);
+    void update();
 };
 
 #endif

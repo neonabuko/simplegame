@@ -6,6 +6,7 @@
 
 using namespace PlayerAssets;
 using namespace GameAssets;
+using namespace EnemyVariables;
 using namespace GameTime;
 using namespace GameClocks;
 
@@ -39,10 +40,10 @@ void onLaserEnemyCollision(Laser& laser, Entity& enemy) {
     laser.setPosition(-laser.getWidth(), -laser.getHeight());
 
     enemy.setLives(-1);
-    enemy.setInitialPosition(
+    enemyInitialPosition = Vector2f(
         backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x + enemy.getWidth(), window_Y - enemy.getHeight()
         );
-    enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
+    enemy.setPosition(enemyInitialPosition);
 
     playerScore++;
     scoreText.setString("SCORE " + to_string(playerScore));

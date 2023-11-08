@@ -36,7 +36,7 @@ void Laser::load() {
     loadLaserAssets();
 }
 
-void Laser::update(float deltaTime) {
+void Laser::update() {
 
     Laser::setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);
 
