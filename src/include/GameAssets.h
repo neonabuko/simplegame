@@ -164,7 +164,7 @@ namespace GameAssets {
 
         gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
         gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
-        
+
         playerScorePosition_X = window_X / 2.2;
         playerScorePosition_Y = window_Y / 800;
 

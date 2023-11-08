@@ -5,6 +5,7 @@
 #include "../include/Laser.h"
 
 using namespace PlayerAssets;
+using namespace PlayerVariables;
 using namespace GameAssets;
 using namespace EnemyVariables;
 using namespace GameTime;
@@ -14,7 +15,7 @@ bool getCollision(Entity& entity_A, Entity& entity_B) {
     return entity_A.getGlobalBounds().intersects(entity_B.getGlobalBounds());
 }
 
-void onPlayerEnemyCollision(Entity& player, Entity& enemy) {
+void onCollision_PlayerEnemy(Entity& player, Entity& enemy) {
     if (hurt.getStatus() != Sound::Playing) hurt.play();
 
     player.setPosition(player.getPosition().x - 300, player.getPosition().y);
@@ -30,7 +31,11 @@ void onPlayerEnemyCollision(Entity& player, Entity& enemy) {
     }
 }
 
-void onLaserEnemyCollision(Laser& laser, Entity& enemy) {
+void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
+    playerScore++;
+    if (playerScore > 0 && playerScore % 5 == 0) isPowerUp = true;
+    scoreText.setString("SCORE " + to_string(playerScore));
+
     elapsedTimeSinceExplosion = Time::Zero;
     elapsedTimeSinceEnemyDied = Time::Zero;
 
@@ -44,9 +49,6 @@ void onLaserEnemyCollision(Laser& laser, Entity& enemy) {
         backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x + enemy.getWidth(), window_Y - enemy.getHeight()
         );
     enemy.setPosition(enemyInitialPosition);
-
-    playerScore++;
-    scoreText.setString("SCORE " + to_string(playerScore));
 
     isExplosion = true;
     explosionClock.restart();

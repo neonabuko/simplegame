@@ -52,7 +52,7 @@ int main() {
     enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].setPosition(1400, 0);
+        enemies[i].setPosition(1600, 0);
         enemies[i].setScale(window_X / 3300, window_X / 3300);
     }    
 
@@ -109,49 +109,40 @@ int main() {
         if (!isGameOver) {
             player.update();
             laser.update();
+            if (isExplosion) onExplosion();
 
             for (int i = 0; i < enemies.size(); i++) {
+                enemies[i].update();
 
-                if (getCollision(player, enemies[i])) onPlayerEnemyCollision(player, enemies[i]);
+                if (getCollision(player, enemies[i])) {
+                    onCollision_PlayerEnemy(player, enemies[i]);
+                }
 
                 if (getCollision(laser, enemies[i])) {
-                    onLaserEnemyCollision(laser, enemies[i]);
-                    player.grow();
+                    onCollision_LaserEnemy(laser, enemies[i]);
                 }
 
                 // Background Movement
-                if (player.getPosition().x > playerMax_X / 2 && Keyboard::isKeyPressed(Keyboard::D) && 
+                if (player.getPosition().x > playerMax_X / 1.8 && Keyboard::isKeyPressed(Keyboard::D) && 
                     backgroundSprite.getPosition().x + backgroundSprite.getGlobalBounds().width > currentWindow_X) {
 
                     backgroundSprite.move(-200 * deltaTime, 0);
-                    player.move(-(player.getSpeed_X() * 0.8) * deltaTime, 0);
-                    enemies[i].move(-400 * deltaTime, 0);
-
+                    player.setSpeed_X(0);
+                    enemies[i].move(-200 * deltaTime, 0);
                 } else if (player.getPosition().x <= 0 && Keyboard::isKeyPressed(Keyboard::A) && backgroundSprite.getPosition().x < 0) {
                     backgroundSprite.move(200 * deltaTime, 0);
-                    enemies[i].move(400 * deltaTime, 0);
-                }
-
-                enemyMax_Y = currentWindow_Y - enemies[i].getHeight();
-
-                // Enemy Rendering
-                if (enemies[i].getIsAlive()) {
-                    float playerEnemyDistance = abs(player.getPosition().x - enemies[i].getPosition().x);
-                    float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
-                    float stompLightVolume = jumpVolume;
-                    jump.setVolume(jumpVolume);
-                    stompLight.setVolume(stompLightVolume);
-
-                    enemies[i].update();
-
-                    window.draw(enemies[i]);
+                    enemies[i].move(200 * deltaTime, 0);
                 } else {
-                    elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
-                    if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
-                        elapsedTimeSinceEnemyDied = enemySpawnWait;
-                        enemies[i].setLives(1);
-                    }
+                    player.setSpeed_X(playerInitialSpeed_X);
                 }
+
+                float playerEnemyDistance = abs(player.getPosition().x - enemies[i].getPosition().x);
+                float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
+                float stompLightVolume = jumpVolume;
+                jump.setVolume(jumpVolume);
+                stompLight.setVolume(stompLightVolume);
+
+                window.draw(enemies[i]);
             }
             
             window.draw(player);
@@ -161,13 +152,12 @@ int main() {
             window.draw(scoreText);
             window.draw(debugText);
 
-            displayDebugText(isGameOver);
+            displayDebugText(enemySpeed_X);
         } else {
             gameoverText.setPosition(gameover_X, gameover_Y);
             window.draw(gameoverText);
         }
 
-        if (isExplosion) onExplosion();
         window.display();
     }
 

@@ -6,9 +6,9 @@
 
 bool getCollision(Entity& entity_A, Entity& entity_B);
 
-void onPlayerEnemyCollision(Entity& entity_A, Entity& entity_B);
+void onCollision_PlayerEnemy(Entity& entity_A, Entity& entity_B);
 
-void onLaserEnemyCollision(Laser& laser, Entity& enemy);
+void onCollision_LaserEnemy(Laser& laser, Entity& enemy);
 
 void onExplosion();
 
