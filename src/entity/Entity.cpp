@@ -209,3 +209,26 @@ void Entity::update() {
         }
     }
 }
+
+using namespace EnemyVariables;
+void Entity::resetGame () {
+    backgroundSprite.setTexture(background);
+    backgroundSprite.setPosition(0, 0);
+
+    Entity::setLives(playerLives);
+    Entity::setScale(playerInitialScale, playerInitialScale);
+    Entity::setPosition(playerInitial_X, playerInitial_Y);
+    isPlayerBig = false;
+
+    for (int i = 0; i < enemies.size(); i++) {
+        enemies[i].setPosition(enemyInitialPosition);
+    }
+
+    livesText.setString(to_string(playerLives));
+    playerScore = 0;
+    scoreText.setString("SCORE " + to_string(playerScore));
+
+    soundtrack.play();
+
+    isGameOver = false;
+}

@@ -47,7 +47,6 @@ int main() {
     laser.load();
     laser.setPosition(laserOrigin_X, laserOrigin_Y);
 
-    vector<Enemy> enemies;
     enemies.push_back(enemy);
     enemies.push_back(enemy);
 
@@ -128,6 +127,7 @@ int main() {
                 stompLight.setVolume(stompLightVolume);
 
                 window.draw(enemies[i]);
+                displayDebugText(player.getLives());
             }
 
             window.draw(player);
@@ -137,30 +137,10 @@ int main() {
             window.draw(scoreText);
             window.draw(debugText);
 
-            // displayDebugText(enemySpeed_X);
         } else {
             gameoverText.setPosition(gameover_X, gameover_Y);
             window.draw(gameoverText);
-
-            if (isKey_Enter_pressed) {
-                backgroundSprite.setTexture(background);
-                backgroundSprite.setPosition(0, 0);
-
-                player.setLives(playerLives);
-                player.setScale(playerInitialScale, playerInitialScale);
-                player.setPosition(playerInitial_X, playerInitial_Y);
-                isPlayerBig = false;
-
-                for (int i = 0; i < enemies.size(); i++) {
-                    enemies[i].setPosition(enemyInitialPosition);
-                }
-
-                livesText.setString(to_string(playerLives));
-
-                soundtrack.play();
-
-                isGameOver = false;
-            }
+            if (isKey_Enter_pressed) player.resetGame();
         }
 
         window.display();

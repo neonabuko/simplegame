@@ -45,11 +45,11 @@ public:
     void setIsPowerup(bool isPowerup);
     void setIsBig(bool isBig);
     void grow();
-
     void accelerate();
-    void update();
 
     void loadPlayerAssets();
+    void update();
+    void resetGame();
 };
 
 #endif

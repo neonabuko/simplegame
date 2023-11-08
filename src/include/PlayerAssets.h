@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include "Entity.h"
 
 using namespace sf;
 
@@ -52,6 +53,7 @@ namespace PlayerAssets {
         inline float playerMax_X;
         inline float playerMax_Y;
         inline float playerCurrent_X;
+        inline int playerLives;
 
         inline bool isPlayerBig;
         inline bool isPlayerReverse;

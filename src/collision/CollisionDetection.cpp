@@ -18,7 +18,7 @@ bool getCollision(Entity& entity_A, Entity& entity_B) {
 void onCollision_PlayerEnemy(Entity& player, Entity& enemy) {
     if (hurt.getStatus() != Sound::Playing) hurt.play();
 
-    player.setPosition(player.getPosition().x - 300, player.getPosition().y);
+    player.setPosition(player.getPosition().x - 400, player.getPosition().y);
     player.setLives(-1);
 
     livesText.setString(to_string(player.getLives()));
@@ -33,6 +33,7 @@ void onCollision_PlayerEnemy(Entity& player, Entity& enemy) {
 
 void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
     playerScore++;
+    enemy.setScale(enemy.getScale().x * 1.03, enemy.getScale().y * 1.03);
     if (playerScore > 0 && playerScore % 5 == 0) isPowerUp = true;
     scoreText.setString("SCORE " + to_string(playerScore));
 

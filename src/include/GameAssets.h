@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include "../include/Laser.h"
+#include "Laser.h"
+#include "Enemy.h"
+#include "PlayerAssets.h"
 
 #ifndef ASSETS_H
 #define ASSETS_H
@@ -23,10 +25,11 @@ namespace GameAssets {
         inline float livesText_X;
         inline float livesText_Y;
         inline int playerScore;
-        inline int playerLives;
         inline int currentFrame;
         inline bool isGameOver;
         inline bool isExplosion;
+
+        
     }
 
     namespace PlayerControls {
@@ -41,6 +44,7 @@ namespace GameAssets {
     }
 
     namespace EnemyVariables {
+        inline vector<Enemy> enemies;
         inline Vector2f enemyInitialPosition;
         inline float enemyMax_X;
         inline float enemyMax_Y;
@@ -137,6 +141,7 @@ namespace GameAssets {
     using namespace Fonts;
     using namespace GameSounds;
     using namespace PlayerControls;
+    using namespace PlayerAssets::PlayerVariables;
 
     inline void updateKeyboard() {
         isKey_A_pressed = Keyboard::isKeyPressed(Keyboard::A);
@@ -170,12 +175,12 @@ namespace GameAssets {
 
         livesText.setString(livesToString);
         livesText.setFont(pixelFont);
-        livesText.setCharacterSize(window_X / 40);
+        livesText.setCharacterSize(30);
         livesText.setFillColor(Color::White);
         livesText.setOutlineColor(Color::Black);
         livesText.setOutlineThickness(2);
 
-        gameoverText.setString("\tGAME OVER\nPress ENTER to restart");
+        gameoverText.setString("\t  GAME OVER\nPress ENTER to restart");
         gameoverText.setFont(pixelFont);
         gameoverText.setCharacterSize(50);
         gameoverText.setFillColor(Color::White);
@@ -268,7 +273,7 @@ namespace GameAssets {
         currentWindowRatio = window_X / 1600;
 
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
-        livesText_Y = heartSprite.getPosition().y + (heartSprite.getGlobalBounds().height / 6);        
+        livesText_Y = heartSprite.getPosition().y + (heartSprite.getGlobalBounds().height / 6);
 
         heartSprite.setPosition((window_X / 4), window_Y / 800);
         livesText.setPosition(livesText_X, livesText_Y);
