@@ -33,7 +33,6 @@ int main() {
     loadTexts();
     loadSprites();
 
-    RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
     window.setFramerateLimit(300);
 
     Entity player(playerInitial_X, playerInitial_Y, playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
@@ -115,9 +114,7 @@ int main() {
             for (int i = 0; i < enemies.size(); i++) {
 
                 // Player -> Enemy Collision
-                if (getCollision(player, enemies[i])) {
-                    onPlayerEnemyCollision(player, enemies[i]);
-                }
+                if (getCollision(player, enemies[i])) onPlayerEnemyCollision(player, enemies[i]);
 
                 // Laser -> Enemy Collision 
                 if (getCollision(laser, enemies[i])) {
@@ -138,11 +135,14 @@ int main() {
                     enemies[i].move(400 * deltaTime, 0);
                 }
 
+                enemyMax_Y = currentWindow_Y - enemies[i].getHeight();
+                enemySpeed_X = 200 * deltaTime;
+                enemySpeed_Y = -1800 * deltaTime;
+
                 // Enemy Rendering
                 if (enemies[i].getIsAlive()) {
-                    enemyMax_Y = currentWindow_Y - enemies[i].getHeight();
                     float playerEnemyDistance = abs(player.getPosition().x - enemies[i].getPosition().x);
-                    float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
+                    float jumpVolume = 112 * exp(-0.0004 * playerEnemyDistance);
                     float stompLightVolume = jumpVolume;
                     jump.setVolume(jumpVolume);
                     stompLight.setVolume(stompLightVolume);
@@ -150,25 +150,25 @@ int main() {
                     enemies[i].setTexture(player.getPosition().x < enemies[i].getPosition().x ? enemy_normal : enemy_reverse);
                     enemies[i].accelerate(deltaTime);
 
-                    enemySpeed_X = 200 * deltaTime;
-                    enemySpeed_Y = -1800 * deltaTime;
                     player.getPosition().x < enemies[i].getPosition().x ? enemies[i].move(-enemySpeed_X, 0) : enemies[i].move(enemySpeed_X, 0);
 
                     if (enemies[i].getPosition().y >= enemyMax_Y) {
-                        if (jump.getStatus() != Sound::Playing) jump.play();
+                        // if (jump.getStatus() != Sound::Playing) jump.play();
                         if (stompLight.getStatus() != Sound::Playing) stompLight.play();
                         enemies[i].setSpeed_Y(enemySpeed_Y);
                     }
-
+                    
                     window.draw(enemies[i]);
                 } else {
                     elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
+                    // enemies[i].setPosition(1600, -1000);
                     if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
                         elapsedTimeSinceEnemyDied = enemySpawnWait;
                         enemies[i].setLives(1);
                     }
                 }
             }
+            debugDisplay(enemies[0].getPosition().x);
             
             window.draw(player);
             window.draw(laser);
@@ -191,22 +191,9 @@ int main() {
         if (player.getPosition().x < 0)           player.setPosition(0, player.getPosition().y);
         if (player.getPosition().y > playerMax_Y) player.setPosition(player.getPosition().x, playerMax_Y);
         if (player.getPosition().y < 0)           player.setPosition(player.getPosition().x, 0);
-        
-        debugDisplay(player.getLives());
 
-        if (isExplosion) {
-            elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
-            if (elapsedTimeSinceExplosion < explosionDuration) {
-                currentFrame = static_cast<int>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size() / explosionDuration.asSeconds());
-                currentFrame = min(currentFrame, static_cast<int>(explosionTextures.size() - 1));
-                explosionSprite.setTexture(explosionTextures[currentFrame]);
-                window.draw(explosionSprite);
-            } else {
-                isExplosion = false;
-                player.setIsPowerup(false);
-                elapsedTimeSinceExplosion = explosionDuration;
-            }
-        }
+        if (isExplosion) onExplosion();
+
         window.display();
     }
 

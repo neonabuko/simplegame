@@ -12,6 +12,7 @@ namespace GameAssets {
     namespace GameVariables {
         inline float window_X = 1600;
         inline float window_Y = 900;
+        inline RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
         inline float playerScorePosition_X;
         inline float playerScorePosition_Y;
         inline float gameover_X;

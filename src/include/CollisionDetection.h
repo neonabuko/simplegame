@@ -10,4 +10,6 @@ void onPlayerEnemyCollision(Entity& entity_A, Entity& entity_B);
 
 void onLaserEnemyCollision(Laser& laser, Entity& enemy);
 
+void onExplosion();
+
 #endif

@@ -32,15 +32,15 @@ void onPlayerEnemyCollision(Entity& player, Entity& enemy) {
 void onLaserEnemyCollision(Laser& laser, Entity& enemy) {
     elapsedTimeSinceExplosion = Time::Zero;
     elapsedTimeSinceEnemyDied = Time::Zero;
-    if (explosion.getStatus() == Sound::Playing) explosion.stop();
-    explosion.play();
+
+    if (explosion.getStatus() != Sound::Playing) explosion.play();
     explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y - explosionSprite.getScale().y * 55);
 
     laser.setPosition(-laser.getWidth(), -laser.getHeight());
 
     enemy.setLives(-1);
     enemy.setInitialPosition(
-        backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x - enemy.getWidth(), window_Y - enemy.getHeight()
+        backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x + enemy.getWidth(), window_Y - enemy.getHeight()
         );
     enemy.setPosition(enemy.getInitial_X(), enemy.getInitial_Y());
 
@@ -50,4 +50,17 @@ void onLaserEnemyCollision(Laser& laser, Entity& enemy) {
     isExplosion = true;
     explosionClock.restart();
     enemySpawnClock.restart();
+}
+
+void onExplosion() {
+    elapsedTimeSinceExplosion = explosionClock.getElapsedTime();
+    if (elapsedTimeSinceExplosion < explosionDuration) {
+        currentFrame = static_cast<int>(elapsedTimeSinceExplosion.asSeconds() * explosionTextures.size() / explosionDuration.asSeconds());
+        currentFrame = min(currentFrame, static_cast<int>(explosionTextures.size() - 1));
+        explosionSprite.setTexture(explosionTextures[currentFrame]);
+        window.draw(explosionSprite);
+    } else {
+        isExplosion = false;
+        elapsedTimeSinceExplosion = explosionDuration;
+    }
 }
