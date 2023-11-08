@@ -26,8 +26,18 @@ namespace GameAssets {
         inline int playerLives;
         inline int currentFrame;
         inline bool isGameOver;
-        inline bool isKey_M_released;
         inline bool isExplosion;
+    }
+
+    namespace PlayerControls {
+        inline bool isKey_A_pressed;
+        inline bool isKey_D_pressed;
+        inline bool isKey_Space_pressed;
+        inline bool isKey_M_pressed;
+        inline bool isKey_Enter_pressed;
+        inline bool isKey_Escape_pressed;
+        
+        inline bool isKey_M_released;
     }
 
     namespace EnemyVariables {
@@ -44,7 +54,7 @@ namespace GameAssets {
         inline Time explosionDuration = seconds(0.6);
         inline Time elapsedTimeSinceExplosion = Time::Zero;
         inline Time elapsedTimeSinceEnemyDied = Time::Zero;
-        inline Time enemySpawnWait = seconds(1.2);        
+        inline Time enemySpawnWait = seconds(1.2);
     }
 
     namespace Textures {
@@ -92,7 +102,7 @@ namespace GameAssets {
         inline Sound jump;
         inline Sound stompLight;
         inline Music soundtrack;
-        inline Music soundtrackBig;   
+        inline Music soundtrackBig;
     }
 
     namespace GameClocks {
@@ -100,7 +110,7 @@ namespace GameAssets {
         inline Clock explosionClock;
         inline Clock enemySpawnClock;
     }
-    
+
     namespace GameSprites {
         inline Sprite backgroundSprite;
         inline Vector2u backgroundTextureSize;
@@ -118,7 +128,7 @@ namespace GameAssets {
         inline Text livesText;
         inline Text gameoverText;
         inline Text debugText;
-    } 
+    }
 
     using namespace Textures;
     using namespace Texts;
@@ -126,6 +136,16 @@ namespace GameAssets {
     using namespace GameVariables;
     using namespace Fonts;
     using namespace GameSounds;
+    using namespace PlayerControls;
+
+    inline void updateKeyboard() {
+        isKey_A_pressed = Keyboard::isKeyPressed(Keyboard::A);
+        isKey_D_pressed = Keyboard::isKeyPressed(Keyboard::D);
+        isKey_Space_pressed = Keyboard::isKeyPressed(Keyboard::Space);
+        isKey_M_pressed = Keyboard::isKeyPressed(Keyboard::M);
+        isKey_Enter_pressed = Keyboard::isKeyPressed(Keyboard::Enter);
+        isKey_Escape_pressed = Keyboard::isKeyPressed(Keyboard::Escape);
+    }
 
     inline void loadSprites() {
         backgroundSprite.setTexture(Textures::background);
@@ -155,7 +175,7 @@ namespace GameAssets {
         livesText.setOutlineColor(Color::Black);
         livesText.setOutlineThickness(2);
 
-        gameoverText.setString("\tGAME OVER\nPress R to restart");
+        gameoverText.setString("\tGAME OVER\nPress ENTER to restart");
         gameoverText.setFont(pixelFont);
         gameoverText.setCharacterSize(50);
         gameoverText.setFillColor(Color::White);
@@ -169,7 +189,7 @@ namespace GameAssets {
         playerScorePosition_Y = window_Y / 800;
 
         debugText.setFont(pixelFont);
-        debugText.setOutlineThickness(2.5);          
+        debugText.setOutlineThickness(2.5);
     }
 
     inline void loadTextures() {
@@ -241,7 +261,7 @@ namespace GameAssets {
         soundtrack.setLoop(true);
 
         soundtrackBig.setVolume(100);
-        soundtrackBig.setLoop(true);        
+        soundtrackBig.setLoop(true);
     }
 
     inline void setSprites() {

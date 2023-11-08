@@ -14,7 +14,7 @@ void Enemy::update() {
     enemySpeed_Y = -1800 * deltaTime;
     enemyInitial_X = backgroundSprite.getGlobalBounds().width - backgroundSprite.getPosition().x - Enemy::getWidth();
     enemyInitial_Y = 0;
-    enemyInitialPosition = Vector2f(enemyInitial_X, enemyInitial_Y);    
+    enemyInitialPosition = Vector2f(enemyInitial_X, enemyInitial_Y);
 
     if (Enemy::getIsAlive()) {
         Enemy::setTexture(playerCurrent_X < Enemy::getPosition().x ? enemy_normal : enemy_reverse);
@@ -31,6 +31,6 @@ void Enemy::update() {
         if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
             elapsedTimeSinceEnemyDied = enemySpawnWait;
             Enemy::setLives(1);
-        }        
+        }
     }
 }

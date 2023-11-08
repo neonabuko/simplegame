@@ -52,7 +52,7 @@ int main() {
     enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].setPosition(1600, 0);
+        enemies[i].setPosition(1600 + (i * 100), 0);
         enemies[i].setScale(window_X / 3300, window_X / 3300);
     }    
 
@@ -69,31 +69,15 @@ int main() {
 
         setSprites();
 
-        if (Keyboard::isKeyPressed(Keyboard::Escape)) window.close();
+        updateKeyboard();
 
-        if (Keyboard::isKeyPressed(Keyboard::R) && isGameOver) {
-            backgroundSprite.setTexture(background);
-            backgroundSprite.setPosition(0, 0);            
+        if (isKey_Escape_pressed) window.close();
 
-            player.setLives(playerLives);
-            player.setScale(playerInitialScale, playerInitialScale);
-            player.setPosition(playerInitial_X, playerInitial_Y);
-            isPlayerBig = false;
-
-            for (int i = 0; i < enemies.size(); i++) {
-                enemies[i].setPosition(enemyInitialPosition);
+        if (isKey_M_pressed) {
+            if (isKey_M_released) {
+                soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
+                isKey_M_released = false;
             }
-
-            livesText.setString(to_string(playerLives));
-            
-            soundtrack.play();
-
-            isGameOver = false;
-        }
-
-        if (Keyboard::isKeyPressed(Keyboard::M) && isKey_M_released) {
-            soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
-            isKey_M_released = false;
         } else {
             isKey_M_released = true;
         }
@@ -109,6 +93,7 @@ int main() {
         if (!isGameOver) {
             player.update();
             laser.update();
+
             if (isExplosion) onExplosion();
 
             for (int i = 0; i < enemies.size(); i++) {
@@ -123,13 +108,13 @@ int main() {
                 }
 
                 // Background Movement
-                if (player.getPosition().x > playerMax_X / 1.8 && Keyboard::isKeyPressed(Keyboard::D) && 
+                if (player.getPosition().x > playerMax_X / 1.8 && isKey_D_pressed && 
                     backgroundSprite.getPosition().x + backgroundSprite.getGlobalBounds().width > currentWindow_X) {
 
                     backgroundSprite.move(-200 * deltaTime, 0);
                     player.setSpeed_X(0);
                     enemies[i].move(-200 * deltaTime, 0);
-                } else if (player.getPosition().x <= 0 && Keyboard::isKeyPressed(Keyboard::A) && backgroundSprite.getPosition().x < 0) {
+                } else if (player.getPosition().x <= 0 && isKey_A_pressed && backgroundSprite.getPosition().x < 0) {
                     backgroundSprite.move(200 * deltaTime, 0);
                     enemies[i].move(200 * deltaTime, 0);
                 } else {
@@ -144,7 +129,7 @@ int main() {
 
                 window.draw(enemies[i]);
             }
-            
+
             window.draw(player);
             window.draw(laser);
             window.draw(heartSprite);
@@ -152,10 +137,30 @@ int main() {
             window.draw(scoreText);
             window.draw(debugText);
 
-            displayDebugText(enemySpeed_X);
+            // displayDebugText(enemySpeed_X);
         } else {
             gameoverText.setPosition(gameover_X, gameover_Y);
             window.draw(gameoverText);
+
+            if (isKey_Enter_pressed) {
+                backgroundSprite.setTexture(background);
+                backgroundSprite.setPosition(0, 0);
+
+                player.setLives(playerLives);
+                player.setScale(playerInitialScale, playerInitialScale);
+                player.setPosition(playerInitial_X, playerInitial_Y);
+                isPlayerBig = false;
+
+                for (int i = 0; i < enemies.size(); i++) {
+                    enemies[i].setPosition(enemyInitialPosition);
+                }
+
+                livesText.setString(to_string(playerLives));
+
+                soundtrack.play();
+
+                isGameOver = false;
+            }
         }
 
         window.display();

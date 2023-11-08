@@ -22,6 +22,7 @@ Entity::Entity(
 }
 using namespace PlayerAssets;
 using namespace PlayerVariables;
+using namespace PlayerControls;
 
 int Entity::getLives() const {
     return lives;
@@ -72,7 +73,7 @@ void Entity::accelerate() {
     Entity::move(0, speed_Y);
 }
 
-void Entity::setReverse(bool isReverse) {
+void Entity::setIsReverse(bool isReverse) {
     this->isReverse = isReverse;
 }
 
@@ -129,12 +130,12 @@ void Entity::grow() {
 }
 
 void Entity::update() {
-    if (Keyboard::isKeyPressed(Keyboard::A)) {
+    if (isKey_A_pressed) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
         isPlayerReverse = true;
     }
 
-    if (Keyboard::isKeyPressed(Keyboard::D)) {
+    if (isKey_D_pressed) {
         Entity::move(Entity::getSpeed_X() * deltaTime, 0);
         isPlayerReverse = false;
     }
@@ -143,9 +144,9 @@ void Entity::update() {
     if (Entity::getPosition().x > playerMax_X) Entity::setPosition(playerMax_X, Entity::getPosition().y);
     if (Entity::getPosition().x < 0)           Entity::setPosition(0, Entity::getPosition().y);
     if (Entity::getPosition().y > playerMax_Y) Entity::setPosition(Entity::getPosition().x, playerMax_Y);
-    if (Entity::getPosition().y < 0)           Entity::setPosition(Entity::getPosition().x, 0);    
+    if (Entity::getPosition().y < 0)           Entity::setPosition(Entity::getPosition().x, 0);
 
-    if (Keyboard::isKeyPressed(Keyboard::Space)) {
+    if (isKey_Space_pressed) {
         if (!Entity::getIsJumping()) {
             setIsJumping(true);
             jumpPlayer.play();
@@ -194,7 +195,7 @@ void Entity::update() {
     laserPlaceholder_Y = Entity::getPosition().y + Entity::getHeight() / 1.65;
 
     // Shoot Laser
-    if (Keyboard::isKeyPressed(Keyboard::Enter) && !isPlayerShooting && !isPowerUp) {
+    if (isKey_Enter_pressed && !isPlayerShooting && !isPowerUp) {
         isPlayerBig ? laserShootBig.play() : laserShoot.play();
         isPlayerShooting = true;
         isShotInstant = true;

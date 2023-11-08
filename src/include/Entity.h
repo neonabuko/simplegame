@@ -39,7 +39,7 @@ public:
     void setSpeed_X(float speed_X);
     void setSpeed_Y(float speed_Y);
     void setAcceleration(float acceleration);
-    void setReverse(bool isReverse);
+    void setIsReverse(bool isReverse);
     void setIsJumping(bool isJumping);
     void setIsShooting(bool isShooting);
     void setIsPowerup(bool isPowerup);

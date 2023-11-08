@@ -44,7 +44,7 @@ void Laser::update() {
     
     if (isPlayerShooting) {
         if (isShotInstant) {
-            isPlayerReverse ? Laser::setReverse(true) : Laser::setReverse(false);
+            isPlayerReverse ? Laser::setIsReverse(true) : Laser::setIsReverse(false);
             laserOrigin_X = isPlayerReverse ? laserPlaceholder_X : laserPlaceholderReverse_X;
             laserOrigin_Y = laserPlaceholder_Y;
             Laser::setPosition(Vector2f(laserOrigin_X, laserOrigin_Y));
