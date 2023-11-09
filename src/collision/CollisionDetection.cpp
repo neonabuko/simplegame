@@ -19,7 +19,7 @@ void onCollision_PlayerEnemy(Entity& player, Entity& enemy) {
     if (hurt.getStatus() != Sound::Playing) hurt.play();
 
     player.setPosition(player.getPosition().x - 400, player.getPosition().y);
-    player.setLives(-1);
+    player.setLivesUp(-1);
 
     livesText.setString(to_string(player.getLives()));
 
@@ -33,7 +33,7 @@ void onCollision_PlayerEnemy(Entity& player, Entity& enemy) {
 
 void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
     playerScore++;
-    enemy.setScale(enemy.getScale().x * 1.03, enemy.getScale().y * 1.03);
+
     if (playerScore > 0 && playerScore % 5 == 0) isPowerUp = true;
     scoreText.setString("SCORE " + to_string(playerScore));
 
@@ -45,11 +45,14 @@ void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
 
     laser.setPosition(-laser.getWidth(), -laser.getHeight());
 
-    enemy.setLives(-1);
-    enemyInitialPosition = Vector2f(
-        backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x + enemy.getWidth(), window_Y - enemy.getHeight()
-        );
-    enemy.setPosition(enemyInitialPosition);
+    enemy.setLivesUp(-1);
+    if (!enemy.getIsAlive()) {
+        enemy.setScale(enemy.getScale().x * 1.03, enemy.getScale().y * 1.03);
+        enemyInitialPosition = Vector2f(
+            backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x + enemy.getWidth(), -enemy.getHeight()
+            );
+        enemy.setPosition(enemyInitialPosition);
+    }
 
     isExplosion = true;
     explosionClock.restart();

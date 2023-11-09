@@ -62,6 +62,8 @@ namespace GameAssets {
     }
 
     namespace Textures {
+        inline Texture sound_on;
+        inline Texture sound_off;
         inline Texture heart;
         inline Texture background;
         inline Texture backgroundRed;
@@ -116,11 +118,12 @@ namespace GameAssets {
     }
 
     namespace GameSprites {
+        inline Sprite soundSprite;
         inline Sprite backgroundSprite;
-        inline Vector2u backgroundTextureSize;
-        inline RectangleShape windowBox;
         inline Sprite heartSprite;
         inline Sprite explosionSprite;
+        inline Vector2u backgroundTextureSize;
+        inline RectangleShape windowBox;
     }
 
     namespace Fonts {
@@ -153,10 +156,12 @@ namespace GameAssets {
     }
 
     inline void loadSprites() {
-        backgroundSprite.setTexture(Textures::background);
-        backgroundTextureSize = Textures::background.getSize();
+        window.setFramerateLimit(300);
+        soundSprite.setTexture(sound_on);
+        backgroundSprite.setTexture(background);
+        backgroundTextureSize = background.getSize();
         windowBox.setScale(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
-        heartSprite.setTexture(Textures::heart);
+        heartSprite.setTexture(heart);
     }
 
     inline void loadTexts() {
@@ -200,6 +205,8 @@ namespace GameAssets {
     inline void loadTextures() {
         string iconPath = "../src/assets/icon/";
 
+        sound_on.loadFromFile(iconPath + "sound_on.png");
+        sound_off.loadFromFile(iconPath + "sound_off.png");
         heart.loadFromFile(iconPath + "heart.png");
 
         background.loadFromFile(iconPath + "background.jpg");
@@ -273,20 +280,21 @@ namespace GameAssets {
         currentWindowRatio = window_X / 1600;
 
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
-        livesText_Y = heartSprite.getPosition().y + (heartSprite.getGlobalBounds().height / 6);
 
-        heartSprite.setPosition((window_X / 4), window_Y / 800);
-        livesText.setPosition(livesText_X, livesText_Y);
-        scoreText.setPosition(playerScorePosition_X, playerScorePosition_Y);
+        soundSprite.setPosition(window_X / 4, 20);
+        heartSprite.setPosition((window_X / 3), 20);
+        livesText.setPosition(livesText_X, 20);
+        scoreText.setPosition(playerScorePosition_X, 20);
         windowBox.setPosition(backgroundSprite.getPosition().x, backgroundSprite.getPosition().y);
-        debugText.setPosition(window_X / 1.55, 10);
+        debugText.setPosition(window_X / 1.55, 20);
 
-        livesText.setCharacterSize(window_X / 35.0);
-        scoreText.setCharacterSize(window_X / 30.0);
-        debugText.setCharacterSize(window_X / 37.0);
+        livesText.setCharacterSize(35);
+        scoreText.setCharacterSize(35);
+        debugText.setCharacterSize(35);
 
+        soundSprite.setScale(1, 1);
         backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
-        heartSprite.setScale((window_X / 2800.0), (window_X / 2800.0));
+        heartSprite.setScale(0.4, 0.4);
         explosionSprite.setScale(1.5, 1.5);
     }
 }

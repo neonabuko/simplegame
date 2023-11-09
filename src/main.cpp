@@ -34,20 +34,17 @@ int main() {
     loadTexts();
     loadSprites();
 
-    window.setFramerateLimit(300);
-
     Entity player(playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
     player.loadPlayerAssets();
 
     Enemy enemy;
-    enemy.setLives(1);
+    enemy.setLivesUp(1);
     enemy.setAcceleration(20);
 
     Laser laser(laserOriginalSpeed_X, laserAcceleration);
     laser.load();
     laser.setPosition(laserOrigin_X, laserOrigin_Y);
 
-    enemies.push_back(enemy);
     enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
@@ -75,6 +72,7 @@ int main() {
         if (isKey_M_pressed) {
             if (isKey_M_released) {
                 soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
+                soundtrack.getVolume() > 0 ? soundSprite.setTexture(sound_on) : soundSprite.setTexture(sound_off);
                 isKey_M_released = false;
             }
         } else {
@@ -127,11 +125,12 @@ int main() {
                 stompLight.setVolume(stompLightVolume);
 
                 window.draw(enemies[i]);
-                displayDebugText(player.getLives());
+                displayDebugText(enemyMax_Y);
             }
 
             window.draw(player);
             window.draw(laser);
+            window.draw(soundSprite);
             window.draw(heartSprite);
             window.draw(livesText);
             window.draw(scoreText);

@@ -52,7 +52,7 @@ float Entity::getHeight() {
     return Entity::getGlobalBounds().height;
 }
 
-void Entity::setLives(int lives) {
+void Entity::setLivesUp(int lives) {
     this->lives += lives;
 }
 
@@ -215,7 +215,7 @@ void Entity::resetGame () {
     backgroundSprite.setTexture(background);
     backgroundSprite.setPosition(0, 0);
 
-    Entity::setLives(playerLives);
+    Entity::setLivesUp(playerLives);
     Entity::setScale(playerInitialScale, playerInitialScale);
     Entity::setPosition(playerInitial_X, playerInitial_Y);
     isPlayerBig = false;

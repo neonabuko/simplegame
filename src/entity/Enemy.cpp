@@ -18,19 +18,18 @@ void Enemy::update() {
 
     if (Enemy::getIsAlive()) {
         Enemy::setTexture(playerCurrent_X < Enemy::getPosition().x ? enemy_normal : enemy_reverse);
-        Enemy::accelerate();
 
         playerCurrent_X < Enemy::getPosition().x ? Enemy::move(-enemySpeed_X, 0) : Enemy::move(enemySpeed_X, 0);
 
         if (Enemy::getPosition().y >= enemyMax_Y) {
-            if (stompLight.getStatus() != Sound::Playing) stompLight.play();
+            // if (stompLight.getStatus() != Sound::Playing) stompLight.play();
             Enemy::setSpeed_Y(enemySpeed_Y);
-        }
+        } else Enemy::accelerate();
     } else {
         elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
         if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
             elapsedTimeSinceEnemyDied = enemySpawnWait;
-            Enemy::setLives(1);
+            Enemy::setLivesUp((int)(playerScore / 5) + 1);
         }
     }
 }
