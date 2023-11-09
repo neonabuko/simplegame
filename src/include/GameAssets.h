@@ -28,8 +28,7 @@ namespace GameAssets {
         inline int currentFrame;
         inline bool isGameOver;
         inline bool isExplosion;
-
-        
+        inline Vector2u backgroundTextureSize;
     }
 
     namespace PlayerControls {
@@ -39,7 +38,6 @@ namespace GameAssets {
         inline bool isKey_M_pressed;
         inline bool isKey_Enter_pressed;
         inline bool isKey_Escape_pressed;
-        
         inline bool isKey_M_released;
     }
 
@@ -61,7 +59,7 @@ namespace GameAssets {
         inline Time enemySpawnWait = seconds(1.2);
     }
 
-    namespace Textures {
+    namespace GameTextures {
         inline Texture sound_on;
         inline Texture sound_off;
         inline Texture heart;
@@ -69,30 +67,7 @@ namespace GameAssets {
         inline Texture backgroundRed;
         inline Texture enemy_normal;
         inline Texture enemy_reverse;
-        inline Texture explosion1;
-        inline Texture explosion2;
-        inline Texture explosion3;
-        inline Texture explosion4;
-        inline Texture explosion5;
-        inline Texture explosion6;
-        inline Texture explosion7;
-        inline Texture explosion8;
-        inline Texture explosion9;
-        inline Texture explosion10;
-        inline Texture explosion11;
-        inline Texture explosion12;
-        inline Texture explosion13;
-        inline Texture explosion14;
-        inline Texture explosion15;
-        inline Texture explosion16;
-        inline Texture explosion17;
-        inline Texture explosion18;
-        inline Texture explosion19;
-        inline Texture explosion20;
-        inline Texture explosion21;
-        inline Texture explosion22;
-        inline Texture explosion23;
-        inline Texture explosion24;
+
         inline vector<Texture> explosionTextures;
     }
 
@@ -122,27 +97,27 @@ namespace GameAssets {
         inline Sprite backgroundSprite;
         inline Sprite heartSprite;
         inline Sprite explosionSprite;
-        inline Vector2u backgroundTextureSize;
         inline RectangleShape windowBox;
     }
 
-    namespace Fonts {
+    namespace GameFonts {
         inline Font pixelFont;
     }
 
-    namespace Texts {
+    namespace GameTexts {
         inline Text scoreText;
         inline Text livesText;
         inline Text gameoverText;
         inline Text debugText;
     }
 
-    using namespace Textures;
-    using namespace Texts;
+    using namespace GameTextures;
+    using namespace GameTexts;
     using namespace GameSprites;
     using namespace GameVariables;
-    using namespace Fonts;
+    using namespace GameFonts;
     using namespace GameSounds;
+
     using namespace PlayerControls;
     using namespace PlayerAssets::PlayerVariables;
 
@@ -159,15 +134,15 @@ namespace GameAssets {
         window.setFramerateLimit(300);
         soundSprite.setTexture(sound_on);
         backgroundSprite.setTexture(background);
+        heartSprite.setTexture(heart);
         backgroundTextureSize = background.getSize();
         windowBox.setScale(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
-        heartSprite.setTexture(heart);
     }
 
     inline void loadTexts() {
         pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");
         playerScore = 0;
-        playerLives = 3;
+        playerLives = 5;
         string pointsToString = to_string(playerScore);
         string livesToString = to_string(playerLives);
 
@@ -192,14 +167,14 @@ namespace GameAssets {
         gameoverText.setOutlineColor(Color::Black);
         gameoverText.setOutlineThickness(2);
 
+        debugText.setFont(pixelFont);
+        debugText.setOutlineThickness(2.5);
+
         gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
         gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
 
         playerScorePosition_X = window_X / 2.2;
         playerScorePosition_Y = window_Y / 800;
-
-        debugText.setFont(pixelFont);
-        debugText.setOutlineThickness(2.5);
     }
 
     inline void loadTextures() {
@@ -214,31 +189,6 @@ namespace GameAssets {
 
         enemy_normal.loadFromFile(iconPath + "enemy.png");
         enemy_reverse.loadFromFile(iconPath + "enemy_reverse.png");
-
-        explosion1.loadFromFile(iconPath + "explosion1.png");
-        explosion2.loadFromFile(iconPath + "explosion2.png");
-        explosion3.loadFromFile(iconPath + "explosion3.png");
-        explosion4.loadFromFile(iconPath + "explosion4.png");
-        explosion5.loadFromFile(iconPath + "explosion5.png");
-        explosion6.loadFromFile(iconPath + "explosion6.png");
-        explosion7.loadFromFile(iconPath + "explosion7.png");
-        explosion8.loadFromFile(iconPath + "explosion8.png");
-        explosion9.loadFromFile(iconPath + "explosion9.png");
-        explosion10.loadFromFile(iconPath + "explosion10.png");
-        explosion11.loadFromFile(iconPath + "explosion11.png");
-        explosion12.loadFromFile(iconPath + "explosion12.png");
-        explosion13.loadFromFile(iconPath + "explosion13.png");
-        explosion14.loadFromFile(iconPath + "explosion14.png");
-        explosion15.loadFromFile(iconPath + "explosion15.png");
-        explosion16.loadFromFile(iconPath + "explosion16.png");
-        explosion17.loadFromFile(iconPath + "explosion17.png");
-        explosion18.loadFromFile(iconPath + "explosion18.png");
-        explosion19.loadFromFile(iconPath + "explosion19.png");
-        explosion20.loadFromFile(iconPath + "explosion20.png");
-        explosion21.loadFromFile(iconPath + "explosion21.png");
-        explosion22.loadFromFile(iconPath + "explosion22.png");
-        explosion23.loadFromFile(iconPath + "explosion23.png");
-        explosion24.loadFromFile(iconPath + "explosion24.png");
 
         for (int i = 1; i <= 24; ++i) {
             string texturePath = "../src/assets/icon/explosion" + to_string(i) + ".png";

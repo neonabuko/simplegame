@@ -29,7 +29,7 @@ void Enemy::update() {
         elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
         if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
             elapsedTimeSinceEnemyDied = enemySpawnWait;
-            Enemy::setLivesUp((int)(playerScore / 5) + 1);
+            Enemy::incrementLives(1);
         }
     }
 }

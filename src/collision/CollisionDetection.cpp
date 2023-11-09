@@ -19,7 +19,7 @@ void onCollision_PlayerEnemy(Entity& player, Entity& enemy) {
     if (hurt.getStatus() != Sound::Playing) hurt.play();
 
     player.setPosition(player.getPosition().x - 400, player.getPosition().y);
-    player.setLivesUp(-1);
+    player.incrementLives(-1);
 
     livesText.setString(to_string(player.getLives()));
 
@@ -45,12 +45,12 @@ void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
 
     laser.setPosition(-laser.getWidth(), -laser.getHeight());
 
-    enemy.setLivesUp(-1);
+    enemy.incrementLives(-1);
+
     if (!enemy.getIsAlive()) {
+        float enemyRestart_X = (backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x);
         enemy.setScale(enemy.getScale().x * 1.03, enemy.getScale().y * 1.03);
-        enemyInitialPosition = Vector2f(
-            backgroundSprite.getLocalBounds().width + backgroundSprite.getPosition().x + enemy.getWidth(), -enemy.getHeight()
-            );
+        enemyInitialPosition = Vector2f(enemyRestart_X, 0);
         enemy.setPosition(enemyInitialPosition);
     }
 

@@ -12,7 +12,7 @@
 using namespace std;
 using namespace sf;
 using namespace GameAssets;
-using namespace Textures;
+using namespace GameTextures;
 using namespace GameSounds;
 using namespace GameClocks;
 using namespace GameVariables;
@@ -38,7 +38,7 @@ int main() {
     player.loadPlayerAssets();
 
     Enemy enemy;
-    enemy.setLivesUp(1);
+    enemy.incrementLives(1);
     enemy.setAcceleration(20);
 
     Laser laser(laserOriginalSpeed_X, laserAcceleration);
@@ -46,10 +46,14 @@ int main() {
     laser.setPosition(laserOrigin_X, laserOrigin_Y);
 
     enemies.push_back(enemy);
+    enemies.push_back(enemy);
+    enemies.push_back(enemy);
+    enemies.push_back(enemy);
+    enemies.push_back(enemy);
 
     for (int i = 0; i < enemies.size(); i++) {
         enemies[i].setPosition(1600 + (i * 100), 0);
-        enemies[i].setScale(window_X / 3300, window_X / 3300);
+        enemies[i].setScale(0.5, 0.5);
     }    
 
     while (window.isOpen()) {
@@ -104,20 +108,6 @@ int main() {
                     onCollision_LaserEnemy(laser, enemies[i]);
                 }
 
-                // Background Movement
-                if (player.getPosition().x > playerMax_X / 1.8 && isKey_D_pressed && 
-                    backgroundSprite.getPosition().x + backgroundSprite.getGlobalBounds().width > currentWindow_X) {
-
-                    backgroundSprite.move(-200 * deltaTime, 0);
-                    player.setSpeed_X(0);
-                    enemies[i].move(-200 * deltaTime, 0);
-                } else if (player.getPosition().x <= 0 && isKey_A_pressed && backgroundSprite.getPosition().x < 0) {
-                    backgroundSprite.move(200 * deltaTime, 0);
-                    enemies[i].move(200 * deltaTime, 0);
-                } else {
-                    player.setSpeed_X(playerInitialSpeed_X);
-                }
-
                 float playerEnemyDistance = abs(player.getPosition().x - enemies[i].getPosition().x);
                 float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
                 float stompLightVolume = jumpVolume;
@@ -125,7 +115,7 @@ int main() {
                 stompLight.setVolume(stompLightVolume);
 
                 window.draw(enemies[i]);
-                displayDebugText(enemyMax_Y);
+                displayDebugText(enemies[0].getPosition().x);
             }
 
             window.draw(player);

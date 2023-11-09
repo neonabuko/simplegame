@@ -52,7 +52,7 @@ float Entity::getHeight() {
     return Entity::getGlobalBounds().height;
 }
 
-void Entity::setLivesUp(int lives) {
+void Entity::incrementLives(int lives) {
     this->lives += lives;
 }
 
@@ -129,6 +129,7 @@ void Entity::grow() {
     }
 }
 
+using namespace EnemyVariables;
 void Entity::update() {
     if (isKey_A_pressed) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
@@ -139,6 +140,24 @@ void Entity::update() {
         Entity::move(Entity::getSpeed_X() * deltaTime, 0);
         isPlayerReverse = false;
     }
+
+    // Background Movement
+    if (Entity::getPosition().x > playerMax_X / 1.8 && isKey_D_pressed && 
+        backgroundSprite.getPosition().x + backgroundSprite.getGlobalBounds().width > window_X) {
+
+        backgroundSprite.move(-250 * deltaTime, 0);
+        Entity::setSpeed_X(0);
+        for (Enemy& enemy : enemies) {
+            enemy.move(-250 * deltaTime, 0);
+        }
+    } else if (Entity::getPosition().x <= 0 && isKey_A_pressed && backgroundSprite.getPosition().x < 0) {
+        backgroundSprite.move(250 * deltaTime, 0);
+        for (Enemy& enemy : enemies) {
+            enemy.move(250 * deltaTime, 0);
+        }
+    } else {
+        Entity::setSpeed_X(playerInitialSpeed_X);
+    }    
 
     // Border limits
     if (Entity::getPosition().x > playerMax_X) Entity::setPosition(playerMax_X, Entity::getPosition().y);
@@ -215,13 +234,13 @@ void Entity::resetGame () {
     backgroundSprite.setTexture(background);
     backgroundSprite.setPosition(0, 0);
 
-    Entity::setLivesUp(playerLives);
+    Entity::incrementLives(playerLives);
     Entity::setScale(playerInitialScale, playerInitialScale);
     Entity::setPosition(playerInitial_X, playerInitial_Y);
     isPlayerBig = false;
 
-    for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].setPosition(enemyInitialPosition);
+    for (Enemy& enemy : enemies) {
+        enemy.setPosition(enemyInitialPosition);
     }
 
     livesText.setString(to_string(playerLives));

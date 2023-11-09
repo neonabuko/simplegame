@@ -35,7 +35,7 @@ public:
     bool getIsBig();
     bool getIsAlive() const;
 
-    void setLivesUp(int lives);
+    void incrementLives(int lives);
     void setSpeed_X(float speed_X);
     void setSpeed_Y(float speed_Y);
     void setAcceleration(float acceleration);
