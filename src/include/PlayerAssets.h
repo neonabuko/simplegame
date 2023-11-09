@@ -40,16 +40,16 @@ namespace PlayerAssets {
     }
 
     namespace PlayerVariables {
-        inline Time shootWait = seconds(0.25);
-        inline Time elapsedTimeSinceShot = Time::Zero;
+        inline Time shootWait;
+        inline Time elapsedTimeSinceShot;
 
-        inline float playerScaleIncreaseFactor = 0.03;
-        inline float playerInitial_X = 10;
+        inline float playerScaleIncreaseFactor;
+        inline float playerInitial_X;
         inline float playerInitial_Y;
-        inline float playerInitialScale = 0.25;
-        inline float playerInitialSpeed_X = 600;
-        inline float playerInitialSpeed_Y = -7;
-        inline float playerAcceleration = 20;
+        inline float playerInitialScale;
+        inline float playerInitialSpeed_X;
+        inline float playerInitialSpeed_Y;
+        inline float playerAcceleration;
         inline float playerMax_X;
         inline float playerMax_Y;
         inline float playerCurrent_X;
@@ -112,8 +112,21 @@ namespace PlayerAssets {
     inline void loadPlayerAssets() {
         loadPlayerTextures();
         loadPlayerSounds();
+
+        shootWait = seconds(0.2);
+        elapsedTimeSinceShot = Time::Zero;
+
+        playerInitial_X = 20;
+        playerInitial_Y = 900 - player.getHeight();
+        playerInitialScale = 0.25;
+        playerInitialSpeed_X = 600;
+        playerInitialSpeed_Y = -7;
+        playerAcceleration = 20;
+        playerScaleIncreaseFactor = 0.03;
+
         player.setAcceleration(playerAcceleration);
         player.incrementLives(playerLives);
+        player.setPosition(playerInitial_X, playerInitial_Y);
     }
 }
 

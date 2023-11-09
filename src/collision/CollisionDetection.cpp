@@ -41,7 +41,6 @@ void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
     elapsedTimeSinceExplosion = Time::Zero;
     elapsedTimeSinceEnemyDied = Time::Zero;
 
-    if (explosion.getStatus() != Sound::Playing) explosion.play();
     explosionSprite.setPosition(enemy.getPosition().x, enemy.getPosition().y - explosionSprite.getScale().y * 55);
 
     laser.setPosition(-laser.getWidth(), -laser.getHeight());
@@ -56,6 +55,7 @@ void onCollision_LaserEnemy(Laser& laser, Entity& enemy) {
     }
 
     isExplosion = true;
+    explosion.play();
     explosionClock.restart();
     enemySpawnClock.restart();
 }

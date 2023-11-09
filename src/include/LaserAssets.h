@@ -19,21 +19,21 @@ namespace LaserAssets {
         inline SoundBuffer laserShootBuffer;
         inline SoundBuffer laserShootBigBuffer;
         inline Sound laserShoot;
-        inline Sound laserShootBig;        
+        inline Sound laserShootBig;
     }
 
     namespace LaserVariables {
-        inline Time laserCooldown = seconds(0.5);
+        inline Time laserCooldown;
         inline Clock laserClock;
         inline Time laserCooldownHalf;
 
-        inline float laserOrigin_X = -1600;
-        inline float laserOrigin_Y = -900;
-        inline float laserOriginalSpeed_X = 3000;
-        inline float laserAcceleration = 20;
-        inline float laserScale = 0.2;
-        inline float laserScaleOriginal = 0.25;
-        inline float laserScaleIncreaseFactor = 0.03;
+        inline float laserOrigin_X;
+        inline float laserOrigin_Y;
+        inline float laserOriginalSpeed_X;
+        inline float laserAcceleration;
+        inline float laserScale;
+        inline float laserScaleOriginal;
+        inline float laserScaleIncreaseFactor;
 
         inline Laser laser(laserOriginalSpeed_X, laserAcceleration);
     }
@@ -47,6 +47,15 @@ namespace LaserAssets {
         laserBlue_reverse.loadFromFile(iconPath + "laserBlue_reverse.png");
         laserRed.loadFromFile(iconPath + "laser.png");
         laserRed_reverse.loadFromFile(iconPath + "laser_reverse.png");
+
+        laserCooldown = seconds(0.5);
+        laserOrigin_X = -1600;
+        laserOrigin_Y = -900;
+        laserOriginalSpeed_X = 3000;
+        laserAcceleration = 20;
+        laserScale = 0.2;
+        laserScaleOriginal = 0.25;
+        laserScaleIncreaseFactor = 0.03;
 
         laser.setPosition(laserOrigin_X, laserOrigin_Y);
     }

@@ -117,11 +117,11 @@ void Entity::setIsBig(bool isBig) {
 void Entity::grow() {
     if (Entity::getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
         playerInitialScale += playerScaleIncreaseFactor * currentWindowRatio * deltaTime;
-        if (powerUp.getStatus() != Sound::Playing) powerUp.play();
+        if (powerUp.getStatus() != 2) powerUp.play();
     } else if ((int) Entity::getScale().x * 10 == (int) playerInitialScale * 20) {
         isPlayerBig = true;
-        if (soundtrack.getStatus() == Sound::Playing) soundtrack.stop();
-        if (soundtrackBig.getStatus() != Sound::Playing) soundtrackBig.play();
+        if (soundtrack.getStatus() == 2) soundtrack.stop();
+        if (soundtrackBig.getStatus() != 2) soundtrackBig.play();
     }
 }
 
@@ -129,7 +129,7 @@ using namespace EnemyAssets::EnemyVariables;
 void Entity::update() {
     playerMax_X = window_X - Entity::getWidth();
     playerMax_Y = window_Y - Entity::getHeight();
-    
+
     if (isKey_A_pressed) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
         isPlayerReverse = true;
@@ -171,17 +171,11 @@ void Entity::update() {
         }
     }
 
-    if (Entity::getPosition().y < window_X - Entity::getHeight()) {
-        if (!Entity::getIsJumping()) {
-            Entity::setPosition(Entity::getPosition().x, 900 - Entity::getHeight());
-        }
-    }
-
     if (Entity::getIsJumping()) {
         Entity::accelerate();
-        if (Entity::getPosition().y >= window_Y - Entity::getHeight()) {
+        if (Entity::getPosition().y > window_Y - Entity::getHeight()) {
             Entity::setIsJumping(false);
-            Entity::setSpeed_Y(-7);
+            Entity::setSpeed_Y(playerInitialSpeed_Y);
             stompLightPlayer.play();
         }
     }

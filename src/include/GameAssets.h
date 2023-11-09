@@ -140,6 +140,11 @@ namespace GameAssets {
         heartSprite.setTexture(heart);
         backgroundTextureSize = background.getSize();
         windowBox.setScale(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
+
+        soundSprite.setScale(0.8, 0.8);
+        backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
+        heartSprite.setScale(0.35, 0.35);
+        explosionSprite.setScale(1.5, 1.5);
     }
 
     inline void loadTexts() {
@@ -234,21 +239,16 @@ namespace GameAssets {
 
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
 
-        soundSprite.setPosition(window_X / 4, 20);
+        soundSprite.setPosition(window_X / 1.6, 20);
         heartSprite.setPosition((window_X / 3), 20);
         livesText.setPosition(livesText_X, 20);
         scoreText.setPosition(playerScorePosition_X, 20);
         windowBox.setPosition(backgroundSprite.getPosition().x, backgroundSprite.getPosition().y);
-        debugText.setPosition(window_X / 1.55, 20);
+        debugText.setPosition(window_X / 1.4, 20);
 
         livesText.setCharacterSize(35);
         scoreText.setCharacterSize(35);
-        debugText.setCharacterSize(35);
-
-        soundSprite.setScale(1, 1);
-        backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
-        heartSprite.setScale(0.4, 0.4);
-        explosionSprite.setScale(1.5, 1.5);
+        debugText.setCharacterSize(32);
 
         if (isGameOver) gameoverText.setPosition(gameover_X, gameover_Y);
     }

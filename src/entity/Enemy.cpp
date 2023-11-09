@@ -27,10 +27,12 @@ void Enemy::update() {
 
         playerCurrent_X < Enemy::getPosition().x ? Enemy::move(-enemySpeed_X, 0) : Enemy::move(enemySpeed_X, 0);
 
-        if (Enemy::getPosition().y >= enemyMax_Y) {
-            // if (stompLight.getStatus() != Sound::Playing) stompLight.play();
+        if (Enemy::getPosition().y < enemyMax_Y) {
+            Enemy::accelerate();
+        } else {
             Enemy::setSpeed_Y(enemySpeed_Y);
-        } else Enemy::accelerate();
+            Enemy::setPosition(Enemy::getPosition().x, enemyMax_Y);
+        }
     } else {
         elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
         if (elapsedTimeSinceEnemyDied > enemySpawnWait) {

@@ -68,7 +68,7 @@ int main() {
             window.draw(scoreText);
             window.draw(debugText);
 
-            displayDebugText(player.getSpeed_Y());
+            displayDebugText(enemies[0].getPosition().y);
         } else {
             window.draw(gameoverText);
             if (isKey_Enter_pressed) player.resetGame();
