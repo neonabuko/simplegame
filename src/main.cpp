@@ -9,22 +9,13 @@ using namespace std;
 using namespace sf;
 
 using namespace GameAssets;
-using namespace GameTextures;
-using namespace GameSounds;
 using namespace GameClocks;
-using namespace GameVariables;
-using namespace GameTime;
-using namespace GameSprites;
 
 using namespace EnemyAssets;
-using namespace EnemyVariables;
 
 using namespace PlayerAssets;
-using namespace PlayerVariables;
-using namespace PlayerSounds;
 
 using namespace LaserAssets;
-using namespace LaserVariables;
 
 int main() {
     loadGameAssets();
@@ -39,29 +30,9 @@ int main() {
             if (event.type == Event::Closed) window.close();
         }
 
-        float currentWindow_X = (float) window.getSize().x;
-        float currentWindow_Y = (float) window.getSize().y;
-
-        currentWindowRatio = currentWindow_X / window_X;
-
-        setSprites();
-
+        updateSprites();
         updateKeyboard();
-
-        if (isKey_Escape_pressed) window.close();
-
-        if (isKey_M_pressed) {
-            if (isKey_M_released) {
-                soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
-                soundtrack.getVolume() > 0 ? soundSprite.setTexture(sound_on) : soundSprite.setTexture(sound_off);
-                isKey_M_released = false;
-            }
-        } else {
-            isKey_M_released = true;
-        }
-
-        playerMax_X = currentWindow_X - player.getWidth();
-        playerMax_Y = currentWindow_Y - player.getHeight();
+        updateGameCommands();
 
         deltaTime = deltaClock.restart().asSeconds();
 
@@ -77,19 +48,14 @@ int main() {
             for (Enemy& enemy : enemies) {
                 enemy.update();
 
-                if (getCollision(player, enemy)) {
-                    onCollision_PlayerEnemy(player, enemy);
-                }
+                if (getCollision(player, enemy)) onCollision_PlayerEnemy(player, enemy);
 
-                if (getCollision(laser, enemy)) {
-                    onCollision_LaserEnemy(laser, enemy);
-                }
+                if (getCollision(laser, enemy))  onCollision_LaserEnemy(laser, enemy);
 
                 float playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
                 float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
                 float stompLightVolume = jumpVolume;
                 jump.setVolume(jumpVolume);
-                stompLight.setVolume(stompLightVolume);
 
                 window.draw(enemy);
             }

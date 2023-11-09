@@ -127,6 +127,9 @@ void Entity::grow() {
 
 using namespace EnemyAssets::EnemyVariables;
 void Entity::update() {
+    playerMax_X = window_X - Entity::getWidth();
+    playerMax_Y = window_Y - Entity::getHeight();
+    
     if (isKey_A_pressed) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
         isPlayerReverse = true;

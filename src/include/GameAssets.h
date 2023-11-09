@@ -119,6 +119,20 @@ namespace GameAssets {
         isKey_Escape_pressed = Keyboard::isKeyPressed(Keyboard::Escape);
     }
 
+    inline void updateGameCommands() {
+        if (isKey_Escape_pressed) window.close();
+
+        if (isKey_M_pressed) {
+            if (isKey_M_released) {
+                soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
+                soundtrack.getVolume() > 0 ? soundSprite.setTexture(sound_on) : soundSprite.setTexture(sound_off);
+                isKey_M_released = false;
+            }
+        } else {
+            isKey_M_released = true;
+        }
+    }
+
     inline void loadSprites() {
         window.setFramerateLimit(300);
         soundSprite.setTexture(sound_on);
@@ -215,7 +229,7 @@ namespace GameAssets {
         soundtrackBig.setLoop(true);
     }
 
-    inline void setSprites() {
+    inline void updateSprites() {
         currentWindowRatio = window_X / 1600;
 
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
