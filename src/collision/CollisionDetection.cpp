@@ -3,11 +3,12 @@
 #include "../include/PlayerAssets.h"
 #include "../include/GameAssets.h"
 #include "../include/Laser.h"
+#include "../include/EnemyAssets.h"
 
 using namespace PlayerAssets;
 using namespace PlayerVariables;
 using namespace GameAssets;
-using namespace EnemyVariables;
+using namespace EnemyAssets::EnemyVariables;
 using namespace GameTime;
 using namespace GameClocks;
 

@@ -18,6 +18,7 @@ src/include/GameAssets.h
 src/include/PlayerAssets.h
 src/include/LaserAssets.h
 src/include/CollisionDetection.h
+src/include/EnemyAssets.h
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

@@ -41,17 +41,6 @@ namespace GameAssets {
         inline bool isKey_M_released;
     }
 
-    namespace EnemyVariables {
-        inline vector<Enemy> enemies;
-        inline Vector2f enemyInitialPosition;
-        inline float enemyMax_X;
-        inline float enemyMax_Y;
-        inline float enemySpeed_X;
-        inline float enemySpeed_Y;
-        inline float enemyInitial_X;
-        inline float enemyInitial_Y;
-    }
-
     namespace GameTime {
         inline Time explosionDuration = seconds(0.6);
         inline Time elapsedTimeSinceExplosion = Time::Zero;
@@ -246,6 +235,20 @@ namespace GameAssets {
         backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
         heartSprite.setScale(0.4, 0.4);
         explosionSprite.setScale(1.5, 1.5);
+
+        if (isGameOver) gameoverText.setPosition(gameover_X, gameover_Y);
+    }
+
+    inline void displayDebugText(float argument) {
+        string argumentToString = to_string(argument);
+        debugText.setString(argumentToString);
+    }
+
+    inline void loadGameAssets() {
+        loadTextures();
+        loadSounds();
+        loadTexts();
+        loadSprites();
     }
 }
 

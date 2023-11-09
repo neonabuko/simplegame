@@ -1,12 +1,18 @@
 #include "../include/Enemy.h"
 #include "../include/GameAssets.h"
 #include "../include/PlayerAssets.h"
+#include "../include/EnemyAssets.h"
 
 using namespace GameAssets;
 using namespace GameTime;
 using namespace GameClocks;
-using namespace EnemyVariables;
+using namespace EnemyAssets::EnemyVariables;
 using namespace PlayerAssets::PlayerVariables;
+
+void Enemy::load() {
+    Enemy::incrementLives(enemyLives);
+    Enemy::setAcceleration(enemyAcceleration);
+}
 
 void Enemy::update() {
     enemyMax_Y = window_Y - Enemy::getHeight();

@@ -3,6 +3,7 @@
 #include "../include/Entity.h"
 #include "../include/PlayerAssets.h"
 #include "../include/GameAssets.h"
+#include "../include/EnemyAssets.h"
 
 using namespace sf;
 using namespace GameAssets;
@@ -113,11 +114,6 @@ void Entity::setIsBig(bool isBig) {
     this->isBig = isBig;
 }
 
-void Entity::loadPlayerAssets() {
-    loadPlayerTextures();
-    loadPlayerSounds();
-}
-
 void Entity::grow() {
     if (Entity::getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
         playerInitialScale += playerScaleIncreaseFactor * currentWindowRatio * deltaTime;
@@ -129,7 +125,7 @@ void Entity::grow() {
     }
 }
 
-using namespace EnemyVariables;
+using namespace EnemyAssets::EnemyVariables;
 void Entity::update() {
     if (isKey_A_pressed) {
         Entity::move(-Entity::getSpeed_X() * deltaTime, 0);
@@ -187,8 +183,7 @@ void Entity::update() {
         }
     }
 
-    float windowRatio = window_X / 1600;
-    Entity::setScale(playerInitialScale * windowRatio, playerInitialScale * windowRatio);
+    Entity::setScale(playerInitialScale, playerInitialScale);
     playerCurrent_X = Entity::getPosition().x;
 
     if (isPlayerReverse) {
@@ -229,7 +224,6 @@ void Entity::update() {
     }
 }
 
-using namespace EnemyVariables;
 void Entity::resetGame () {
     backgroundSprite.setTexture(background);
     backgroundSprite.setPosition(0, 0);

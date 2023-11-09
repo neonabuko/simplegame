@@ -32,10 +32,6 @@ void Laser::setIsShot(bool isShot) {
     this->isShot = isShot;
 }
 
-void Laser::load() {
-    loadLaserAssets();
-}
-
 void Laser::update() {
 
     Laser::setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);

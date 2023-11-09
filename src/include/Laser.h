@@ -17,7 +17,6 @@ public:
     bool getIsShot();
     void setSpeed(float speed);
     void setIsShot(bool isShot);
-    void load();
     void update();
 };
 

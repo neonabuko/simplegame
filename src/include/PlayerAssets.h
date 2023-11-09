@@ -64,6 +64,8 @@ namespace PlayerAssets {
         inline float laserPlaceholder_X;
         inline float laserPlaceholderReverse_X;
         inline float laserPlaceholder_Y;
+
+        inline Entity player;
     }
 
     using namespace PlayerTextures;
@@ -104,6 +106,14 @@ namespace PlayerAssets {
 
         laserShoot = Sound(laserShootBuffer);
         laserShootBig = Sound(laserShootBigBuffer);
+    }
+
+    using namespace PlayerVariables;
+    inline void loadPlayerAssets() {
+        loadPlayerTextures();
+        loadPlayerSounds();
+        player.setAcceleration(playerAcceleration);
+        player.incrementLives(playerLives);
     }
 }
 

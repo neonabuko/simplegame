@@ -47,7 +47,6 @@ public:
     void grow();
     void accelerate();
 
-    void loadPlayerAssets();
     void update();
     void resetGame();
 };

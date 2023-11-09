@@ -1,60 +1,37 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include <random>
-#include <iostream>
-#include "../src/include/Entity.h"
 #include "../src/include/GameAssets.h"
 #include "../src/include/PlayerAssets.h"
 #include "../src/include/LaserAssets.h"
 #include "../src/include/CollisionDetection.h"
-#include "../src/include/Enemy.h"
+#include "../src/include/EnemyAssets.h"
 
 using namespace std;
 using namespace sf;
+
 using namespace GameAssets;
 using namespace GameTextures;
 using namespace GameSounds;
 using namespace GameClocks;
 using namespace GameVariables;
-using namespace EnemyVariables;
 using namespace GameTime;
 using namespace GameSprites;
-using namespace PlayerAssets::PlayerVariables;
-using namespace PlayerAssets::PlayerSounds;
-using namespace LaserAssets::LaserVariables;
 
-void displayDebugText(float argument) {
-    string argumentToString = to_string(argument);
-    debugText.setString(argumentToString);
-}
+using namespace EnemyAssets;
+using namespace EnemyVariables;
+
+using namespace PlayerAssets;
+using namespace PlayerVariables;
+using namespace PlayerSounds;
+
+using namespace LaserAssets;
+using namespace LaserVariables;
 
 int main() {
-    loadTextures();
-    loadSounds();
-    loadTexts();
-    loadSprites();
+    loadGameAssets();
 
-    Entity player(playerLives, playerInitialSpeed_X, playerInitialSpeed_Y, playerAcceleration);
-    player.loadPlayerAssets();
-
-    Enemy enemy;
-    enemy.incrementLives(1);
-    enemy.setAcceleration(20);
-
-    Laser laser(laserOriginalSpeed_X, laserAcceleration);
-    laser.load();
-    laser.setPosition(laserOrigin_X, laserOrigin_Y);
-
-    enemies.push_back(enemy);
-    enemies.push_back(enemy);
-    enemies.push_back(enemy);
-    enemies.push_back(enemy);
-    enemies.push_back(enemy);
-
-    for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].setPosition(1600 + (i * 100), 0);
-        enemies[i].setScale(0.5, 0.5);
-    }    
+    loadPlayerAssets();
+    loadLaserAssets();
+    loadEnemyAssets();
 
     while (window.isOpen()) {
         Event event{};
@@ -97,25 +74,24 @@ int main() {
 
             if (isExplosion) onExplosion();
 
-            for (int i = 0; i < enemies.size(); i++) {
-                enemies[i].update();
+            for (Enemy& enemy : enemies) {
+                enemy.update();
 
-                if (getCollision(player, enemies[i])) {
-                    onCollision_PlayerEnemy(player, enemies[i]);
+                if (getCollision(player, enemy)) {
+                    onCollision_PlayerEnemy(player, enemy);
                 }
 
-                if (getCollision(laser, enemies[i])) {
-                    onCollision_LaserEnemy(laser, enemies[i]);
+                if (getCollision(laser, enemy)) {
+                    onCollision_LaserEnemy(laser, enemy);
                 }
 
-                float playerEnemyDistance = abs(player.getPosition().x - enemies[i].getPosition().x);
+                float playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
                 float jumpVolume = 108 * exp(-0.0004 * playerEnemyDistance);
                 float stompLightVolume = jumpVolume;
                 jump.setVolume(jumpVolume);
                 stompLight.setVolume(stompLightVolume);
 
-                window.draw(enemies[i]);
-                displayDebugText(enemies[0].getPosition().x);
+                window.draw(enemy);
             }
 
             window.draw(player);
@@ -126,8 +102,8 @@ int main() {
             window.draw(scoreText);
             window.draw(debugText);
 
+            displayDebugText(player.getSpeed_Y());
         } else {
-            gameoverText.setPosition(gameover_X, gameover_Y);
             window.draw(gameoverText);
             if (isKey_Enter_pressed) player.resetGame();
         }
