@@ -13,6 +13,10 @@
 
 using namespace sf;
 using namespace std;
+using namespace PlayerAssets;
+using namespace LaserAssets;
+using namespace EnemyAssets;
+
 namespace GameAssets {
 
     namespace GameVariables {
@@ -113,10 +117,8 @@ namespace GameAssets {
     using namespace GameVariables;
     using namespace GameFonts;
     using namespace GameSounds;
-
     using namespace PlayerControls;
-    using namespace PlayerAssets::PlayerVariables;
-
+    
     inline void updateKeyboard() {
         isKey_A_pressed = Keyboard::isKeyPressed(Keyboard::A);
         isKey_D_pressed = Keyboard::isKeyPressed(Keyboard::D);
@@ -128,9 +130,8 @@ namespace GameAssets {
 
     inline void updateGameCommands() {
         Event event{};
-        while (window.pollEvent(event)) {
-            if (event.type == Event::Closed) window.close();
-        }        
+        while (window.pollEvent(event)) if (event.type == Event::Closed) window.close();
+
         if (isKey_Escape_pressed) window.close();
 
         if (isKey_M_pressed) {
@@ -246,8 +247,6 @@ namespace GameAssets {
     }
 
     using namespace GameClocks;
-    using namespace EnemyAssets::EnemyVariables;
-    using namespace LaserAssets::LaserVariables;
     inline void updateSprites() {
         currentWindowRatio = window_X / 1600;
 
@@ -264,19 +263,21 @@ namespace GameAssets {
         scoreText.setCharacterSize(35);
         debugText.setCharacterSize(32);
 
-        if (isExplosion) onExplosion();
-        for (Enemy& enemy : enemies) {
-            if (getCollision(player, enemy)) onCollision_PlayerEnemy(player, enemy);
-            if (getCollision(laser, enemy))  onCollision_LaserEnemy(laser, enemy);
-        }
-
         deltaTime = deltaClock.restart().asSeconds();
 
+        window.clear();
+        window.draw(backgroundSprite);
         window.draw(soundSprite);
         window.draw(heartSprite);
         window.draw(livesText);
         window.draw(scoreText);
         window.draw(debugText);
+
+        if (isExplosion) onExplosion();
+        for (Enemy& enemy : enemies) {
+            if (getCollision(player, enemy)) onCollision_PlayerEnemy(player, enemy);
+            if (getCollision(laser, enemy))  onCollision_LaserEnemy(laser, enemy);
+        }
 
         if (isGameOver) {
             gameoverText.setPosition(gameover_X, gameover_Y);
@@ -285,21 +286,24 @@ namespace GameAssets {
         }
     }
 
-    using namespace EnemyAssets;
     inline void updateSounds() {
         for (Enemy& enemy : enemies) {
-            float playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
-
+            playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
             enemySoundsVolume = 114.0 * std::exp(-0.0008 * (playerEnemyDistance));
-
             if (enemySoundsVolume > 100) enemySoundsVolume = 100;
-
             stompLight.setVolume(enemySoundsVolume);
+        }
+
+        if (isKey_Space_pressed) if (!player.getIsJumping()) jumpPlayer.play();
+
+        if (isPowerUp) if (powerUp.getStatus() != 2) powerUp.play();
+
+        if (isPlayerBig) {
+            if (soundtrack.getStatus() == 2) soundtrack.stop();
+            if (soundtrackBig.getStatus() != 2) soundtrackBig.play();
         }
     }
 
-    using namespace PlayerAssets;
-    using namespace LaserAssets;
     inline void loadGameAssets() {
         loadTextures();
         loadSounds();

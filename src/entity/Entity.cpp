@@ -25,7 +25,7 @@ using namespace PlayerAssets;
 using namespace PlayerVariables;
 using namespace PlayerControls;
 
-int Entity::getLives() const {
+int Entity::getLives() {
     return lives;
 }
 
@@ -33,11 +33,11 @@ float Entity::getAcceleration() {
     return this->acceleration;
 }
 
-float Entity::getSpeed_X() const {
+float Entity::getSpeed_X() {
     return speed_X;
 }
 
-float Entity::getSpeed_Y() const {
+float Entity::getSpeed_Y() {
     return speed_Y;
 }
 
@@ -53,8 +53,16 @@ float Entity::getHeight() {
     return Entity::getGlobalBounds().height;
 }
 
-void Entity::incrementLives(int lives) {
-    this->lives += lives;
+bool Entity::getIsReverse() {
+    return this->isReverse;
+}
+
+bool Entity::getIsJumping() {
+    return this->isJumping;
+}
+
+bool Entity::getIsShooting() {
+    return this->isShooting;
 }
 
 void Entity::setSpeed_X(float speed_X) {
@@ -69,23 +77,6 @@ void Entity::setAcceleration(float acceleration) {
     this->acceleration = acceleration;
 }
 
-void Entity::accelerate() {
-    speed_Y += acceleration * deltaTime;
-    Entity::move(0, speed_Y);
-}
-
-void Entity::setIsReverse(bool isReverse) {
-    this->isReverse = isReverse;
-}
-
-bool Entity::getIsReverse() {
-    return this->isReverse;
-}
-
-bool Entity::getIsJumping() {
-    return this->isJumping;
-}
-
 void Entity::setIsJumping(bool isJumping) {
     this->isJumping = isJumping;
 }
@@ -94,34 +85,24 @@ void Entity::setIsShooting(bool isShooting) {
     this->isShooting = isShooting;
 }
 
-bool Entity::getIsShooting() {
-    return this->isShooting;
+void Entity::setIsReverse(bool isReverse) {
+    this->isReverse = isReverse;
 }
 
-bool Entity::getIsPowerup() {
-    return this->isPowerup;
+void Entity::accelerate() {
+    speed_Y += acceleration * deltaTime;
+    Entity::move(0, speed_Y);
 }
 
-void Entity::setIsPowerup(bool isPowerup) {
-    this->isPowerup = isPowerup;
-}
-
-bool Entity::getIsBig() {
-    return this->isBig;
-}
-
-void Entity::setIsBig(bool isBig) {
-    this->isBig = isBig;
+void Entity::incrementLives(int lives) {
+    this->lives += lives;
 }
 
 void Entity::grow() {
     if (Entity::getScale().x <= (playerInitialScale * 2) * currentWindowRatio) {
         playerInitialScale += playerScaleIncreaseFactor * currentWindowRatio * deltaTime;
-        if (powerUp.getStatus() != 2) powerUp.play();
     } else if ((int) Entity::getScale().x * 10 == (int) playerInitialScale * 20) {
         isPlayerBig = true;
-        if (soundtrack.getStatus() == 2) soundtrack.stop();
-        if (soundtrackBig.getStatus() != 2) soundtrackBig.play();
     }
 }
 
@@ -167,7 +148,6 @@ void Entity::update() {
     if (isKey_Space_pressed) {
         if (!Entity::getIsJumping()) {
             setIsJumping(true);
-            jumpPlayer.play();
         }
     }
 

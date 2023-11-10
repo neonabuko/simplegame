@@ -22,17 +22,15 @@ public:
 
     Entity(int lives, float speed_X, float speed_Y, float acceleration);
     
-    int getLives() const;
+    int getLives();
     float getAcceleration();
     float getWidth();
     float getHeight();
-    float getSpeed_X() const;
-    float getSpeed_Y() const;
+    float getSpeed_X();
+    float getSpeed_Y();
     bool getIsJumping();
     bool getIsReverse();
     bool getIsShooting();
-    bool getIsPowerup();
-    bool getIsBig();
     bool getIsAlive() const;
 
     void incrementLives(int lives);
@@ -42,8 +40,7 @@ public:
     void setIsReverse(bool isReverse);
     void setIsJumping(bool isJumping);
     void setIsShooting(bool isShooting);
-    void setIsPowerup(bool isPowerup);
-    void setIsBig(bool isBig);
+    
     void grow();
     void accelerate();
 

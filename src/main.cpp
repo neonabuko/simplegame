@@ -12,22 +12,17 @@ int main() {
     loadGameAssets();
 
     while (window.isOpen()) {
-        window.clear();
-        window.draw(backgroundSprite);
-
-        updateGameCommands();
-        updateKeyboard();
         updateSprites();
-        updateSounds();
 
         if (!isGameOver) {
             player.update();
             laser.update();
-
-            for (Enemy& enemy : enemies) {
-                enemy.update();
-            }
+            for (Enemy& enemy : enemies) enemy.update();
         }
+
+        updateGameCommands();
+        updateKeyboard();
+        updateSounds();
 
         window.display();
     }

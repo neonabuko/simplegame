@@ -59,7 +59,7 @@ void Laser::update() {
         }
     }
 
-    Laser::getIsBig() ? Laser::setTexture(Laser::getIsReverse() ? laserRed_reverse : laserRed) :
+    isPlayerBig ? Laser::setTexture(Laser::getIsReverse() ? laserRed_reverse : laserRed) :
                         Laser::setTexture(Laser::getIsReverse() ? laserBlue_reverse : laserBlue);
 
     window.draw(laser);
