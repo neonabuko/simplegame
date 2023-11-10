@@ -28,7 +28,7 @@ namespace EnemyAssets {
         enemyAcceleration = 20;
         enemy.load();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 1; i++) {
             enemies.push_back(enemy);
         }
 

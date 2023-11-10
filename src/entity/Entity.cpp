@@ -219,6 +219,8 @@ void Entity::update() {
             isPowerUp = false;
         }
     }
+
+    window.draw(player);
 }
 
 void Entity::resetGame () {

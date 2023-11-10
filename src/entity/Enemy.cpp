@@ -33,6 +33,9 @@ void Enemy::update() {
             Enemy::setSpeed_Y(enemySpeed_Y);
             Enemy::setPosition(Enemy::getPosition().x, enemyMax_Y);
         }
+        if (Enemy::getPosition().y > enemyMax_Y / 1.01 && Enemy::getPosition().y < enemyMax_Y) {
+            stompLight.play();
+        }
     } else {
         elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
         if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
@@ -40,4 +43,5 @@ void Enemy::update() {
             Enemy::incrementLives(1);
         }
     }
+    for (Enemy& enemy : enemies) window.draw(enemy);
 }
