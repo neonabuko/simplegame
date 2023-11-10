@@ -9,17 +9,11 @@ using namespace GameClocks;
 using namespace EnemyAssets::EnemyVariables;
 using namespace PlayerAssets::PlayerVariables;
 
-void Enemy::load() {
-    Enemy::incrementLives(enemyLives);
-    Enemy::setAcceleration(enemyAcceleration);
-}
-
 void Enemy::update() {
     enemyMax_Y = window_Y - Enemy::getHeight();
     enemySpeed_X = 200 * deltaTime;
     enemySpeed_Y = -1800 * deltaTime;
     enemyInitial_X = backgroundSprite.getGlobalBounds().width - backgroundSprite.getPosition().x - Enemy::getWidth();
-    enemyInitial_Y = 0;
     enemyInitialPosition = Vector2f(enemyInitial_X, enemyInitial_Y);
 
     if (Enemy::getIsAlive()) {
@@ -33,9 +27,6 @@ void Enemy::update() {
             Enemy::setSpeed_Y(enemySpeed_Y);
             Enemy::setPosition(Enemy::getPosition().x, enemyMax_Y);
         }
-        if (Enemy::getPosition().y > enemyMax_Y / 1.01 && Enemy::getPosition().y < enemyMax_Y) {
-            stompLight.play();
-        }
     } else {
         elapsedTimeSinceEnemyDied = enemySpawnClock.getElapsedTime();
         if (elapsedTimeSinceEnemyDied > enemySpawnWait) {
@@ -43,5 +34,4 @@ void Enemy::update() {
             Enemy::incrementLives(1);
         }
     }
-    for (Enemy& enemy : enemies) window.draw(enemy);
 }

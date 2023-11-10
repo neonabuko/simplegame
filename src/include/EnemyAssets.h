@@ -24,18 +24,21 @@ namespace EnemyAssets {
 
     using namespace EnemyVariables;
     inline void loadEnemyAssets() {
+        enemyInitial_Y = 0;
         enemyLives = 1;
         enemyAcceleration = 20;
-        enemy.load();
 
-        for (int i = 0; i < 1; i++) {
+        enemy.incrementLives(enemyLives);
+        enemy.setAcceleration(enemyAcceleration);
+
+        for (int i = 0; i < 2; i++) {
             enemies.push_back(enemy);
         }
 
         for (int i = 0; i < enemies.size(); i++) {
             enemies[i].setPosition(1600 + (i * 100), 0);
             enemies[i].setScale(0.5, 0.5);
-        }        
+        }
     }
 }
 

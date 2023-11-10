@@ -6,7 +6,6 @@
 class Enemy : public Entity {
 public:
     void update();
-    void load();
 };
 
 #endif

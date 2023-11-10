@@ -35,7 +35,7 @@ namespace LaserAssets {
         inline float laserScaleOriginal;
         inline float laserScaleIncreaseFactor;
 
-        inline Laser laser(laserOriginalSpeed_X, laserAcceleration);
+        inline Laser laser;
     }
 
     using namespace LaserTextures;
@@ -58,6 +58,8 @@ namespace LaserAssets {
         laserScaleIncreaseFactor = 0.03;
 
         laser.setPosition(laserOrigin_X, laserOrigin_Y);
+        laser.setSpeed_X(laserOriginalSpeed_X);
+        laser.setAcceleration(laserAcceleration);
     }
 }
 

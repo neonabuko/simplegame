@@ -1,3 +1,6 @@
+#ifndef GAME_ASSETS_H
+#define GAME_ASSETS_H
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "Laser.h"
@@ -8,9 +11,6 @@
 #include "LaserAssets.h"
 #include <random>
 
-#ifndef ASSETS_H
-#define ASSETS_H
-
 using namespace sf;
 using namespace std;
 using namespace PlayerAssets;
@@ -20,9 +20,9 @@ using namespace EnemyAssets;
 namespace GameAssets {
 
     namespace GameVariables {
-        inline float window_X = 1600;
-        inline float window_Y = 900;
-        inline RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
+        inline float window_X;
+        inline float window_Y;
+        inline RenderWindow window;
         inline float playerScorePosition_X;
         inline float playerScorePosition_Y;
         inline float gameover_X;
@@ -146,7 +146,11 @@ namespace GameAssets {
     }
 
     inline void loadSprites() {
+        window_X = 1600;
+        window_Y = 900;
+        window.create(VideoMode(window_X, window_Y), "Simple Game");
         window.setFramerateLimit(300);
+
         soundSprite.setTexture(sound_on);
         backgroundSprite.setTexture(background);
         heartSprite.setTexture(heart);
@@ -272,12 +276,16 @@ namespace GameAssets {
         window.draw(livesText);
         window.draw(scoreText);
         window.draw(debugText);
+        window.draw(laser);
 
-        if (isExplosion) onExplosion();
         for (Enemy& enemy : enemies) {
             if (getCollision(player, enemy)) onCollision_PlayerEnemy(player, enemy);
             if (getCollision(laser, enemy))  onCollision_LaserEnemy(laser, enemy);
+
+            window.draw(enemy);
         }
+
+        if (isExplosion) onExplosion();
 
         if (isGameOver) {
             gameoverText.setPosition(gameover_X, gameover_Y);
@@ -292,6 +300,10 @@ namespace GameAssets {
             enemySoundsVolume = 114.0 * std::exp(-0.0008 * (playerEnemyDistance));
             if (enemySoundsVolume > 100) enemySoundsVolume = 100;
             stompLight.setVolume(enemySoundsVolume);
+
+            if (enemy.getPosition().y > enemyMax_Y / 1.01 && enemy.getPosition().y < enemyMax_Y) {
+                stompLight.play();
+            }
         }
 
         if (isKey_Space_pressed) if (!player.getIsJumping()) jumpPlayer.play();
@@ -307,16 +319,15 @@ namespace GameAssets {
     inline void loadGameAssets() {
         loadTextures();
         loadSounds();
-        loadTexts();
         loadSprites();
+        loadTexts();
         loadPlayerAssets();
         loadLaserAssets();
         loadEnemyAssets();
     }
 
     inline void displayDebugText(float argument) {
-        string argumentToString = to_string(argument);
-        debugText.setString(argumentToString);
+        debugText.setString(to_string(argument));
     }
 }
 
