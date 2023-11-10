@@ -14,7 +14,6 @@ public:
     Laser(float speed, float acceleration);
 
     float getSpeed();
-    bool getIsShot();
     void setSpeed(float speed);
     void setIsShot(bool isShot);
     void update();

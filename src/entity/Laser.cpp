@@ -3,11 +3,6 @@
 #include "../include/PlayerAssets.h"
 #include "../include/GameAssets.h"
 
-Laser::Laser(float speed, float acceleration) {
-    this->speed = speed;
-    this->acceleration = acceleration;
-}
-
 using namespace LaserAssets;
 using namespace LaserTextures;
 using namespace LaserVariables;
@@ -15,6 +10,11 @@ using namespace LaserVariables;
 using namespace GameAssets;
 
 using namespace PlayerAssets::PlayerVariables;
+
+Laser::Laser(float speed, float acceleration) {
+    this->speed = speed;
+    this->acceleration = acceleration;
+}
 
 float Laser::getSpeed() {
     return this->speed;
@@ -24,17 +24,13 @@ void Laser::setSpeed(float speed) {
     this->speed = speed;
 }
 
-bool Laser::getIsShot() {
-    return this->isShot;
-}
-
 void Laser::setIsShot(bool isShot) {
     this->isShot = isShot;
 }
 
 void Laser::update() {
 
-    Laser::setScale(laserScale * currentWindowRatio, laserScale * currentWindowRatio);
+    Laser::setScale(laserScale, laserScale);
 
     if (isPowerUp) laserScale += (laserScaleIncreaseFactor * deltaTime) * 1.6;
     

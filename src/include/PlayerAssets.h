@@ -15,9 +15,9 @@ namespace PlayerAssets {
         inline Texture player_shooting;
         inline Texture player_shooting_reverse;
         inline Texture player_powerup;
-        inline Texture player_reverse_powerup;
-        inline Texture player_shooting_powerup;
-        inline Texture player_shooting_reverse_powerup;
+        inline Texture player_powerup_reverse;
+        inline Texture player_powerup_shooting;
+        inline Texture player_powerup_shooting_reverse;
         inline Texture player_golden;
         inline Texture player_golden_reverse;
         inline Texture player_golden_shooting;
@@ -79,9 +79,9 @@ namespace PlayerAssets {
         player_shooting.loadFromFile(iconPath + "player_shooting.png");
         player_shooting_reverse.loadFromFile(iconPath + "player_shooting_reverse.png");
         player_powerup.loadFromFile(iconPath + "player_powerup.png");
-        player_reverse_powerup.loadFromFile(iconPath + "player_reverse_powerup.png");
-        player_shooting_powerup.loadFromFile(iconPath + "player_shooting_powerup.png");
-        player_shooting_reverse_powerup.loadFromFile(iconPath + "player_shooting_reverse_powerup.png");
+        player_powerup_reverse.loadFromFile(iconPath + "player_reverse_powerup.png");
+        player_powerup_shooting.loadFromFile(iconPath + "player_shooting_powerup.png");
+        player_powerup_shooting_reverse.loadFromFile(iconPath + "player_shooting_reverse_powerup.png");
         player_golden.loadFromFile(iconPath + "player_golden.png");
         player_golden_reverse.loadFromFile(iconPath + "player_golden_reverse.png");
         player_golden_shooting.loadFromFile(iconPath + "player_golden_shooting.png");
@@ -127,6 +127,7 @@ namespace PlayerAssets {
         player.setAcceleration(playerAcceleration);
         player.incrementLives(playerLives);
         player.setPosition(playerInitial_X, playerInitial_Y);
+        player.setScale(playerInitialScale, playerInitialScale);
     }
 }
 

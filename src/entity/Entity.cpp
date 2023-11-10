@@ -7,23 +7,18 @@
 
 using namespace sf;
 using namespace GameAssets;
+using namespace PlayerAssets;
+using namespace PlayerVariables;
+using namespace PlayerControls;
 
 Entity::Entity() {};
 
-Entity::Entity(
-               int lives,
-               float speed_X,
-               float speed_Y,
-               float acceleration
-               ) {
+Entity::Entity(int lives, float speed_X, float speed_Y, float acceleration) {
     this->lives = lives;
     this->speed_X = speed_X;
     this->speed_Y = speed_Y;
     this->acceleration = acceleration;
 }
-using namespace PlayerAssets;
-using namespace PlayerVariables;
-using namespace PlayerControls;
 
 int Entity::getLives() {
     return lives;
@@ -106,7 +101,6 @@ void Entity::grow() {
     }
 }
 
-using namespace EnemyAssets::EnemyVariables;
 void Entity::update() {
     playerMax_X = window_X - Entity::getWidth();
     playerMax_Y = window_Y - Entity::getHeight();
@@ -121,29 +115,33 @@ void Entity::update() {
         isPlayerReverse = false;
     }
 
-    // Background Movement
-    if (Entity::getPosition().x > playerMax_X / 1.8 && isKey_D_pressed && 
-        backgroundSprite.getPosition().x + backgroundSprite.getGlobalBounds().width > window_X) {
+    float entity_X = Entity::getPosition().x;
+    float entity_Y = Entity::getPosition().y;
 
+    // Background Movement
+    bool is_at_background_movement_trigger = entity_X > playerMax_X / 1.8;
+    float background_X = backgroundSprite.getPosition().x;
+    float backgroundWidth = backgroundSprite.getGlobalBounds().width;
+    if (is_at_background_movement_trigger && isKey_D_pressed && background_X + backgroundWidth > window_X) {
         backgroundSprite.move(-250 * deltaTime, 0);
         Entity::setSpeed_X(0);
         for (Enemy& enemy : enemies) {
             enemy.move(-250 * deltaTime, 0);
         }
-    } else if (Entity::getPosition().x <= 0 && isKey_A_pressed && backgroundSprite.getPosition().x < 0) {
+    } else if (entity_X <= 0 && isKey_A_pressed && background_X < 0) {
         backgroundSprite.move(250 * deltaTime, 0);
         for (Enemy& enemy : enemies) {
             enemy.move(250 * deltaTime, 0);
         }
     } else {
         Entity::setSpeed_X(playerInitialSpeed_X);
-    }    
+    }
 
     // Border limits
-    if (Entity::getPosition().x > playerMax_X) Entity::setPosition(playerMax_X, Entity::getPosition().y);
-    if (Entity::getPosition().x < 0)           Entity::setPosition(0, Entity::getPosition().y);
-    if (Entity::getPosition().y > playerMax_Y) Entity::setPosition(Entity::getPosition().x, playerMax_Y);
-    if (Entity::getPosition().y < 0)           Entity::setPosition(Entity::getPosition().x, 0);
+    if (entity_X > playerMax_X) Entity::setPosition(playerMax_X, entity_Y);
+    if (entity_X < 0)           Entity::setPosition(0, entity_Y);
+    if (entity_Y > playerMax_Y) Entity::setPosition(entity_X, playerMax_Y);
+    if (entity_Y < 0)           Entity::setPosition(entity_X, 0);
 
     if (isKey_Space_pressed) {
         if (!Entity::getIsJumping()) {
@@ -153,39 +151,26 @@ void Entity::update() {
 
     if (Entity::getIsJumping()) {
         Entity::accelerate();
-        if (Entity::getPosition().y > window_Y - Entity::getHeight()) {
+        if (entity_Y > window_Y - Entity::getHeight()) {
             Entity::setIsJumping(false);
             Entity::setSpeed_Y(playerInitialSpeed_Y);
             stompLightPlayer.play();
         }
     }
 
-    Entity::setScale(playerInitialScale, playerInitialScale);
-    playerCurrent_X = Entity::getPosition().x;
-
+    bool isShotAvailable = elapsedTimeSinceShot < shootWait;
     if (isPlayerReverse) {
-        if (isPlayerShooting && elapsedTimeSinceShot < shootWait) {
-            Entity::setTexture(isPowerup ? player_shooting_reverse_powerup : 
-            (isPlayerBig ? player_golden_shooting_reverse : player_shooting_reverse));
-        } else {
-            Entity::setTexture(isPowerup ? player_reverse_powerup : 
-            (isPlayerBig ? player_golden_reverse : player_reverse));
-        }
+        if (isShotAvailable) Entity::setTexture(isPowerup ? player_powerup_shooting_reverse : (isPlayerBig ? player_golden_shooting_reverse : player_shooting_reverse));
+        else Entity::setTexture(isPowerup ? player_powerup_reverse : (isPlayerBig ? player_golden_reverse : player_reverse));
     } else {
-        if (isPlayerShooting && elapsedTimeSinceShot < shootWait) {
-            Entity::setTexture(isPowerup ? player_shooting_powerup : 
-            (isPlayerBig ? player_golden_shooting : player_shooting));
-        } else {
-            Entity::setTexture(isPowerup ? player_powerup : 
-            (isPlayerBig ? player_golden : player_normal));
-        }
+        if (isShotAvailable) Entity::setTexture(isPowerup ? player_powerup_shooting : (isPlayerBig ? player_golden_shooting : player_shooting));
+        else Entity::setTexture(isPowerup ? player_powerup : (isPlayerBig ? player_golden : player_normal));
     }
 
-    laserPlaceholder_X = Entity::getPosition().x - 20;
-    laserPlaceholderReverse_X = Entity::getPosition().x + Entity::getWidth() / 1.5;
-    laserPlaceholder_Y = Entity::getPosition().y + Entity::getHeight() / 1.65;
+    laserPlaceholder_X = entity_X - 20;
+    laserPlaceholderReverse_X = entity_X + Entity::getWidth() / 1.5;
+    laserPlaceholder_Y = entity_Y + Entity::getHeight() / 1.65;
 
-    // Shoot Laser
     if (isKey_Enter_pressed && !isPlayerShooting && !isPowerUp) {
         isPlayerBig ? laserShootBig.play() : laserShoot.play();
         isPlayerShooting = true;
@@ -193,11 +178,8 @@ void Entity::update() {
     }
 
     if (isPowerUp) {
-        if (isPlayerShooting) {
-            Entity::grow();
-        } else {
-            isPowerUp = false;
-        }
+        if (isPlayerShooting) Entity::grow();
+        else isPowerUp = false;
     }
 
     window.draw(player);
