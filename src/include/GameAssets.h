@@ -1,18 +1,28 @@
+#ifndef GAME_ASSETS_H
+#define GAME_ASSETS_H
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include "../include/Laser.h"
-
-#ifndef ASSETS_H
-#define ASSETS_H
+#include "Laser.h"
+#include "Enemy.h"
+#include "PlayerAssets.h"
+#include "EnemyAssets.h"
+#include "CollisionDetection.h"
+#include "LaserAssets.h"
+#include <random>
 
 using namespace sf;
 using namespace std;
+using namespace PlayerAssets;
+using namespace LaserAssets;
+using namespace EnemyAssets;
+
 namespace GameAssets {
 
     namespace GameVariables {
-        inline float window_X = 1600;
-        inline float window_Y = 900;
-        inline RenderWindow window(VideoMode((int) window_X, (int) window_Y), "Simple Game");
+        inline float window_X;
+        inline float window_Y;
+        inline RenderWindow window;
         inline float playerScorePosition_X;
         inline float playerScorePosition_Y;
         inline float gameover_X;
@@ -23,10 +33,13 @@ namespace GameAssets {
         inline float livesText_X;
         inline float livesText_Y;
         inline int playerScore;
-        inline int playerLives;
         inline int currentFrame;
         inline bool isGameOver;
         inline bool isExplosion;
+        inline float playerEnemyDistance;
+        inline float enemySoundsVolume;
+        inline float stompLightVolume;
+        inline Vector2u backgroundTextureSize;
     }
 
     namespace PlayerControls {
@@ -36,18 +49,7 @@ namespace GameAssets {
         inline bool isKey_M_pressed;
         inline bool isKey_Enter_pressed;
         inline bool isKey_Escape_pressed;
-        
         inline bool isKey_M_released;
-    }
-
-    namespace EnemyVariables {
-        inline Vector2f enemyInitialPosition;
-        inline float enemyMax_X;
-        inline float enemyMax_Y;
-        inline float enemySpeed_X;
-        inline float enemySpeed_Y;
-        inline float enemyInitial_X;
-        inline float enemyInitial_Y;
     }
 
     namespace GameTime {
@@ -57,36 +59,15 @@ namespace GameAssets {
         inline Time enemySpawnWait = seconds(1.2);
     }
 
-    namespace Textures {
+    namespace GameTextures {
+        inline Texture sound_on;
+        inline Texture sound_off;
         inline Texture heart;
         inline Texture background;
         inline Texture backgroundRed;
         inline Texture enemy_normal;
         inline Texture enemy_reverse;
-        inline Texture explosion1;
-        inline Texture explosion2;
-        inline Texture explosion3;
-        inline Texture explosion4;
-        inline Texture explosion5;
-        inline Texture explosion6;
-        inline Texture explosion7;
-        inline Texture explosion8;
-        inline Texture explosion9;
-        inline Texture explosion10;
-        inline Texture explosion11;
-        inline Texture explosion12;
-        inline Texture explosion13;
-        inline Texture explosion14;
-        inline Texture explosion15;
-        inline Texture explosion16;
-        inline Texture explosion17;
-        inline Texture explosion18;
-        inline Texture explosion19;
-        inline Texture explosion20;
-        inline Texture explosion21;
-        inline Texture explosion22;
-        inline Texture explosion23;
-        inline Texture explosion24;
+
         inline vector<Texture> explosionTextures;
     }
 
@@ -112,32 +93,32 @@ namespace GameAssets {
     }
 
     namespace GameSprites {
+        inline Sprite soundSprite;
         inline Sprite backgroundSprite;
-        inline Vector2u backgroundTextureSize;
-        inline RectangleShape windowBox;
         inline Sprite heartSprite;
         inline Sprite explosionSprite;
+        inline RectangleShape windowBox;
     }
 
-    namespace Fonts {
+    namespace GameFonts {
         inline Font pixelFont;
     }
 
-    namespace Texts {
+    namespace GameTexts {
         inline Text scoreText;
         inline Text livesText;
         inline Text gameoverText;
         inline Text debugText;
     }
 
-    using namespace Textures;
-    using namespace Texts;
+    using namespace GameTextures;
+    using namespace GameTexts;
     using namespace GameSprites;
     using namespace GameVariables;
-    using namespace Fonts;
+    using namespace GameFonts;
     using namespace GameSounds;
     using namespace PlayerControls;
-
+    
     inline void updateKeyboard() {
         isKey_A_pressed = Keyboard::isKeyPressed(Keyboard::A);
         isKey_D_pressed = Keyboard::isKeyPressed(Keyboard::D);
@@ -147,17 +128,45 @@ namespace GameAssets {
         isKey_Escape_pressed = Keyboard::isKeyPressed(Keyboard::Escape);
     }
 
+    inline void updateGameCommands() {
+        Event event{};
+        while (window.pollEvent(event)) if (event.type == Event::Closed) window.close();
+
+        if (isKey_Escape_pressed) window.close();
+
+        if (isKey_M_pressed) {
+            if (isKey_M_released) {
+                soundtrack.getVolume() > 0 ? soundtrack.setVolume(0) : soundtrack.setVolume(100);
+                soundtrack.getVolume() > 0 ? soundSprite.setTexture(sound_on) : soundSprite.setTexture(sound_off);
+                isKey_M_released = false;
+            }
+        } else {
+            isKey_M_released = true;
+        }
+    }
+
     inline void loadSprites() {
-        backgroundSprite.setTexture(Textures::background);
-        backgroundTextureSize = Textures::background.getSize();
+        window_X = 1600;
+        window_Y = 900;
+        window.create(VideoMode(window_X, window_Y), "Simple Game");
+        window.setFramerateLimit(300);
+
+        soundSprite.setTexture(sound_on);
+        backgroundSprite.setTexture(background);
+        heartSprite.setTexture(heart);
+        backgroundTextureSize = background.getSize();
         windowBox.setScale(Vector2f(backgroundTextureSize.x, backgroundTextureSize.y));
-        heartSprite.setTexture(Textures::heart);
+
+        soundSprite.setScale(0.8, 0.8);
+        backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
+        heartSprite.setScale(0.35, 0.35);
+        explosionSprite.setScale(1.5, 1.5);
     }
 
     inline void loadTexts() {
         pixelFont.loadFromFile("../src/assets/font/SpaceMono-Regular.ttf");
         playerScore = 0;
-        playerLives = 3;
+        playerLives = 5;
         string pointsToString = to_string(playerScore);
         string livesToString = to_string(playerLives);
 
@@ -170,31 +179,33 @@ namespace GameAssets {
 
         livesText.setString(livesToString);
         livesText.setFont(pixelFont);
-        livesText.setCharacterSize(window_X / 40);
+        livesText.setCharacterSize(30);
         livesText.setFillColor(Color::White);
         livesText.setOutlineColor(Color::Black);
         livesText.setOutlineThickness(2);
 
-        gameoverText.setString("\tGAME OVER\nPress ENTER to restart");
+        gameoverText.setString("\t  GAME OVER\nPress ENTER to restart");
         gameoverText.setFont(pixelFont);
         gameoverText.setCharacterSize(50);
         gameoverText.setFillColor(Color::White);
         gameoverText.setOutlineColor(Color::Black);
         gameoverText.setOutlineThickness(2);
 
+        debugText.setFont(pixelFont);
+        debugText.setOutlineThickness(2.5);
+
         gameover_X = (window_X - gameoverText.getLocalBounds().width) / 2;
         gameover_Y = (window_Y - gameoverText.getLocalBounds().height) / 2;
 
         playerScorePosition_X = window_X / 2.2;
         playerScorePosition_Y = window_Y / 800;
-
-        debugText.setFont(pixelFont);
-        debugText.setOutlineThickness(2.5);
     }
 
     inline void loadTextures() {
         string iconPath = "../src/assets/icon/";
 
+        sound_on.loadFromFile(iconPath + "sound_on.png");
+        sound_off.loadFromFile(iconPath + "sound_off.png");
         heart.loadFromFile(iconPath + "heart.png");
 
         background.loadFromFile(iconPath + "background.jpg");
@@ -202,31 +213,6 @@ namespace GameAssets {
 
         enemy_normal.loadFromFile(iconPath + "enemy.png");
         enemy_reverse.loadFromFile(iconPath + "enemy_reverse.png");
-
-        explosion1.loadFromFile(iconPath + "explosion1.png");
-        explosion2.loadFromFile(iconPath + "explosion2.png");
-        explosion3.loadFromFile(iconPath + "explosion3.png");
-        explosion4.loadFromFile(iconPath + "explosion4.png");
-        explosion5.loadFromFile(iconPath + "explosion5.png");
-        explosion6.loadFromFile(iconPath + "explosion6.png");
-        explosion7.loadFromFile(iconPath + "explosion7.png");
-        explosion8.loadFromFile(iconPath + "explosion8.png");
-        explosion9.loadFromFile(iconPath + "explosion9.png");
-        explosion10.loadFromFile(iconPath + "explosion10.png");
-        explosion11.loadFromFile(iconPath + "explosion11.png");
-        explosion12.loadFromFile(iconPath + "explosion12.png");
-        explosion13.loadFromFile(iconPath + "explosion13.png");
-        explosion14.loadFromFile(iconPath + "explosion14.png");
-        explosion15.loadFromFile(iconPath + "explosion15.png");
-        explosion16.loadFromFile(iconPath + "explosion16.png");
-        explosion17.loadFromFile(iconPath + "explosion17.png");
-        explosion18.loadFromFile(iconPath + "explosion18.png");
-        explosion19.loadFromFile(iconPath + "explosion19.png");
-        explosion20.loadFromFile(iconPath + "explosion20.png");
-        explosion21.loadFromFile(iconPath + "explosion21.png");
-        explosion22.loadFromFile(iconPath + "explosion22.png");
-        explosion23.loadFromFile(iconPath + "explosion23.png");
-        explosion24.loadFromFile(iconPath + "explosion24.png");
 
         for (int i = 1; i <= 24; ++i) {
             string texturePath = "../src/assets/icon/explosion" + to_string(i) + ".png";
@@ -264,25 +250,84 @@ namespace GameAssets {
         soundtrackBig.setLoop(true);
     }
 
-    inline void setSprites() {
+    using namespace GameClocks;
+    inline void updateSprites() {
         currentWindowRatio = window_X / 1600;
 
         livesText_X = heartSprite.getPosition().x + heartSprite.getGlobalBounds().width + 20;
-        livesText_Y = heartSprite.getPosition().y + (heartSprite.getGlobalBounds().height / 6);        
 
-        heartSprite.setPosition((window_X / 4), window_Y / 800);
-        livesText.setPosition(livesText_X, livesText_Y);
-        scoreText.setPosition(playerScorePosition_X, playerScorePosition_Y);
+        soundSprite.setPosition(window_X / 1.6, 20);
+        heartSprite.setPosition((window_X / 3), 20);
+        livesText.setPosition(livesText_X, 20);
+        scoreText.setPosition(playerScorePosition_X, 20);
         windowBox.setPosition(backgroundSprite.getPosition().x, backgroundSprite.getPosition().y);
-        debugText.setPosition(window_X / 1.55, 10);
+        debugText.setPosition(window_X / 1.4, 20);
 
-        livesText.setCharacterSize(window_X / 35.0);
-        scoreText.setCharacterSize(window_X / 30.0);
-        debugText.setCharacterSize(window_X / 37.0);
+        livesText.setCharacterSize(35);
+        scoreText.setCharacterSize(35);
+        debugText.setCharacterSize(32);
 
-        backgroundSprite.setScale(1, (window_Y / backgroundSprite.getTexture()->getSize().y));
-        heartSprite.setScale((window_X / 2800.0), (window_X / 2800.0));
-        explosionSprite.setScale(1.5, 1.5);
+        deltaTime = deltaClock.restart().asSeconds();
+
+        window.clear();
+        window.draw(backgroundSprite);
+        window.draw(soundSprite);
+        window.draw(heartSprite);
+        window.draw(livesText);
+        window.draw(scoreText);
+        window.draw(debugText);
+        window.draw(laser);
+
+        for (Enemy& enemy : enemies) {
+            if (getCollision(player, enemy)) onCollision_PlayerEnemy(player, enemy);
+            if (getCollision(laser, enemy))  onCollision_LaserEnemy(laser, enemy);
+
+            window.draw(enemy);
+        }
+
+        if (isExplosion) onExplosion();
+
+        if (isGameOver) {
+            gameoverText.setPosition(gameover_X, gameover_Y);
+            window.draw(gameoverText);
+            if (isKey_Enter_pressed) player.resetGame();
+        }
+    }
+
+    inline void updateSounds() {
+        for (Enemy& enemy : enemies) {
+            playerEnemyDistance = abs(player.getPosition().x - enemy.getPosition().x);
+            enemySoundsVolume = 114.0 * std::exp(-0.0008 * (playerEnemyDistance));
+            if (enemySoundsVolume > 100) enemySoundsVolume = 100;
+            stompLight.setVolume(enemySoundsVolume);
+
+            if (enemy.getPosition().y > enemyMax_Y / 1.01 && enemy.getPosition().y < enemyMax_Y) {
+                stompLight.play();
+            }
+        }
+
+        if (isKey_Space_pressed) if (!player.getIsJumping()) jumpPlayer.play();
+
+        if (isPowerUp) if (powerUp.getStatus() != 2) powerUp.play();
+
+        if (isPlayerBig) {
+            if (soundtrack.getStatus() == 2) soundtrack.stop();
+            if (soundtrackBig.getStatus() != 2) soundtrackBig.play();
+        }
+    }
+
+    inline void loadGameAssets() {
+        loadTextures();
+        loadSounds();
+        loadSprites();
+        loadTexts();
+        loadPlayerAssets();
+        loadLaserAssets();
+        loadEnemyAssets();
+    }
+
+    inline void displayDebugText(float argument) {
+        debugText.setString(to_string(argument));
     }
 }
 
