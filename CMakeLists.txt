@@ -3,7 +3,8 @@ project(simplegame)
 
 set(CMAKE_CXX_STANDARD 23)
 
-find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+# Look for any version of SFML
+find_package(SFML COMPONENTS graphics audio REQUIRED)
 
 add_executable(simplegame 
     src/main.cpp 
@@ -24,5 +25,5 @@ add_executable(simplegame
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(VALGRIND "valgrind")
 
-target_link_libraries(simplegame sfml-graphics)
-target_link_libraries(simplegame sfml-audio)
+# Link with SFML libraries
+target_link_libraries(simplegame sfml-graphics sfml-audio)
