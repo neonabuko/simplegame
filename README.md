@@ -4,6 +4,8 @@
 <img src="src/assets/icon/enemy.png" alt="enemy">
 </div>
 
+<h2>DEPRECATED</h2>
+
 <div>
 <h2>Installing</h2>
 
